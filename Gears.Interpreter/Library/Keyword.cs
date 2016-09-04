@@ -2,7 +2,7 @@
 /*
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
-This file is part of Gears.
+This file is part of Gears, a software automation and assistance framework.
 
 Gears is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -57,11 +57,14 @@ namespace Gears.Interpreter.Library
         
         public string StatusDetail { get; set; }
 
-        
+        public object Result { get; set; }
+
+        public object Expect { get; set; }
     }
 
     public enum KeywordStatus
     {
+        NotExecuted,
         Ok,
         Error,
         Skipped,

@@ -1,6 +1,6 @@
 ﻿//Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 //
-//This file is part of Gears.
+//This file is part of Gears, a software automation and assistance framework.
 //
 //Gears is free software: you can redistribute it and/or modify
 //it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@ function tagMatches(matches) {
         matches[i].style.borderStyle = "solid";
         matches[i].style.borderColor = "magenta";
     }
+
+    return matches;
 }
 
 function clickFirstMatch(matches) {
@@ -51,6 +53,10 @@ function clickFirstMatch(matches) {
     }
 }
 
+function isHidden(el) {
+    return (el.offsetParent === null);
+}
+
 function getMatches(searchedText) {
 
     searchedText = searchedText.toLowerCase();
@@ -61,6 +67,10 @@ function getMatches(searchedText) {
     for (var i = 0; i < allElements.length; i++) {
 
         var element = allElements[i];
+
+        if (isHidden(element)) {
+            continue;
+        }
 
         var childNodes = element.childNodes;
         for (var n = 0; n < childNodes.length; n++) {

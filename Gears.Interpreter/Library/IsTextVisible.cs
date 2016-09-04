@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 /*
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
@@ -18,49 +18,38 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Xml.Serialization;
-using Gears.Interpreter.Core.Registrations;
+using System.Collections;
+using System.IO;
+using System.Linq;
+using Gears.Interpreter.Data.Core;
+using OpenQA.Selenium;
 
-namespace Gears.Interpreter.Core
+namespace Gears.Interpreter.Library
 {
-    public interface IRunnable
+    public class IsTextVisible : Keyword
     {
-        object Run();
-    }
+        public string Text { get; set; }
 
-   
-    public abstract class Runnable : IRunnable
-    {
-        protected Runnable()
+        public override object Run()
         {
-            Guid = Guid.NewGuid();
+            var scriptFile = FileFinder.Find("Gears.Library.js");
+            var script = File.ReadAllText(scriptFile);
+            script += $"return tagMatches(getMatches(\"{Text}\"));";
 
-            if (ServiceLocator.IsInitialised())
+            var result = ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript(script);
+
+            if (result != null)
             {
-                ServiceLocator.Instance.Resolve(this);
-            }
-        }
+                var elements = (IEnumerable) result;
 
-        [XmlIgnore]
-        public Guid Guid { get; set; }
-        
-        public abstract object Run();
-
-        public override bool Equals(object obj)
-        {
-            if (obj is Runnable)
-            {
-                return Guid.Equals(((Runnable)obj).Guid);
+                return elements.Cast<object>().Any();
             }
             return false;
         }
 
-        public override int GetHashCode()
+        public override string ToString()
         {
-            return Guid.GetHashCode();
+            return $"Is Text {Text} visible?";
         }
-
-        
     }
 }

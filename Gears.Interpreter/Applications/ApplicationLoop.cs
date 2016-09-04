@@ -2,7 +2,7 @@
 /*
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
-This file is part of Gears.
+This file is part of Gears, a software automation and assistance framework.
 
 Gears is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -119,14 +119,36 @@ namespace Gears.Interpreter.Applications
 
                     try
                     {
-                        keyword.Run();
+                        var result = keyword.Run();
+
+                        keyword.Result = result;
+
+                        //TODO : this will need more thought - result triage is a totally separate concern
+                        if (keyword.Expect != null && keyword.Result != null &&
+                            keyword.Expect.ToString().ToLower() != keyword.Result.ToString().ToLower())
+                        {
+                            throw new ApplicationException(
+                                $"Unexpected result. Expected \'{keyword.Expect}\' but was \'{keyword.Result}\'");
+                        }
+                        else if (keyword.Expect != null && keyword.Result != null)
+                        {
+                            Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
+                        }
+                    }
+                    catch (ApplicationException ae)
+                    {
+                        keyword.Status = KeywordStatus.Error.ToString();
+                        keyword.StatusDetail = ae.Message;
+                        Console.Out.WriteColoredLine(ConsoleColor.Yellow, "Step Failed");
+                        Console.Out.WriteColoredLine(ConsoleColor.Yellow, ae.Message);
                     }
                     catch (Exception exception)
                     {
                         keyword.Status = KeywordStatus.Error.ToString();
                         keyword.StatusDetail = exception.Message;
-                        Console.Out.WriteColoredLine(ConsoleColor.Red, "Step Failed");
-                        Console.Out.WriteColoredLine(ConsoleColor.DarkRed, exception.Message);
+                        Console.Out.WriteColoredLine(ConsoleColor.Red, "Unexpected error");
+                        Console.Out.WriteColoredLine(ConsoleColor.Red, exception.Message);
+                        Console.Out.WriteColoredLine(ConsoleColor.DarkRed, exception.StackTrace);
                     }
                 }
                 catch (Exception e)
@@ -154,6 +176,7 @@ namespace Gears.Interpreter.Applications
                 }
                 Console.Out.WriteColoredLine(ConsoleColor.Cyan, "Press any key to close this program ...");
                 Console.Read();
+                Console.Out.WriteColoredLine(ConsoleColor.Green, "Closing application now.");
             }
             
             Bootstrapper.Release();

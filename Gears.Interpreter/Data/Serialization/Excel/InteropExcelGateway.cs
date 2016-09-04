@@ -2,7 +2,7 @@
 /*
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
-This file is part of Gears.
+This file is part of Gears, a software automation and assistance framework.
 
 Gears is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,13 +18,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
 using System;
 using System.Data;
 using System.IO;
 using Microsoft.Office.Interop.Excel;
 using DataTable = System.Data.DataTable;
 
-namespace Gears.Interpreter.Data.Serialization.Excel.Com
+namespace Gears.Interpreter.Data.Serialization.Excel
 {
     public class InteropExcelGateway : IDataSetGateway
     {

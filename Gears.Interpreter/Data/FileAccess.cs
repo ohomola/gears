@@ -2,7 +2,7 @@
 /*
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
-This file is part of Gears.
+This file is part of Gears, a software automation and assistance framework.
 
 Gears is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Data.Serialization;
 using Gears.Interpreter.Data.Serialization.CSV;
 using Gears.Interpreter.Data.Serialization.Excel;
-using Gears.Interpreter.Data.Serialization.Excel.Com;
 using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Data

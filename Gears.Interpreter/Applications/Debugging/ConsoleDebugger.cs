@@ -2,7 +2,7 @@
 /*
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
-This file is part of Gears.
+This file is part of Gears, a software automation and assistance framework.
 
 Gears is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -232,12 +232,12 @@ namespace Gears.Interpreter.Applications.Debugging
 
             WriteNumberOfKeywordsBeyond10(index, keywords);
 
-            Console.Out.WriteColoredLine(ConsoleColor.Cyan, "\nEnter command, or press <enter> to continue:");
+            Console.Out.WriteColoredLine(ConsoleColor.White, "\nEnter command, or press <enter> to continue:");
         }
 
         private static void WriteSelectedKeyword(int index, Keyword selectedKeyword)
         {
-            Console.Out.WriteColoredLine(ConsoleColor.Yellow, " >" + (index + 1) + ") " + selectedKeyword.ToString());
+            Console.Out.WriteColoredLine(ConsoleColor.Cyan, " >" + (index + 1) + ") " + selectedKeyword.ToString());
         }
 
         private static void WriteNumberOfKeywordsBeyond10(int index, IEnumerable<Keyword> keywords)
@@ -252,7 +252,8 @@ namespace Gears.Interpreter.Applications.Debugging
         {
             for (int i = Math.Min(keywords.Count(), index + 1); i < Math.Min(index + 10, keywords.Count()); i++)
             {
-                Console.Out.WriteColoredLine(ConsoleColor.DarkGray, "  " + (1 + i) + ") " + keywords.ElementAt(i).ToString());
+                //Console.Out.WriteColoredLine(ConsoleColor.DarkGray, "  " + (1 + i) + ") " + keywords.ElementAt(i).ToString());
+                WriteKeywordLine(keywords, i);
             }
         }
 
@@ -264,8 +265,27 @@ namespace Gears.Interpreter.Applications.Debugging
             }
             for (int i = Math.Max(0, index - 10); i < index; i++)
             {
-                Console.Out.WriteColoredLine(ConsoleColor.DarkGray, "  " + (i + 1) + ") " + keywords.ElementAt(i).ToString());
+                WriteKeywordLine(keywords, i);
             }
+        }
+
+        private static void WriteKeywordLine(IEnumerable<Keyword> keywords, int i)
+        {
+            var keyword = keywords.ElementAt(i);
+            Console.Out.WriteColored(ConsoleColor.DarkGray, $"  {(i + 1)}) {keyword} ");
+            if (keyword.Status == KeywordStatus.Ok.ToString())
+            {
+                Console.Out.WriteColored(ConsoleColor.Green, keyword.Status);
+            }
+            if (keyword.Status == KeywordStatus.Error.ToString())
+            {
+                Console.Out.WriteColored(ConsoleColor.Yellow, keyword.Status);
+            }
+            if (keyword.Status == KeywordStatus.Skipped.ToString())
+            {
+                Console.Out.WriteColored(ConsoleColor.DarkGray, keyword.Status);
+            }
+            Console.Out.WriteLine();
         }
 
         private List<string> ParseArguments(string command, int numberOfArguments)

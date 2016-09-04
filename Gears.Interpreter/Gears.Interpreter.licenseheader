@@ -4,7 +4,7 @@ extensions: .cs .cpp .h .js
 /*
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
-This file is part of Gears.
+This file is part of Gears, a software automation and assistance framework.
 
 Gears is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extensions: .js
 //Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 //
-//This file is part of Gears.
+//This file is part of Gears, a software automation and assistance framework.
 //
 //Gears is free software: you can redistribute it and/or modify
 //it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ extensions:  .xml .config .xsd
 <!--
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
-This file is part of Gears.
+This file is part of Gears, a software automation and assistance framework.
 
 Gears is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

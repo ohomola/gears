@@ -2,7 +2,7 @@
 /*
 Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
 
-This file is part of Gears.
+This file is part of Gears, a software automation and assistance framework.
 
 Gears is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,13 +28,13 @@ namespace Gears.Interpreter.Library
 {
     public class Fill : Keyword
     {
-        private readonly string _label;
-        private readonly string _text;
+        public string Label { get; set; }
+        public string Text { get; set; }
 
         public Fill(string label, string text)
         {
-            _label = label;
-            _text = text;
+            Label = label;
+            Text = text;
         }
 
         public override object Run()
@@ -43,18 +43,18 @@ namespace Gears.Interpreter.Library
             {
                 var scriptFile = FileFinder.Find("Gears.Library.js");
                 var script = File.ReadAllText(scriptFile);
-                script += $"tagMatches(getMatches(\"{_label}\"));";
+                script += $"tagMatches(getMatches(\"{Label}\"));";
 
                 ((IJavaScriptExecutor)Selenium).ExecuteScript(script);
 
                 var elems = Selenium.WebDriver.FindElements(
                     By.CssSelector("[Exact_Match_by_Text],[Exact_Match_by_Attribute]"));
 
-                elems.First().SendKeys(_text);
+                elems.First().SendKeys(Text);
             }
             catch (Exception)
             {
-                throw new ApplicationException($"Element {_label} was not found");
+                throw new ApplicationException($"Element {Label} was not found");
             }
 
             return null;
@@ -62,7 +62,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"Fill {_label} with {_text}";
+            return $"Fill {Label} with {Text}";
         }
     }
 }
