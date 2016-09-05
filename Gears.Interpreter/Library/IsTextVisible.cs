@@ -34,7 +34,7 @@ namespace Gears.Interpreter.Library
         {
             var scriptFile = FileFinder.Find("Gears.Library.js");
             var script = File.ReadAllText(scriptFile);
-            script += $"return tagMatches(getMatches(\"{Text}\"));";
+            script += $"return tagMatches(getExactMatches(\"{Text}\"));";
 
             var result = ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript(script);
 
@@ -49,7 +49,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"Is Text {Text} visible?";
+            return $"Is text '{Text}' visible?";
         }
     }
 }

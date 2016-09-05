@@ -57,7 +57,68 @@ function isHidden(el) {
     return (el.offsetParent === null);
 }
 
-function getMatches(searchedText) {
+
+function isExactMatch(element, searchedText) {
+
+    var childNodes = element.childNodes;
+    for (var n = 0; n < childNodes.length; n++) {
+        var curNode = childNodes[n];
+        if (curNode.nodeName === "#text") {
+            if (curNode.nodeValue.toLowerCase() === searchedText) {
+                return true;
+            }
+        }
+    }
+
+    var allAttributes = element.attributes;
+    for (var a = 0; a < allAttributes.length; a++) {
+        var attributeValue = allAttributes[a].nodeValue.toLowerCase();
+
+        if (attributeValue === searchedText) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function getSiblingExactMatches(searchedText) {
+    
+    searchedText = searchedText.toLowerCase();
+    
+    var allElements = document.all;
+    var matches =[];
+
+    for (var i = 0; i < allElements.length; i++) {
+
+        var element = allElements[i];
+
+        if (element.parentNode != null) {
+            var siblings = getSiblings(element);
+            for (var s = 0; s < siblings.length; s++) {
+                if (isExactMatch(siblings[s], searchedText)) {
+                    matches.push(element);
+                    break;
+                }
+            }
+        }
+    }
+    return matches;
+}
+
+function getChildren(n, skipMe) {
+    var r = [];
+    for (; n; n = n.nextSibling)
+        if (n.nodeType == 1 && n != skipMe)
+            r.push(n);
+    return r;
+};
+
+function getSiblings(n) {
+    return getChildren(n.parentNode.firstChild, n);
+}
+
+function getExactMatches(searchedText) {
 
     searchedText = searchedText.toLowerCase();
     
@@ -72,30 +133,12 @@ function getMatches(searchedText) {
             continue;
         }
 
-        var childNodes = element.childNodes;
-        for (var n = 0; n < childNodes.length; n++) {
-            var curNode = childNodes[n];
-            if (curNode.nodeName === "#text") {
-                if (curNode.nodeValue.toLowerCase() === searchedText) {
-                    matches.push(element);
-                    break;
-                }
-            }
+        if (isExactMatch(element, searchedText)) {
+            matches.push(element);
+            break;
         }
         
-        var allAttributes = element.attributes;
-        for (var a = 0; a < allAttributes.length; a++) {
-            var attributeValue = allAttributes[a].nodeValue.toLowerCase();
-
-            if (attributeValue === searchedText) {
-                matches.push(element);
-                break;
-            }
-        }
     }
 
     return matches;
 }
-
-
-

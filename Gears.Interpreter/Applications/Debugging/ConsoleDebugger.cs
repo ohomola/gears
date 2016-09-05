@@ -138,7 +138,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     var arg = ParseArguments(input, 1).First();
                     var script = File.ReadAllText(FileFinder.Find("Gears.Library.js"));
 
-                    script += $@"tagMatches(getMatches(""{arg}""));
+                    script += $@"tagMatches(getExactMatches(""{arg}""));
             ";
 
                     ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript(script);

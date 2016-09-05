@@ -1,31 +1,27 @@
 ## Synopsis
 
-At the top of the file there should be a short introduction and/ or overview that explains **what** the project is. This description should match descriptions added for package managers (Gemspec, package.json, etc.)
-
-## Code Example
-
-Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
+Gears provides keyword-driven framework for web-browser test automation. The objective of Gears is to allow non-programmers do enterprise-level test automation with a simplistic scenario language specification, test execution/debugging engine and CI-friendly reporting. It is built so that it's parts can also be individually plugged into continuous integration or even to anothe automated-test tool. Gears is based on Selenium WebDriver as well as a number of other open-source tools. 
+The program itself is written in Microsoft .NET and is licenced under GNU GENERAL PUBLIC LICENSE.
 
 ## Motivation
 
-A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
+This project's task is to bring automation capability out from technical world, so that non-programmer teams can become effective at building and maintaining automated scenarios. Our objective is to give users fully intuitive plain-language control over their applications. This idea should be in line with the concept of [ISO-29119-5 draft](http://www.softwaretestingstandard.org/part5.php) to allow usage of one scenario document both for automated and human readers.
+
+The motivation is to provide an end-to-end solution for automating tests of an enterprise application, but at the same time with liberty of not using all parts of the system if not necessary, i.e. using Gears as an extension to existing free/commercial tools capability.
 
 ## Installation
 
-Provide code examples and explanations of how to get the project.
+The current early version of Gears application is a standalone binary which does not require any further setup - simply download the latest release and unpack. The distribution contains a /Scenarios folder which contains a self explanatory example.
 
-## API Reference
+## Scenario Example
 
-Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
+![alt text][./Docs/ConsoleSample.png]
+![alt text][./Docs/TestSample.png]
 
-## Tests
+## Keyword-driven language specification / API documentation
 
-Describe and show how to run the tests with code examples.
+... work in progress ...
 
 ## Contributors
 
-Let people know how they can dive into the project, include important links to things like issue trackers, irc, twitter accounts if applicable.
-
-## License
-
-A short snippet describing the license (MIT, Apache, etc.)
+The tool is currently in a very early stage to be ready for team contributions but watch this space...

@@ -128,7 +128,7 @@ namespace Gears.Interpreter.Applications
                             keyword.Expect.ToString().ToLower() != keyword.Result.ToString().ToLower())
                         {
                             throw new ApplicationException(
-                                $"Unexpected result. Expected \'{keyword.Expect}\' but was \'{keyword.Result}\'");
+                                $"{keyword} expected \'{keyword.Expect}\' but was \'{keyword.Result}\'");
                         }
                         else if (keyword.Expect != null && keyword.Result != null)
                         {

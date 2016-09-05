@@ -19,10 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Gears.Interpreter.Data.Core;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Remote;
 
 namespace Gears.Interpreter.Library
 {
@@ -41,16 +43,11 @@ namespace Gears.Interpreter.Library
         {
             try
             {
-                var scriptFile = FileFinder.Find("Gears.Library.js");
-                var script = File.ReadAllText(scriptFile);
-                script += $"tagMatches(getMatches(\"{Label}\"));";
+                var siblingMatches= Selenium.WebDriver.RunLibraryScript($"return tagMatches(getSiblingExactMatches(\"{Label}\"));");
+                
+                var elements = (siblingMatches as IEnumerable<IWebElement>);
 
-                ((IJavaScriptExecutor)Selenium).ExecuteScript(script);
-
-                var elems = Selenium.WebDriver.FindElements(
-                    By.CssSelector("[Exact_Match_by_Text],[Exact_Match_by_Attribute]"));
-
-                elems.First().SendKeys(Text);
+                elements.First(x=>x.Displayed && x.Enabled && x.TagName == "input").SendKeys(Text);
             }
             catch (Exception)
             {
@@ -60,6 +57,7 @@ namespace Gears.Interpreter.Library
             return null;
         }
 
+        
         public override string ToString()
         {
             return $"Fill {Label} with {Text}";
