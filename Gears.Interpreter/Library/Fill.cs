@@ -43,11 +43,12 @@ namespace Gears.Interpreter.Library
         {
             try
             {
-                var siblingMatches= Selenium.WebDriver.RunLibraryScript($"return tagMatches(getSiblingExactMatches(\"{Label}\"));");
+                var siblingMatches= Selenium.WebDriver.RunLibraryScript($"return getSiblingExactMatches(\"{Label}\");");
                 
                 var elements = (siblingMatches as IEnumerable<IWebElement>);
 
-                elements.First(x=>x.Displayed && x.Enabled && x.TagName == "input").SendKeys(Text);
+                elements.First(x=>x.Displayed && x.Enabled && 
+                (x.TagName == "input" || x.TagName.ToLower() =="textarea")).SendKeys(Text);
             }
             catch (Exception)
             {
