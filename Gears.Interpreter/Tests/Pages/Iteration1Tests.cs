@@ -41,6 +41,7 @@ namespace Gears.Interpreter.Tests.Pages
                 },
                 new Fill("TextArea 1", "filledText1") {Selenium = _selenium},
                 new Fill("TextArea 2", "filledText2") {Selenium = _selenium},
+                new Fill("TextArea 3", "filledText3") {Selenium = _selenium},
             };
 
             foreach (var keyword in steps)
@@ -53,6 +54,10 @@ namespace Gears.Interpreter.Tests.Pages
 
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test2"))
                 .GetAttribute("value"), "filledText2");
+
+
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test3"))
+                .GetAttribute("value"), "filledText3");
         }
 
         [Test]

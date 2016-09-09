@@ -140,6 +140,21 @@ function isExactMatch(element, searchedText) {
 //    return getChildren(n.parentNode.firstChild, n);
 //}
 
+/**
+ * @param {Array} tags - The array of tagNames to search for.
+ * @return {Array}     - The elements with matching tagNames.
+ */
+Node.prototype.getElementsByTagNames = function (tags) {
+    var elements = [];
+
+    for (var i = 0, n = tags.length; i < n; i++) {
+        // Concatenate the array created from a HTMLCollection object
+        elements = elements.concat(Array.prototype.slice.call(this.getElementsByTagName(tags[i])));
+    }
+
+    return elements;
+};
+
 function getExactMatches(searchedText) {
 
     searchedText = searchedText.toLowerCase();
@@ -168,7 +183,7 @@ function getExactMatches(searchedText) {
 function getOrthogonalInputs(elements) {
 
     var matches = [];
-    var allElements = document.getElementsByTagName("input");
+    var allElements = document.getElementsByTagNames(["input", "textArea"]);
     //allElements.concat(document.getElementsByTagName("textArea"));
     for (var input = 0; input < allElements.length; input++) {
         for (var i = 0; i < elements.length; i++) {

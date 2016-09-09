@@ -45,16 +45,36 @@ namespace Gears.Interpreter.Library
         public override object Run()
         {
             try
-            { 
-            //{
-            //    var siblingMatches= Selenium.WebDriver.RunLibraryScript($"return getSiblingExactMatches(\"{What}\");");
-                
-            //    var elements = (siblingMatches as IEnumerable<IWebElement>);
+            {
+                //{
+                //    var siblingMatches= Selenium.WebDriver.RunLibraryScript($"return getSiblingExactMatches(\"{What}\");");
 
-            //    elements.First(x=>x.Displayed && x.Enabled && 
-            //    (x.TagName == "input" || x.TagName.ToLower() =="textarea")).SendKeys(Text);
+                //    var elements = (siblingMatches as IEnumerable<IWebElement>);
 
-            var matches = Selenium.WebDriver.RunLibraryScript(
+                //    elements.First(x=>x.Displayed && x.Enabled && 
+                //    (x.TagName == "input" || x.TagName.ToLower() =="textarea")).SendKeys(Text);
+
+
+                var directScript = File.ReadAllText(FileFinder.Find("Gears.Library.js"));
+
+                directScript += $"return ([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);";
+                try
+                {
+                    var r = Selenium.WebDriver.RunLibraryScript(directScript);
+                    var directElement = (r as IEnumerable<IWebElement>);
+                    if (directElement != null)
+                    {
+                        directElement.First().SendKeys(Text);
+                        return null;
+                    }
+                }
+                catch (Exception)
+                {
+                    
+                }
+
+
+                var matches = Selenium.WebDriver.RunLibraryScript(
                 $"return tagMatches([firstByLocation(\"{Where}\",getOrthogonalInputs(getExactMatches(\"{What}\")))]);");
 
             var elements = (matches as IEnumerable<IWebElement>);
