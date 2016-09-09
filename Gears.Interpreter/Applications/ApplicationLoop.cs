@@ -119,7 +119,7 @@ namespace Gears.Interpreter.Applications
 
                     try
                     {
-                        keyword.Exercise();
+                        keyword.Execute();
                     }
                     catch (ApplicationException ae)
                     {

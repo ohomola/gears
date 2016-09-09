@@ -104,51 +104,10 @@ function isExactMatch(element, searchedText) {
     return false;
 }
 
-//function getSiblingExactMatches(searchedText) {
-
-//    searchedText = searchedText.toLowerCase();
-
-//    var allElements = document.all;
-//    var matches = [];
-
-//    for (var i = 0; i < allElements.length; i++) {
-
-//        var element = allElements[i];
-
-//        if (element.parentNode != null) {
-//            var siblings = getSiblings(element);
-//            for (var s = 0; s < siblings.length; s++) {
-//                if (isExactMatch(siblings[s], searchedText)) {
-//                    matches.push(element);
-//                    break;
-//                }
-//            }
-//        }
-//    }
-//    return matches;
-//}
-
-//function getChildren(n, skipMe) {
-//    var r = [];
-//    for (; n; n = n.nextSibling)
-//        if (n.nodeType == 1 && n != skipMe)
-//            r.push(n);
-//    return r;
-//};
-
-//function getSiblings(n) {
-//    return getChildren(n.parentNode.firstChild, n);
-//}
-
-/**
- * @param {Array} tags - The array of tagNames to search for.
- * @return {Array}     - The elements with matching tagNames.
- */
 Node.prototype.getElementsByTagNames = function (tags) {
     var elements = [];
 
     for (var i = 0, n = tags.length; i < n; i++) {
-        // Concatenate the array created from a HTMLCollection object
         elements = elements.concat(Array.prototype.slice.call(this.getElementsByTagName(tags[i])));
     }
 
@@ -207,3 +166,32 @@ function areOrthogonal(input, element) {
 
     return false;
 }
+
+
+function firstByRelativeLocation(source, elements) {
+    var sorted = elements.sort(function (a, b) { return getOrthogonalState(a, source) - getOrthogonalState(b, source) });
+    return sorted[0];
+}
+
+function getOrthogonalState(input, element) {
+    var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);
+    if (dif < 5) {
+        if (input.getBoundingClientRect().left > element.getBoundingClientRect().left) {
+            return 1;
+        } else {
+            return 4;
+        }
+    }
+
+    dif = Math.abs(input.getBoundingClientRect().left - element.getBoundingClientRect().left);
+    if (dif < 5) {
+        if (input.getBoundingClientRect().bottom > element.getBoundingClientRect().bottom) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+
+    return false;
+}
+

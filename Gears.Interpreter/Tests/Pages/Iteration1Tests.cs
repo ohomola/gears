@@ -46,7 +46,7 @@ namespace Gears.Interpreter.Tests.Pages
 
             foreach (var keyword in steps)
             {
-                keyword.Exercise();
+                keyword.Execute();
             }
 
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test1"))
@@ -66,26 +66,42 @@ namespace Gears.Interpreter.Tests.Pages
             new GoToUrl($"file:///{FileFinder.Find("Iteration1TestPage.html")}")
             {
                 Selenium = _selenium
-            }.Exercise();
+            }.Execute();
 
-            var steps = new List<Keyword>
-            {
-                new Click("SAVE") {Selenium = _selenium, Where = "right"},
-                new Click("load") {Selenium = _selenium, Where = "left"},
-            };
-
-            foreach (var keyword in steps)
-            {
-                keyword.Exercise();
-                
-            }
-
+            new Click("SAVE") {Selenium = _selenium, Where = "right"}.Execute();
+            new Click("load") {Selenium = _selenium, Where = "left"}.Execute();
+           
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("but1"))
                 .GetAttribute("innerText"), "success");
 
-
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("but2"))
                 .GetAttribute("innerText"), "success");
+        }
+
+        [Test]
+        public void ShouldFillLoginPassword()
+        {
+            new GoToUrl($"file:///{FileFinder.Find("Iteration1TestPage.html")}")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+            new Fill("login:", "user1") { Selenium = _selenium }.Execute();
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test4login"))
+                .GetAttribute("value"), "user1");
+
+            new Fill("password:", "pass1") { Selenium = _selenium }.Execute();
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test4password"))
+                .GetAttribute("value"), "pass1");
+
+
+            new Fill("login2:", "user2") { Selenium = _selenium }.Execute();
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test5login"))
+                .GetAttribute("value"), "user2");
+
+            new Fill("password2:", "pass2") { Selenium = _selenium }.Execute();
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test5password"))
+                .GetAttribute("value"), "pass2");
         }
 
     }

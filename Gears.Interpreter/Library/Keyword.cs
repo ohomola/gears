@@ -65,7 +65,7 @@ namespace Gears.Interpreter.Library
         public object Expect { get; set; }
 
 
-        public void Exercise()
+        public void Execute()
         {
             var keyword = this;
             var result = keyword.Run();

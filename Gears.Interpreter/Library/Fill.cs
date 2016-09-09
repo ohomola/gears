@@ -62,7 +62,7 @@ namespace Gears.Interpreter.Library
                 {
                     var r = Selenium.WebDriver.RunLibraryScript(directScript);
                     var directElement = (r as IEnumerable<IWebElement>);
-                    if (directElement != null)
+                    if (directElement != null && (directElement.First().TagName.ToLower() =="textArea" || directElement.First().TagName.ToLower() == "input"))
                     {
                         directElement.First().SendKeys(Text);
                         return null;
@@ -74,8 +74,12 @@ namespace Gears.Interpreter.Library
                 }
 
 
-                var matches = Selenium.WebDriver.RunLibraryScript(
-                $"return tagMatches([firstByLocation(\"{Where}\",getOrthogonalInputs(getExactMatches(\"{What}\")))]);");
+                var formattableString = $"return tagMatches([firstByLocation(\"{Where}\",getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
+                if (Where == null)
+                {
+                    formattableString = $"return tagMatches([firstByRelativeLocation(getExactMatches(\"{What}\")[0],getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
+                }
+                var matches = Selenium.WebDriver.RunLibraryScript(formattableString);
 
             var elements = (matches as IEnumerable<IWebElement>);
             elements.First(x => x.Displayed && x.Enabled).SendKeys(Text);
