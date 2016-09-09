@@ -35,21 +35,13 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldFillAllTextAreas()
         {
-            var steps = new List<Keyword>
+            new GoToUrl($"file:///{FileFinder.Find("Iteration1TestPage.html")}")
             {
-                new GoToUrl($"file:///{FileFinder.Find("Iteration1TestPage.html")}")
-                {
-                    Selenium = _selenium
-                },
-                new Fill("TextArea 1", "filledText1") {Selenium = _selenium},
-                new Fill("TextArea 2", "filledText2") {Selenium = _selenium},
-                new Fill("TextArea 3", "filledText3") {Selenium = _selenium},
-            };
-
-            foreach (var keyword in steps)
-            {
-                keyword.Execute();
-            }
+                Selenium = _selenium
+            }.Execute();
+            new Fill("TextArea 1", "filledText1") {Selenium = _selenium}.Execute();
+            new Fill("TextArea 2", "filledText2") {Selenium = _selenium}.Execute();
+            new Fill("TextArea 3", "filledText3") {Selenium = _selenium}.Execute();
 
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test1"))
                 .GetAttribute("value"), "filledText1");
@@ -114,7 +106,8 @@ namespace Gears.Interpreter.Tests.Pages
                 Selenium = _selenium
             }.Execute();
 
-            new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute();
+            Assert.AreEqual("test1", (new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute() as IWebElement)?.GetAttribute("value"));
+            Assert.AreEqual("test2", (new Fill("Hint Text", "test2") { Selenium = _selenium }.Execute() as IWebElement)?.GetAttribute("value"));
 
         }
     }

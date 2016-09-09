@@ -65,7 +65,7 @@ namespace Gears.Interpreter.Library
         public object Expect { get; set; }
 
 
-        public void Execute()
+        public object Execute()
         {
             var keyword = this;
             var result = keyword.Run();
@@ -83,6 +83,8 @@ namespace Gears.Interpreter.Library
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
             }
+
+            return Result;
         }
     }
 

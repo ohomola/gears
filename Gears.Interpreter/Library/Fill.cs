@@ -44,42 +44,43 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            try
-            {
-                var directScript = File.ReadAllText(FileFinder.Find("Gears.Library.js"));
+            //try
+            //{
+            //    var directScript = $"return ([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);";
+            //    var r = Selenium.WebDriver.RunLibraryScript(directScript);
+            //    var directElement = (r as IEnumerable<IWebElement>);
+            //    if (directElement != null && (directElement.First().TagName.ToLower() =="textarea" || directElement.First().TagName.ToLower() == "input"))
+            //    {
+            //        directElement.First().SendKeys(Text);
+            //        return null;
+            //    }
 
-                directScript += $"return ([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);";
-                try
-                {
-                    var r = Selenium.WebDriver.RunLibraryScript(directScript);
-                    var directElement = (r as IEnumerable<IWebElement>);
-                    if (directElement != null && (directElement.First().TagName.ToLower() =="textarea" || directElement.First().TagName.ToLower() == "input"))
-                    {
-                        directElement.First().SendKeys(Text);
-                        return null;
-                    }
-                }
-                catch (Exception)
-                {
-                    
-                }
-                
-                var formattableString = $"return tagMatches([firstByLocation(\"{Where}\",getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
-                if (Where == null)
-                {
-                    formattableString = $"return tagMatches([firstByDistance(getExactMatches(\"{What}\")[0],getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
-                }
-                var matches = Selenium.WebDriver.RunLibraryScript(formattableString);
+            //    var formattableString = string.Empty;
+            //    if (Where == null)
+            //    {
+            //        formattableString = $"return tagMatches(clickFirstMatch(firstByDistance(getExactMatches(\"{What}\")[0],getOrthogonalInputs(getExactMatches(\"{What}\")))));";
+            //    }
+            //    else
+            //    {
+            //        formattableString = $"return tagMatches([firstByLocation(\"{Where}\",getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
+            //    }
+            //    var matches = Selenium.WebDriver.RunLibraryScript(formattableString);
 
-            var elements = (matches as IEnumerable<IWebElement>);
-            elements.First(x => x.Displayed && x.Enabled).SendKeys(Text);
-            }
-            catch (Exception)
-            {
-                throw new ApplicationException($"Element {What} was not found");
-            }
+            //var elements = (matches as IEnumerable<IWebElement>);
+            //elements.First(x => x.Displayed && x.Enabled).SendKeys(Text);
+            //}
+            //catch (Exception)
+            //{
+            //    throw new ApplicationException($"Element {What} was not found");
+            //}
 
-            return null;
+            //return null;
+            var results = Selenium.WebDriver.RunLibraryScript($"return findInput(\"{What}\",\"{Where}\")");
+            var element = (results as IWebElement);
+            element.SendKeys(Text);
+
+
+            return element;
         }
 
         
