@@ -30,6 +30,11 @@ namespace Gears.Interpreter.Library
     {
         public string Text { get; set; }
 
+        public IsTextVisible(string text)
+        {
+            Text = text;
+        }
+
         public override object Run()
         {
             var scriptFile = FileFinder.Find("Gears.Library.js");

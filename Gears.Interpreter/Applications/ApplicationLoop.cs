@@ -119,21 +119,7 @@ namespace Gears.Interpreter.Applications
 
                     try
                     {
-                        var result = keyword.Run();
-
-                        keyword.Result = result;
-
-                        //TODO : this will need more thought - result triage is a totally separate concern
-                        if (keyword.Expect != null && keyword.Result != null &&
-                            keyword.Expect.ToString().ToLower() != keyword.Result.ToString().ToLower())
-                        {
-                            throw new ApplicationException(
-                                $"{keyword} expected \'{keyword.Expect}\' but was \'{keyword.Result}\'");
-                        }
-                        else if (keyword.Expect != null && keyword.Result != null)
-                        {
-                            Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
-                        }
+                        keyword.Exercise();
                     }
                     catch (ApplicationException ae)
                     {

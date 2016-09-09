@@ -38,7 +38,7 @@ function tagMatches(matches) {
         matches[i].style.borderStyle = "solid";
         matches[i].style.borderColor = "magenta";
     }
-
+    console.log("Tagged: " + matches.length);
     return matches;
 }
 
@@ -55,6 +55,28 @@ function clickFirstMatch(matches) {
 
 function isHidden(el) {
     return (el.offsetParent === null);
+}
+
+function firstByLocation(where, elements) {
+    if (where.toLowerCase() === "left") {
+        var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().left - b.getBoundingClientRect().left });
+        return sorted[0];
+    }
+    else if (where.toLowerCase() === "right") {
+        var sorted = elements.sort(function (a, b) { return b.getBoundingClientRect().left - a.getBoundingClientRect().left });
+        return sorted[0];
+    }
+    if (where.toLowerCase() === "top") {
+        var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom });
+        return sorted[0];
+    }
+    else if (where.toLowerCase() === "bottom") {
+        var sorted = elements.sort(function (a, b) { return b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom });
+        return sorted[0];
+    }
+    else {
+        return elements[0];
+    }
 }
 
 
@@ -82,48 +104,48 @@ function isExactMatch(element, searchedText) {
     return false;
 }
 
-function getSiblingExactMatches(searchedText) {
-    
-    searchedText = searchedText.toLowerCase();
-    
-    var allElements = document.all;
-    var matches =[];
+//function getSiblingExactMatches(searchedText) {
 
-    for (var i = 0; i < allElements.length; i++) {
+//    searchedText = searchedText.toLowerCase();
 
-        var element = allElements[i];
+//    var allElements = document.all;
+//    var matches = [];
 
-        if (element.parentNode != null) {
-            var siblings = getSiblings(element);
-            for (var s = 0; s < siblings.length; s++) {
-                if (isExactMatch(siblings[s], searchedText)) {
-                    matches.push(element);
-                    break;
-                }
-            }
-        }
-    }
-    return matches;
-}
+//    for (var i = 0; i < allElements.length; i++) {
 
-function getChildren(n, skipMe) {
-    var r = [];
-    for (; n; n = n.nextSibling)
-        if (n.nodeType == 1 && n != skipMe)
-            r.push(n);
-    return r;
-};
+//        var element = allElements[i];
 
-function getSiblings(n) {
-    return getChildren(n.parentNode.firstChild, n);
-}
+//        if (element.parentNode != null) {
+//            var siblings = getSiblings(element);
+//            for (var s = 0; s < siblings.length; s++) {
+//                if (isExactMatch(siblings[s], searchedText)) {
+//                    matches.push(element);
+//                    break;
+//                }
+//            }
+//        }
+//    }
+//    return matches;
+//}
+
+//function getChildren(n, skipMe) {
+//    var r = [];
+//    for (; n; n = n.nextSibling)
+//        if (n.nodeType == 1 && n != skipMe)
+//            r.push(n);
+//    return r;
+//};
+
+//function getSiblings(n) {
+//    return getChildren(n.parentNode.firstChild, n);
+//}
 
 function getExactMatches(searchedText) {
 
     searchedText = searchedText.toLowerCase();
-    
+
     var allElements = document.all;
-    var matches =[];
+    var matches = [];
 
     for (var i = 0; i < allElements.length; i++) {
 
@@ -135,10 +157,38 @@ function getExactMatches(searchedText) {
 
         if (isExactMatch(element, searchedText)) {
             matches.push(element);
-            break;
         }
-        
     }
 
+    console.log("Exact: " + matches.length);
+
     return matches;
+}
+
+function getOrthogonalInputs(elements) {
+
+    var matches = [];
+    var allElements = document.getElementsByTagName("input");
+    //allElements.concat(document.getElementsByTagName("textArea"));
+    for (var input = 0; input < allElements.length; input++) {
+        for (var i = 0; i < elements.length; i++) {
+            if (areOrthogonal(allElements[input], elements[i])) {
+                matches.push(allElements[input]);
+            }
+        }
+    }
+
+    console.log("Orthogonal: "+matches.length);
+
+    return matches;
+}
+
+function areOrthogonal(input, element) {
+    var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);
+    if (dif < 5) return true;
+
+    dif = Math.abs(input.getBoundingClientRect().left - element.getBoundingClientRect().left);
+    if (dif < 5) return true;
+
+    return false;
 }

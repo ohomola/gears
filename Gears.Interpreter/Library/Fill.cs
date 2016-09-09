@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Data.Core;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
@@ -30,38 +31,49 @@ namespace Gears.Interpreter.Library
 {
     public class Fill : Keyword
     {
-        public string Label { get; set; }
+        public string What { get; set; }
+        public string Where { get; set; }
         public string Text { get; set; }
 
-        public Fill(string label, string text)
+
+        public Fill(string what, string text)
         {
-            Label = label;
+            What = what;
             Text = text;
         }
 
         public override object Run()
         {
             try
-            {
-                var siblingMatches= Selenium.WebDriver.RunLibraryScript($"return getSiblingExactMatches(\"{Label}\");");
+            { 
+            //{
+            //    var siblingMatches= Selenium.WebDriver.RunLibraryScript($"return getSiblingExactMatches(\"{What}\");");
                 
-                var elements = (siblingMatches as IEnumerable<IWebElement>);
+            //    var elements = (siblingMatches as IEnumerable<IWebElement>);
 
-                elements.First(x=>x.Displayed && x.Enabled && 
-                (x.TagName == "input" || x.TagName.ToLower() =="textarea")).SendKeys(Text);
+            //    elements.First(x=>x.Displayed && x.Enabled && 
+            //    (x.TagName == "input" || x.TagName.ToLower() =="textarea")).SendKeys(Text);
+
+            var matches = Selenium.WebDriver.RunLibraryScript(
+                $"return tagMatches([firstByLocation(\"{Where}\",getOrthogonalInputs(getExactMatches(\"{What}\")))]);");
+
+            var elements = (matches as IEnumerable<IWebElement>);
+            elements.First(x => x.Displayed && x.Enabled).SendKeys(Text);
             }
             catch (Exception)
             {
-                throw new ApplicationException($"Element {Label} was not found");
+                throw new ApplicationException($"Element {What} was not found");
             }
 
             return null;
         }
 
         
+
+
         public override string ToString()
         {
-            return $"Fill {Label} with {Text}";
+            return $"Fill {What} with {Text}";
         }
     }
 }

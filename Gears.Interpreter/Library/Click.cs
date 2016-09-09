@@ -30,11 +30,13 @@ namespace Gears.Interpreter.Library
 {
     public class Click : Keyword
     {
-        public string Label { get; set; }
+        public string What { get; set; }
+        public string Where { get; set; }
 
-        public Click(string label)
+        public Click(string what)
         {
-            Label = label;
+            What = what;
+            Where = "focus";
         }
 
         public override object Run()
@@ -43,14 +45,13 @@ namespace Gears.Interpreter.Library
             {
                 var script = File.ReadAllText(FileFinder.Find("Gears.Library.js"));
 
-                script += $@"clickFirstMatch(getExactMatches(""{Label}""));
-            ";
+                script += $"clickFirstMatch([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);";
 
                 ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript(script);
             }
             catch (Exception)
             {
-                throw new ApplicationException($"Element '{Label}' was not found");
+                throw new ApplicationException($"Element '{What}' was not found");
             }
 
             return null;
@@ -58,7 +59,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"Click on {Label}";
+            return $"Click on {What}";
         }
     }
 }

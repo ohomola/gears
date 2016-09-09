@@ -18,10 +18,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
+using System;
 using System.Xml.Serialization;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Configuration;
+using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
@@ -60,6 +63,27 @@ namespace Gears.Interpreter.Library
         public object Result { get; set; }
 
         public object Expect { get; set; }
+
+
+        public void Exercise()
+        {
+            var keyword = this;
+            var result = keyword.Run();
+
+            keyword.Result = result;
+
+            //TODO : this will need more thought - result triage is a totally separate concern
+            if (keyword.Expect != null && keyword.Result != null &&
+                keyword.Expect.ToString().ToLower() != keyword.Result.ToString().ToLower())
+            {
+                throw new ApplicationException(
+                    $"{keyword} expected \'{keyword.Expect}\' but was \'{keyword.Result}\'");
+            }
+            else if (keyword.Expect != null && keyword.Result != null)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
+            }
+        }
     }
 
     public enum KeywordStatus

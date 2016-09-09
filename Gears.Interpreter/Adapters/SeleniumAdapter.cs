@@ -39,8 +39,14 @@ namespace Gears.Interpreter.Adapters
 
         public void Dispose()
         {
-            WebDriver.Close();
-            WebDriver.Quit();
+            try
+            {
+                WebDriver.Close();
+                WebDriver.Quit();
+            }
+            catch (Exception)
+            {
+            }
         }
     }
 }

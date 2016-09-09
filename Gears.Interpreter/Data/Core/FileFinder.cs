@@ -54,6 +54,11 @@ namespace Gears.Interpreter.Data.Core
                 files = GetFilesFrom("../bin", fileName);
             }
 
+            if (files == null)
+            {
+                throw new FileNotFoundException($"File not found '{fileName}'");
+            }
+
             return files.FirstOrDefault();
         }
     }
