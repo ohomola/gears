@@ -14,21 +14,28 @@
 //
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
-var EXACT_MATCH_BY_TEXT = "Exact_Match_by_Text";
-var PARTIAL_MATCH_BY_TEXT = "Partial_Match_by_Text";
-var EXACT_MATCH_BY_ATTRIBUTE = "Exact_Match_by_Attribute";
-var PARTIAL_MATCH_BY_ATTRIBUTE = "Partial_Match_by_Attribute";
 
-function untagMatches() {
+function getExactMatches(searchedText) {
+
+    var allElements = document.all;
+    var matches = [];
+
     for (var i = 0; i < allElements.length; i++) {
 
         var element = allElements[i];
 
-        if (element.hasAttribute(EXACT_MATCH_BY_TEXT)) element.removeAttribute(EXACT_MATCH_BY_TEXT);
-        if (element.hasAttribute(PARTIAL_MATCH_BY_TEXT)) element.removeAttribute(PARTIAL_MATCH_BY_TEXT);
-        if (element.hasAttribute(EXACT_MATCH_BY_ATTRIBUTE)) element.removeAttribute(EXACT_MATCH_BY_ATTRIBUTE);
-        if (element.hasAttribute(PARTIAL_MATCH_BY_ATTRIBUTE)) element.removeAttribute(PARTIAL_MATCH_BY_ATTRIBUTE);
+        if (isHidden(element)) {
+            continue;
+        }
+
+        if (isExactMatch(element, searchedText.toLowerCase())) {
+            matches.push(element);
+        }
     }
+
+    console.log("Exact: " + matches.length);
+
+    return matches;
 }
 
 function tagMatches(matches) {
@@ -57,27 +64,7 @@ function isHidden(el) {
     return (el.offsetParent === null);
 }
 
-function firstByLocation(where, elements) {
-    if (where.toLowerCase() === "left") {
-        var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().left - b.getBoundingClientRect().left });
-        return sorted[0];
-    }
-    else if (where.toLowerCase() === "right") {
-        var sorted = elements.sort(function (a, b) { return b.getBoundingClientRect().left - a.getBoundingClientRect().left });
-        return sorted[0];
-    }
-    if (where.toLowerCase() === "top") {
-        var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom });
-        return sorted[0];
-    }
-    else if (where.toLowerCase() === "bottom") {
-        var sorted = elements.sort(function (a, b) { return b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom });
-        return sorted[0];
-    }
-    else {
-        return elements[0];
-    }
-}
+
 
 
 function isExactMatch(element, searchedText) {
@@ -114,36 +101,11 @@ Node.prototype.getElementsByTagNames = function (tags) {
     return elements;
 };
 
-function getExactMatches(searchedText) {
-
-    searchedText = searchedText.toLowerCase();
-
-    var allElements = document.all;
-    var matches = [];
-
-    for (var i = 0; i < allElements.length; i++) {
-
-        var element = allElements[i];
-
-        if (isHidden(element)) {
-            continue;
-        }
-
-        if (isExactMatch(element, searchedText)) {
-            matches.push(element);
-        }
-    }
-
-    console.log("Exact: " + matches.length);
-
-    return matches;
-}
 
 function getOrthogonalInputs(elements) {
 
     var matches = [];
     var allElements = document.getElementsByTagNames(["input", "textArea"]);
-    //allElements.concat(document.getElementsByTagName("textArea"));
     for (var input = 0; input < allElements.length; input++) {
         for (var i = 0; i < elements.length; i++) {
             if (areOrthogonal(allElements[input], elements[i])) {
@@ -168,12 +130,44 @@ function areOrthogonal(input, element) {
 }
 
 
+function firstByLocation(where, elements) {
+    if (where.toLowerCase() === "left") {
+        var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().left - b.getBoundingClientRect().left });
+        return sorted[0];
+    }
+    else if (where.toLowerCase() === "right") {
+        var sorted = elements.sort(function (a, b) { return b.getBoundingClientRect().left - a.getBoundingClientRect().left });
+        return sorted[0];
+    }
+    if (where.toLowerCase() === "top") {
+        var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom });
+        return sorted[0];
+    }
+    else if (where.toLowerCase() === "bottom") {
+        var sorted = elements.sort(function (a, b) { return b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom });
+        return sorted[0];
+    }
+    else {
+        return elements[0];
+    }
+}
+
 function firstByRelativeLocation(source, elements) {
-    var sorted = elements.sort(function (a, b) { return getOrthogonalState(a, source) - getOrthogonalState(b, source) });
+    var sorted = elements.sort(function (a, b) { return getNeighborOrder(a, source) - getNeighborOrder(b, source) });
+   return sorted[0];
+}
+
+function firstByDistance(source, elements) {
+    var sorted = elements.sort(function (a, b) { return distance(a, source) - distance(b, source) });
     return sorted[0];
 }
 
-function getOrthogonalState(input, element) {
+function distance(a, b) {
+    return Math.abs(a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom) +
+        Math.abs(a.getBoundingClientRect().left - b.getBoundingClientRect().left);
+}
+
+function getNeighborOrder(input, element) {
     var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);
     if (dif < 5) {
         if (input.getBoundingClientRect().left > element.getBoundingClientRect().left) {

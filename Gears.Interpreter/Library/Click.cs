@@ -43,11 +43,7 @@ namespace Gears.Interpreter.Library
         {
             try
             {
-                var script = File.ReadAllText(FileFinder.Find("Gears.Library.js"));
-
-                script += $"clickFirstMatch([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);";
-
-                ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript(script);
+                Selenium.WebDriver.RunLibraryScript($"clickFirstMatch([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);");
             }
             catch (Exception)
             {

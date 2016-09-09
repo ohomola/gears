@@ -26,22 +26,18 @@ using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
 {
-    public class IsTextVisible : Keyword
+    public class IsVisible : Keyword
     {
-        public string Text { get; set; }
+        public string What { get; set; }
 
-        public IsTextVisible(string text)
+        public IsVisible(string what)
         {
-            Text = text;
+            What = what;
         }
 
         public override object Run()
         {
-            var scriptFile = FileFinder.Find("Gears.Library.js");
-            var script = File.ReadAllText(scriptFile);
-            script += $"return tagMatches(getExactMatches(\"{Text}\"));";
-
-            var result = ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript(script);
+            var result = (Selenium.WebDriver).RunLibraryScript($"return tagMatches(getExactMatches(\"{What}\"));");
 
             if (result != null)
             {
@@ -54,7 +50,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"Is text '{Text}' visible?";
+            return $"Is text '{What}' visible?";
         }
     }
 }

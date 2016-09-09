@@ -46,15 +46,6 @@ namespace Gears.Interpreter.Library
         {
             try
             {
-                //{
-                //    var siblingMatches= Selenium.WebDriver.RunLibraryScript($"return getSiblingExactMatches(\"{What}\");");
-
-                //    var elements = (siblingMatches as IEnumerable<IWebElement>);
-
-                //    elements.First(x=>x.Displayed && x.Enabled && 
-                //    (x.TagName == "input" || x.TagName.ToLower() =="textarea")).SendKeys(Text);
-
-
                 var directScript = File.ReadAllText(FileFinder.Find("Gears.Library.js"));
 
                 directScript += $"return ([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);";
@@ -62,7 +53,7 @@ namespace Gears.Interpreter.Library
                 {
                     var r = Selenium.WebDriver.RunLibraryScript(directScript);
                     var directElement = (r as IEnumerable<IWebElement>);
-                    if (directElement != null && (directElement.First().TagName.ToLower() =="textArea" || directElement.First().TagName.ToLower() == "input"))
+                    if (directElement != null && (directElement.First().TagName.ToLower() =="textarea" || directElement.First().TagName.ToLower() == "input"))
                     {
                         directElement.First().SendKeys(Text);
                         return null;
@@ -72,12 +63,11 @@ namespace Gears.Interpreter.Library
                 {
                     
                 }
-
-
+                
                 var formattableString = $"return tagMatches([firstByLocation(\"{Where}\",getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
                 if (Where == null)
                 {
-                    formattableString = $"return tagMatches([firstByRelativeLocation(getExactMatches(\"{What}\")[0],getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
+                    formattableString = $"return tagMatches([firstByDistance(getExactMatches(\"{What}\")[0],getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
                 }
                 var matches = Selenium.WebDriver.RunLibraryScript(formattableString);
 

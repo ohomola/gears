@@ -21,7 +21,9 @@ namespace Gears.Interpreter.Tests.Pages
         [SetUp]
         public void SetUp()
         {
-            _selenium = new SeleniumAdapter(new ChromeDriver(Path.GetDirectoryName(FileFinder.Find("chromedriver.exe")), new ChromeOptions()));
+            _selenium =
+                new SeleniumAdapter(new ChromeDriver(Path.GetDirectoryName(FileFinder.Find("chromedriver.exe")),
+                    new ChromeOptions()));
         }
 
         [TearDown]
@@ -70,7 +72,7 @@ namespace Gears.Interpreter.Tests.Pages
 
             new Click("SAVE") {Selenium = _selenium, Where = "right"}.Execute();
             new Click("load") {Selenium = _selenium, Where = "left"}.Execute();
-           
+
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("but1"))
                 .GetAttribute("innerText"), "success");
 
@@ -86,23 +88,34 @@ namespace Gears.Interpreter.Tests.Pages
                 Selenium = _selenium
             }.Execute();
 
-            new Fill("login:", "user1") { Selenium = _selenium }.Execute();
+            new Fill("login:", "user1") {Selenium = _selenium}.Execute();
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test4login"))
                 .GetAttribute("value"), "user1");
 
-            new Fill("password:", "pass1") { Selenium = _selenium }.Execute();
+            new Fill("password:", "pass1") {Selenium = _selenium}.Execute();
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test4password"))
                 .GetAttribute("value"), "pass1");
 
 
-            new Fill("login2:", "user2") { Selenium = _selenium }.Execute();
+            new Fill("login2:", "user2") {Selenium = _selenium}.Execute();
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test5login"))
                 .GetAttribute("value"), "user2");
 
-            new Fill("password2:", "pass2") { Selenium = _selenium }.Execute();
+            new Fill("password2:", "pass2") {Selenium = _selenium}.Execute();
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test5password"))
                 .GetAttribute("value"), "pass2");
         }
 
+        [Test]
+        public void ShouldFillReactTextAreaWithFloatingLabel()
+        {
+            new GoToUrl($"http://www.material-ui.com/#/components/text-field")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+            new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute();
+
+        }
     }
 }

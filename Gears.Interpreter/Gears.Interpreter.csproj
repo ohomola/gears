@@ -162,7 +162,7 @@
     <Compile Include="Library\Click.cs" />
     <Compile Include="Library\Comment.cs" />
     <Compile Include="Library\GoToUrl.cs" />
-    <Compile Include="Library\IsTextVisible.cs" />
+    <Compile Include="Library\IsVisible.cs" />
     <Compile Include="Library\WebDriverExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
