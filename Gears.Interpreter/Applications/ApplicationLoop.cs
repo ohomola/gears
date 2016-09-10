@@ -160,8 +160,8 @@ namespace Gears.Interpreter.Applications
                     Console.Out.WriteColoredLine(ConsoleColor.Gray, $"Results were saved to file \'{OutputLogFile}\'.");
                     new FileAccess(OutputLogFile).AddRange(keywords.ToList());
                 }
-                Console.Out.WriteColoredLine(ConsoleColor.Cyan, "Press any key to close this program ...");
-                Console.Read();
+                //Console.Out.WriteColoredLine(ConsoleColor.Cyan, "Press any key to close this program ...");
+                //Console.Read();
                 Console.Out.WriteColoredLine(ConsoleColor.Green, "Closing application now.");
             }
             

@@ -36,7 +36,6 @@ namespace Gears.Interpreter.Library
         public Click(string what)
         {
             What = what;
-            Where = "focus";
         }
 
         public override object Run()
@@ -55,7 +54,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"Click on {What}";
+            return $"Click {Where} '{What}'";
         }
     }
 }

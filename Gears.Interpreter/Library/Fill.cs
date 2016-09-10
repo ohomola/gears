@@ -88,7 +88,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"Fill {What} with {Text}";
+            return $"Fill {Where} '{What}'  with '{Text}'";
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Gears.Interpreter.Data.Core
 
         public Type GetFirstDTOType(string typeName)
         {
-            return Types.FirstOrDefault(x => x.Name == typeName);
+            return Types.FirstOrDefault(x => x.Name.ToLower() == typeName.ToLower());
         }
     }
 }

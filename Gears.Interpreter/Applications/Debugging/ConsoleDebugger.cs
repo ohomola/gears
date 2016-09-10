@@ -64,12 +64,21 @@ namespace Gears.Interpreter.Applications.Debugging
         {
             index = index + 1;
 
+            //if (!keywords.Any() || index >= keywords.Count())
+            //{
+            //    return keywords.Count();
+            //}
+
+            Keyword selectedKeyword;
+
             if (!keywords.Any() || index >= keywords.Count())
             {
-                return keywords.Count();
+                selectedKeyword = null;
             }
-
-            var selectedKeyword = keywords.ElementAt(index);
+            else
+            {
+                selectedKeyword = keywords.ElementAt(index);
+            }
 
             ResetCommand(index, selectedKeyword);
 
@@ -83,9 +92,9 @@ namespace Gears.Interpreter.Applications.Debugging
 
             try
             {
-                ParseInput(hooks);
+                ParseInput(hooks, index, keywords);
             
-                if (Command.RunStep)
+                if (Command.RunStep && Command.SelectedKeyword != null)
                 {
                     Console.WriteLine("Running " + Command.SelectedKeyword.ToString() + "...");
                 }
@@ -115,18 +124,31 @@ namespace Gears.Interpreter.Applications.Debugging
             Command.SelectedKeyword = currentKeyword;
         }
 
-        private static void ParseInput(List<ConsoleDebuggerActionHook> commands)
+        private void ParseInput(List<ConsoleDebuggerActionHook> commands, int index, IEnumerable<Keyword> keywords)
         {
             var userInput = Console.ReadLine() ?? "";
+
+            if (string.IsNullOrEmpty(userInput))
+            {
+                if (index == keywords.Count())
+                {
+                    Command.Break = true;
+                }
+
+                return;
+            }
 
             foreach (var c in commands)
             {
                 if (c.Matches(userInput))
                 {
                     c.Action(userInput);
-                    break;
+                    return;
                 }
             }
+
+            Console.Out.WriteColoredLine(ConsoleColor.Yellow, $"'{userInput}' is not a recognized command.");
+            DontDoAnything(index);
         }
 
         private List<ConsoleDebuggerActionHook> GetActionHooks(int index, IEnumerable<Keyword> allKeywords)
@@ -149,8 +171,24 @@ namespace Gears.Interpreter.Applications.Debugging
                     var arg = ParseArguments(input, 1).First();
                     var click = new Click(arg);
                     ServiceLocator.Instance.Resolve(click);
-                    click.Run();
-                    DontDoAnything(index);
+                    Command.SelectedKeyword = click;
+                    Command.NextIndex = Command.NextIndex-1;
+                }),
+                new ConsoleDebuggerActionHook("fill (.+) (.+)", "fill X: use this to fill on element ad-hoc", input =>
+                {
+                    var args = ParseArguments(input, 1);
+                    var fill = new Fill(args.First(), args.Last());
+                    ServiceLocator.Instance.Resolve(fill);
+                    Command.SelectedKeyword = fill;
+                    Command.NextIndex = Command.NextIndex-1;
+                }),
+                new ConsoleDebuggerActionHook("goto (.+)", "click X: use this to click on element ad-hoc", input =>
+                {
+                    var arg = ParseArguments(input, 1).First();
+                    var go = new GoToUrl(arg);
+                    ServiceLocator.Instance.Resolve(go);
+                    Command.SelectedKeyword = go;
+                    Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("restart", "restart : go back to the beginning of the test", input =>
                 {
@@ -205,7 +243,7 @@ namespace Gears.Interpreter.Applications.Debugging
             Command.NextIndex = index - 1;
             Command.RunStep = false;
         }
-
+        
         private void OutputStatusText(int index, IEnumerable<Keyword> keywords, Keyword selectedKeyword, IEnumerable<ConsoleDebuggerActionHook> commands)
         {
             var horizontalLine = "----------------------------------------";
@@ -237,7 +275,7 @@ namespace Gears.Interpreter.Applications.Debugging
 
         private static void WriteSelectedKeyword(int index, Keyword selectedKeyword)
         {
-            Console.Out.WriteColoredLine(ConsoleColor.Cyan, " >" + (index + 1) + ") " + selectedKeyword.ToString());
+            Console.Out.WriteColoredLine(ConsoleColor.Cyan, " >" + (index + 1) + ") " + (selectedKeyword?.ToString() ?? " --- end of scenario ---"));
         }
 
         private static void WriteNumberOfKeywordsBeyond10(int index, IEnumerable<Keyword> keywords)

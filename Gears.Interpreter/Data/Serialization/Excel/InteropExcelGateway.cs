@@ -106,13 +106,24 @@ namespace Gears.Interpreter.Data.Serialization.Excel
 
                 for (int j = 1; j <= columns; j++)
                 {
-                    row[j - 1] = ((Range) sheet.Cells[i, j]).Value ?? "";
+                    row[j - 1] = GetValue(sheet, i, j);
                 }
 
                 resultTable.Rows.Add(row);
             }
 
             return resultTable;
+        }
+
+        private static dynamic GetValue(Worksheet sheet, int i, int j)
+        {
+            var value = ((Range) sheet.Cells[i, j]).Value ?? "";
+
+            if (value is string)
+            {
+                value = ((string)value).Trim().ToLower();
+            }
+            return value;
         }
 
         private DataTable CreateDataTable(int columns, string sheetName)
