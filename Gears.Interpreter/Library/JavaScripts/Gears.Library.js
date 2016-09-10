@@ -15,6 +15,30 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+/**
+ * Searches the page for Input or TextArea elements labeled by text passed in What parameter.
+ * @param {} what Text of a label/placeholder indentifying a nearby located input/textarea
+ * @param {} where optional parameter to specify location on screen - (values: left,right,top,bottom)
+ * @returns {} the first element found.
+ */
+function findInput(what, where) {
+    var labelCandidates = getExactMatches(what);
+    var returnValue = firstByLocation(where, labelCandidates);
+    if (returnValue !== null && (returnValue.nodeName.toLowerCase() === "input" || returnValue.nodeName.toLowerCase() === "textarea")) {
+        return returnValue;
+    }
+
+    if (where === "") {
+        returnValue = tagMatches(firstByRelativeLocation(labelCandidates[0], getOrthogonalInputs(labelCandidates)));
+    } else {
+        returnValue = tagMatches([firstByLocation(where, getOrthogonalInputs(labelCandidates))]); 
+    }
+
+    return returnValue;
+}
+
+
 function getExactMatches(searchedText) {
 
     var allElements = document.all;
@@ -38,6 +62,7 @@ function getExactMatches(searchedText) {
     return matches;
 }
 
+
 function tagMatches(matches) {
     for (var i = 0; i < matches.length; i++) {
         matches[i].style.backgroundColor = "cyan";
@@ -48,6 +73,7 @@ function tagMatches(matches) {
     console.log("Tagged: " + matches.length);
     return matches;
 }
+
 
 function clickFirstMatch(matches) {
     return click(matches[0]);
@@ -65,9 +91,6 @@ function click(theElement) {
     return theElement;
 }
 
-function isHidden(el) {
-    return (el.offsetParent === null);
-}
 
 function isExactMatch(element, searchedText) {
 
@@ -93,15 +116,6 @@ function isExactMatch(element, searchedText) {
     return false;
 }
 
-Node.prototype.getElementsByTagNames = function (tags) {
-    var elements = [];
-
-    for (var i = 0, n = tags.length; i < n; i++) {
-        elements = elements.concat(Array.prototype.slice.call(this.getElementsByTagName(tags[i])));
-    }
-
-    return elements;
-};
 
 function getOrthogonalInputs(elements) {
 
@@ -130,6 +144,38 @@ function areOrthogonal(input, element) {
     return false;
 }
 
+
+
+
+
+
+
+function isHidden(el) {
+    return (el.offsetParent === null);
+}
+
+
+Node.prototype.getElementsByTagNames = function (tags) {
+    var elements = [];
+
+    for (var i = 0, n = tags.length; i < n; i++) {
+        elements = elements.concat(Array.prototype.slice.call(this.getElementsByTagName(tags[i])));
+    }
+
+    return elements;
+};
+
+function distance(a, b) {
+    return Math.abs(a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom) +
+        Math.abs(a.getBoundingClientRect().left - b.getBoundingClientRect().left);
+}
+
+
+
+
+
+
+
 function firstByLocation(where, elements) {
     if (where.toLowerCase() === "left") {
         var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().left - b.getBoundingClientRect().left });
@@ -156,7 +202,7 @@ function firstByRelativeLocation(source, elements) {
     var sorted = elements.sort(function (a, b) { return getNeighborOrder(a, source) - getNeighborOrder(b, source) });
 
     var value = getNeighborOrder(source, sorted[0]);
-    var nearest =  sorted[0];
+    var nearest = sorted[0];
     for (var i = 0; i < sorted.length; i++) {
 
         if (getNeighborOrder(source, sorted[i]) !== value) {
@@ -176,15 +222,10 @@ function firstByDistance(source, elements) {
     return sorted[0];
 }
 
-function distance(a, b) {
-    return Math.abs(a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom) +
-        Math.abs(a.getBoundingClientRect().left - b.getBoundingClientRect().left);
-}
-
 function getNeighborOrder(input, element) {
     var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);
     if (dif < 5) {
-        if (input.getBoundingClientRect().left > element.getBoundingClientRect().left) {
+        if (input.getBoundingClientRect().right > element.getBoundingClientRect().left) {
             return 1;
         } else {
             return 4;
@@ -193,7 +234,7 @@ function getNeighborOrder(input, element) {
 
     dif = Math.abs(input.getBoundingClientRect().left - element.getBoundingClientRect().left);
     if (dif < 5) {
-        if (input.getBoundingClientRect().bottom > element.getBoundingClientRect().bottom) {
+        if (input.getBoundingClientRect().bottom > element.getBoundingClientRect().top) {
             return 2;
         } else {
             return 3;
@@ -202,19 +243,3 @@ function getNeighborOrder(input, element) {
 
     return false;
 }
-
-
-function findInput(what, where) {
-
-    var direct = firstByLocation(where, getExactMatches(what));
-    if (direct !== null && (direct.nodeName.toLowerCase() === "input" || direct.nodeName.toLowerCase() === "textarea")) {
-        return direct;
-    }
-
-    if (where === "") {
-        return tagMatches(click(firstByRelativeLocation(getExactMatches(what)[0],getOrthogonalInputs(getExactMatches(what)))));
-    }
-
-    return tagMatches([firstByLocation(where,getOrthogonalInputs(getExactMatches(what)))]);
-}
-

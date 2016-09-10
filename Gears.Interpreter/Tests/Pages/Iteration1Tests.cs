@@ -14,11 +14,20 @@ using OpenQA.Selenium.Chrome;
 
 namespace Gears.Interpreter.Tests.Pages
 {
-    public class Iteration1Tests
+    public class Iteration1Tests : IDisposable
     {
         private SeleniumAdapter _selenium;
 
-        [SetUp]
+        public Iteration1Tests()
+        {
+            SetUp();
+        }
+        public void Dispose()
+        {
+            TearDown();
+        }
+        
+        //[SetUp]
         public void SetUp()
         {
             _selenium =
@@ -26,7 +35,7 @@ namespace Gears.Interpreter.Tests.Pages
                     new ChromeOptions()));
         }
 
-        [TearDown]
+        //[TearDown]
         public void TearDown()
         {
             _selenium.Dispose();
@@ -108,7 +117,6 @@ namespace Gears.Interpreter.Tests.Pages
 
             Assert.AreEqual("test1", (new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute() as IWebElement)?.GetAttribute("value"));
             Assert.AreEqual("test2", (new Fill("Hint Text", "test2") { Selenium = _selenium }.Execute() as IWebElement)?.GetAttribute("value"));
-
         }
     }
 }

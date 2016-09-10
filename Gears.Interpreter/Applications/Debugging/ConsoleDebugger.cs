@@ -158,12 +158,8 @@ namespace Gears.Interpreter.Applications.Debugging
                 new ConsoleDebuggerActionHook("find (.+)", "find X: use this to test a web element locator", input =>
                 {
                     var arg = ParseArguments(input, 1).First();
-                    var script = File.ReadAllText(FileFinder.Find("Gears.Library.js"));
-
-                    script += $@"tagMatches(getExactMatches(""{arg}""));
-            ";
-
-                    ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript(script);
+                    var script = $@"tagMatches(getExactMatches(""{arg}""));";
+                    (Selenium.WebDriver).RunLibraryScript(script);
                     DontDoAnything(index);
                 }),
                 new ConsoleDebuggerActionHook("click (.+)", "click X: use this to click on element ad-hoc", input =>

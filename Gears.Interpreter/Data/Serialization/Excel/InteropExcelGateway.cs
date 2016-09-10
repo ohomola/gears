@@ -121,7 +121,7 @@ namespace Gears.Interpreter.Data.Serialization.Excel
 
             if (value is string)
             {
-                value = ((string)value).Trim().ToLower();
+                value = ((string)value).Trim();
             }
             return value;
         }

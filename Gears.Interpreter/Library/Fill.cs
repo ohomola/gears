@@ -20,8 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Data.Core;
 using OpenQA.Selenium;
@@ -77,13 +80,34 @@ namespace Gears.Interpreter.Library
             //return null;
             var results = Selenium.WebDriver.RunLibraryScript($"return findInput(\"{What}\",\"{Where}\")");
             var element = (results as IWebElement);
-            element.SendKeys(Text);
+            //            element.SendKeys(Text);
 
+            ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
+            ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript("scrollBy(0,-200);");
+
+            var rect = (Dictionary<string, object>)((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript("return arguments[0].getBoundingClientRect();", element);
+
+            var xx = (rect["left"]);
+            var yy = (rect["top"]);
+            var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
+            var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
+            var process = processes.FirstOrDefault();
+
+            var handle = process.MainWindowHandle;
+
+            var aa = Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
+            location.Y += (int)Math.Abs((long)aa);
+
+            location.Y += 5;
+            location.X += 5;
+
+
+            UserControl.ClickOnPoint(handle, location);
+            UserControl.SendText(handle, Text,location);
 
             return element;
         }
 
-        
 
 
         public override string ToString()

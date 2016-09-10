@@ -40,18 +40,11 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            try
-            {
-                Selenium.WebDriver.RunLibraryScript($"clickFirstMatch([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);");
-            }
-            catch (Exception)
-            {
-                throw new ApplicationException($"Element '{What}' was not found");
-            }
+            Selenium.WebDriver.ClickByVisibleText(What, Where);
 
             return null;
         }
-
+        
         public override string ToString()
         {
             return $"Click {Where} '{What}'";

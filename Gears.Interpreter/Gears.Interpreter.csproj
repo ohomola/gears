@@ -158,6 +158,7 @@
     <Compile Include="Data\Serialization\CSV\CsvSerializer.cs" />
     <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
     <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
+    <Compile Include="Library\UserControl.cs" />
     <Compile Include="Library\Fill.cs" />
     <Compile Include="Library\Click.cs" />
     <Compile Include="Library\Comment.cs" />
