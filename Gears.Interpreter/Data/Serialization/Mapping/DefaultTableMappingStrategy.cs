@@ -42,7 +42,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
         private readonly IDictionaryToObjectMapper _mapper = new DictionaryToObjectMapper();
         private readonly ITypeRegistry _typeRegistry;
 
-        public const string DiscriminatorColumn = "discriminator";
+        public const string DiscriminatorColumn = "Discriminator";
 
         public DefaultTableMappingStrategy()
         {

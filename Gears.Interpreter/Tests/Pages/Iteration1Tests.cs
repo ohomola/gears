@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
+using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 using NUnit.Framework;
@@ -40,6 +41,17 @@ namespace Gears.Interpreter.Tests.Pages
         {
             _selenium.Dispose();
         }
+
+        [Test]
+        public void ShouldLoadScenarioFileCorrectly()
+        {
+            Bootstrapper.RegisterForConfigurationLoad();
+            var keywords= new FileObjectAccess(FileFinder.Find("Iteration1.xlsx")).GetAll<Keyword>().ToList();
+
+            Assert.IsInstanceOf<GoToUrl>(keywords.ElementAt(0));
+            Assert.AreEqual("http://www.SELENIUMhq.org/",(keywords.ElementAt(0) as GoToUrl).Url);
+        }
+
 
         [Test]
         public void ShouldFillAllTextAreas()

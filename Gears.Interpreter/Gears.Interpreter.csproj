@@ -151,13 +151,14 @@
     <Compile Include="Data\Serialization\Excel\ExcelSerializer.cs" />
     <Compile Include="Data\Serialization\Excel\IDataSetGateway.cs" />
     <Compile Include="Data\Serialization\ISerializer.cs" />
-    <Compile Include="Data\FileAccess.cs" />
+    <Compile Include="Data\FileObjectAccess.cs" />
     <Compile Include="Data\IDataObjectAccess.cs" />
     <Compile Include="Data\ObjectDataAccess.cs" />
     <Compile Include="Data\DataContext.cs" />
     <Compile Include="Data\Serialization\CSV\CsvSerializer.cs" />
     <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
     <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
+    <Compile Include="Library\SaveHtml.cs" />
     <Compile Include="Library\UserControl.cs" />
     <Compile Include="Library\Fill.cs" />
     <Compile Include="Library\Click.cs" />
@@ -195,6 +196,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Tests\Data\GoToUrlScenario.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Tests\Data\Iteration1.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

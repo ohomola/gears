@@ -48,7 +48,14 @@ namespace Gears.Interpreter.Library
             public IntPtr ExtraInfo;
         }
 #pragma warning restore 649
-        
+
+        [return: MarshalAs(UnmanagedType.Bool)]
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        public static extern bool SetForegroundWindow(IntPtr hwnd);
+
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr GetConsoleWindow();
+
         public static void ClickOnPoint(IntPtr wndHandle, Point clientPoint)
         {
             var oldPosition = Cursor.Position;

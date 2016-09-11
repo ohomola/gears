@@ -31,7 +31,6 @@ using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 using Microsoft.Win32.SafeHandles;
 using OpenQA.Selenium;
-using FileAccess = Gears.Interpreter.Data.FileAccess;
 
 namespace Gears.Interpreter.Applications.Debugging
 {
@@ -178,7 +177,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = fill;
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("goto (.+)", "click X: use this to click on element ad-hoc", input =>
+                new ConsoleDebuggerActionHook("goto (.+)", "goto X: use this to click on element ad-hoc", input =>
                 {
                     var arg = ParseArguments(input, 1).First();
                     var go = new GoToUrl(arg);
@@ -190,6 +189,13 @@ namespace Gears.Interpreter.Applications.Debugging
                 {
                     Command.NextIndex = -1;
                     Command.RunStep = false;
+                }),
+                new ConsoleDebuggerActionHook("savehtml", "savehtml : save current page source to a new HTML file", input =>
+                {
+                    var save = new SaveHtml();
+                    ServiceLocator.Instance.Resolve(save);
+                    Command.SelectedKeyword = save;
+                    Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("run ([0-9]*)", "run <N>: runs N steps", input =>
                 {
@@ -223,7 +229,7 @@ namespace Gears.Interpreter.Applications.Debugging
                 }),
                 new ConsoleDebuggerActionHook("reload", "reload : re-reads all input files", input =>
                 {
-                    foreach (var dataAccess1 in Data.DataAccesses.OfType<FileAccess>())
+                    foreach (var dataAccess1 in Data.DataAccesses.OfType<FileObjectAccess>())
                     {
                         dataAccess1.ForceReload();
                     }

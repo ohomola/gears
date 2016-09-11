@@ -48,7 +48,7 @@ namespace Gears.Interpreter.Applications
 
             Bootstrapper.RegisterForConfigurationLoad();
 
-            var accesses = commandLineArguments.Select(x=>new FileAccess(FileFinder.Find(x))).Cast<IDataObjectAccess>().ToList();
+            var accesses = commandLineArguments.Select(x=>new FileObjectAccess(FileFinder.Find(x))).Cast<IDataObjectAccess>().ToList();
             accesses.Add(new ObjectDataAccess(new ConsoleDebuggerConfig()));
 
             Bootstrapper.Release();
@@ -158,7 +158,7 @@ namespace Gears.Interpreter.Applications
                 if (OutputLogFile != null)
                 {
                     Console.Out.WriteColoredLine(ConsoleColor.Gray, $"Results were saved to file \'{OutputLogFile}\'.");
-                    new FileAccess(OutputLogFile).AddRange(keywords.ToList());
+                    new FileObjectAccess(OutputLogFile).AddRange(keywords.ToList());
                 }
                 //Console.Out.WriteColoredLine(ConsoleColor.Cyan, "Press any key to close this program ...");
                 //Console.Read();

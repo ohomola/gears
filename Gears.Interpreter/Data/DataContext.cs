@@ -57,7 +57,7 @@ namespace Gears.Interpreter.Data
 
         public void Include(string fileName)
         {
-            Include(new FileAccess(fileName));
+            Include(new FileObjectAccess(fileName));
         }
 
         public T Get<T>() where T : class

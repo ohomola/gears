@@ -24,11 +24,11 @@ namespace Gears.Interpreter.Library
 {
     public class GoToUrl : Keyword
     {
-        private readonly string _url;
+        public string Url { get; }
 
         public GoToUrl(string url)
         {
-            _url = url;
+            Url = url;
         }
 
         public static string CombineUrl(string baseUrl, string relativeUrl)
@@ -42,14 +42,14 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            Selenium.WebDriver.Navigate().GoToUrl(_url);
+            Selenium.WebDriver.Navigate().GoToUrl(Url);
 
             return null;
         }
 
         public override string ToString()
         {
-            return "Go to '" + _url + "'";
+            return "Go to '" + Url + "'";
         }
     }
 }

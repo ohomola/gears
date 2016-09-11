@@ -81,6 +81,10 @@ namespace Gears.Interpreter.Library
             var results = Selenium.WebDriver.RunLibraryScript($"return findInput(\"{What}\",\"{Where}\")");
             var element = (results as IWebElement);
             //            element.SendKeys(Text);
+            if (element == null)
+            {
+                throw new ApplicationException("Element was not found");
+            }
 
             ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
             ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript("scrollBy(0,-200);");
@@ -91,19 +95,26 @@ namespace Gears.Interpreter.Library
             var yy = (rect["top"]);
             var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
             var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
+            if (processes.Count() > 1)
+            {
+                throw new ApplicationException("Please close other Chrome windows.");
+            }
             var process = processes.FirstOrDefault();
-
+            if (process == null)
+            {
+                throw new ApplicationException("Chrome window was not found");
+            }
             var handle = process.MainWindowHandle;
 
             var aa = Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
             location.Y += (int)Math.Abs((long)aa);
-
             location.Y += 5;
             location.X += 5;
-
-
+            
             UserControl.ClickOnPoint(handle, location);
             UserControl.SendText(handle, Text,location);
+
+            UserControl.SetForegroundWindow(UserControl.GetConsoleWindow());
 
             return element;
         }

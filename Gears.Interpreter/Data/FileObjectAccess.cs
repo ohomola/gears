@@ -33,7 +33,7 @@ using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Data
 {
-    public class FileAccess : IDataObjectAccess
+    public class FileObjectAccess : IDataObjectAccess
     {
         [Wire]
         public ITypeRegistry TypeRegistry { get; set; }
@@ -42,7 +42,7 @@ namespace Gears.Interpreter.Data
 
         public string Path { get; set; }
         
-        public FileAccess(string path)
+        public FileObjectAccess(string path)
         {
             Path = path;
             _buffer = new DataAccessBuffer();
@@ -51,9 +51,13 @@ namespace Gears.Interpreter.Data
             {
                 TypeRegistry = ServiceLocator.Instance.Resolve<ITypeRegistry>();
             }
+            else
+            {
+                throw new ApplicationException("Type Registry is not registered, cannot create FileObjectAccess via service-locator constructor.");
+            }
         }
 
-        public FileAccess(string path, ITypeRegistry typeRegistry)
+        public FileObjectAccess(string path, ITypeRegistry typeRegistry)
         {
             Path = path;
             _buffer = new DataAccessBuffer();
@@ -69,6 +73,10 @@ namespace Gears.Interpreter.Data
                 {
                     var loadRange = ReadAllObjects();
                     _buffer.AddRange(loadRange);
+                }
+                else
+                {
+                    throw new FileNotFoundException($"File {Path} does not exist");
                 }
             }
             return _buffer;
@@ -168,7 +176,7 @@ namespace Gears.Interpreter.Data
         
         public override bool Equals(object obj)
         {
-            var o = obj as FileAccess;
+            var o = obj as FileObjectAccess;
 
             if (o == null)
             {
@@ -265,7 +273,7 @@ namespace Gears.Interpreter.Data
 
             if (File.Exists(fullPath))
             {
-                return new FileAccess(fullPath).GetAll();
+                return new FileObjectAccess(fullPath).GetAll();
             }
 
             var directoryName = System.IO.Path.GetDirectoryName(Path);
@@ -274,13 +282,13 @@ namespace Gears.Interpreter.Data
                 fullPath = System.IO.Path.Combine(directoryName, include.FileName);
                 if (File.Exists(fullPath))
                 {
-                    return new FileAccess(fullPath).GetAll();
+                    return new FileObjectAccess(fullPath).GetAll();
                 }
             }
 
             try
             {
-                var includedData = new FileAccess(FileFinder.Find(include.FileName));
+                var includedData = new FileObjectAccess(FileFinder.Find(include.FileName));
 
                 return includedData.GetAll();
             }
