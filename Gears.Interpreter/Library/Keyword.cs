@@ -68,6 +68,9 @@ namespace Gears.Interpreter.Library
         public object Execute()
         {
             var keyword = this;
+
+            StringResolver.Resolve(keyword);
+
             var result = keyword.Run();
 
             keyword.Result = result;

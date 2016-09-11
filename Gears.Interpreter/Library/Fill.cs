@@ -37,7 +37,7 @@ namespace Gears.Interpreter.Library
         public string What { get; set; }
         public string Where { get; set; }
         public string Text { get; set; }
-
+        public bool Javascript { get; set; }
 
         public Fill(string what, string text)
         {
@@ -47,76 +47,67 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            //try
-            //{
-            //    var directScript = $"return ([firstByLocation(\"{Where}\", getExactMatches(\"{What}\"))]);";
-            //    var r = Selenium.WebDriver.RunLibraryScript(directScript);
-            //    var directElement = (r as IEnumerable<IWebElement>);
-            //    if (directElement != null && (directElement.First().TagName.ToLower() =="textarea" || directElement.First().TagName.ToLower() == "input"))
-            //    {
-            //        directElement.First().SendKeys(Text);
-            //        return null;
-            //    }
-
-            //    var formattableString = string.Empty;
-            //    if (Where == null)
-            //    {
-            //        formattableString = $"return tagMatches(clickFirstMatch(firstByDistance(getExactMatches(\"{What}\")[0],getOrthogonalInputs(getExactMatches(\"{What}\")))));";
-            //    }
-            //    else
-            //    {
-            //        formattableString = $"return tagMatches([firstByLocation(\"{Where}\",getOrthogonalInputs(getExactMatches(\"{What}\")))]);";
-            //    }
-            //    var matches = Selenium.WebDriver.RunLibraryScript(formattableString);
-
-            //var elements = (matches as IEnumerable<IWebElement>);
-            //elements.First(x => x.Displayed && x.Enabled).SendKeys(Text);
-            //}
-            //catch (Exception)
-            //{
-            //    throw new ApplicationException($"Element {What} was not found");
-            //}
-
-            //return null;
-            var results = Selenium.WebDriver.RunLibraryScript($"return findInput(\"{What}\",\"{Where}\")");
-            var element = (results as IWebElement);
-            //            element.SendKeys(Text);
-            if (element == null)
+            if(Javascript)
             {
-                throw new ApplicationException("Element was not found");
+                try
+                {
+                    var results = Selenium.WebDriver.RunLibraryScript($"return findInput(\"{What}\",\"{Where}\")");
+                    var element = (results as IWebElement);
+                    if (element == null)
+                    {
+                        throw new ApplicationException("Element was not found");
+                    }
+                    element.SendKeys(Text);
+                    return element;
+                }
+                catch (Exception)
+                {
+                    throw new ApplicationException($"Element {What} was not found");
+                }
             }
+            else{
+                var results = Selenium.WebDriver.RunLibraryScript($"return findInput(\"{What}\",\"{Where}\")");
+                var element = (results as IWebElement);
+                if (element == null)
+                {
+                    throw new ApplicationException("Element was not found");
+                }
 
-            ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
-            ((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript("scrollBy(0,-200);");
+                ((IJavaScriptExecutor) Selenium.WebDriver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
+                ((IJavaScriptExecutor) Selenium.WebDriver).ExecuteScript("scrollBy(0,-200);");
 
-            var rect = (Dictionary<string, object>)((IJavaScriptExecutor)Selenium.WebDriver).ExecuteScript("return arguments[0].getBoundingClientRect();", element);
+                var rect =
+                    (Dictionary<string, object>)
+                    ((IJavaScriptExecutor) Selenium.WebDriver).ExecuteScript(
+                        "return arguments[0].getBoundingClientRect();", element);
 
-            var xx = (rect["left"]);
-            var yy = (rect["top"]);
-            var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
-            var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
-            if (processes.Count() > 1)
-            {
-                throw new ApplicationException("Please close other Chrome windows.");
+                var xx = (rect["left"]);
+                var yy = (rect["top"]);
+                var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
+                var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
+                if (processes.Count() > 1)
+                {
+                    throw new ApplicationException("Please close other Chrome windows.");
+                }
+                var process = processes.FirstOrDefault();
+                if (process == null)
+                {
+                    throw new ApplicationException("Chrome window was not found");
+                }
+                var handle = process.MainWindowHandle;
+
+                var aa = Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
+                location.Y += (int) Math.Abs((long) aa);
+                location.Y += 5;
+                location.X += 5;
+
+                UserControl.ClickOnPoint(handle, location);
+                UserControl.SendText(handle, Text, location);
+
+                UserControl.SetForegroundWindow(UserControl.GetConsoleWindow());
+
+                return element;
             }
-            var process = processes.FirstOrDefault();
-            if (process == null)
-            {
-                throw new ApplicationException("Chrome window was not found");
-            }
-            var handle = process.MainWindowHandle;
-
-            var aa = Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
-            location.Y += (int)Math.Abs((long)aa);
-            location.Y += 5;
-            location.X += 5;
-            
-            UserControl.ClickOnPoint(handle, location);
-            UserControl.SendText(handle, Text,location);
-
-            UserControl.SetForegroundWindow(UserControl.GetConsoleWindow());
-
-            return element;
         }
 
 

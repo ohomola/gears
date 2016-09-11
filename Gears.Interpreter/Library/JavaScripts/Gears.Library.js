@@ -24,9 +24,15 @@
  */
 function findInput(what, where) {
     var labelCandidates = getExactMatches(what);
-    var returnValue = firstByLocation(where, labelCandidates);
-    if (returnValue !== null && (returnValue.nodeName.toLowerCase() === "input" || returnValue.nodeName.toLowerCase() === "textarea")) {
-        return returnValue;
+
+    try {
+        // check if one of the candidates is not actually the input
+        var returnValue = firstByLocation(where, labelCandidates);
+        if (returnValue !== null &&
+            (returnValue.nodeName.toLowerCase() === "input" || returnValue.nodeName.toLowerCase() === "textarea")) {
+            return returnValue;
+        }
+    } catch (err) {
     }
 
     if (where === "") {

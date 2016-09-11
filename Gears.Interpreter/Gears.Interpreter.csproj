@@ -159,12 +159,14 @@
     <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
     <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
     <Compile Include="Library\SaveHtml.cs" />
+    <Compile Include="Library\StringResolver.cs" />
     <Compile Include="Library\UserControl.cs" />
     <Compile Include="Library\Fill.cs" />
     <Compile Include="Library\Click.cs" />
     <Compile Include="Library\Comment.cs" />
     <Compile Include="Library\GoToUrl.cs" />
     <Compile Include="Library\IsVisible.cs" />
+    <Compile Include="Library\Wait.cs" />
     <Compile Include="Library\WebDriverExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -110,7 +110,10 @@ namespace Gears.Interpreter.Data
 
         public void Add<T>(T obj) where T : class
         {
-            LazyLoadBuffer().Wipe();
+            if (File.Exists(Path))
+            {
+                LazyLoadBuffer().Wipe();
+            }
 
             if (!File.Exists(Path))
             {
@@ -152,7 +155,10 @@ namespace Gears.Interpreter.Data
         
         public void AddRange(IEnumerable<object> objects)
         {
-            LazyLoadBuffer().Wipe();
+            if (File.Exists(Path))
+            {
+                LazyLoadBuffer().Wipe();
+            }
 
             if (!File.Exists(Path))
             {
