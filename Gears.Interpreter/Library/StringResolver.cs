@@ -20,7 +20,6 @@ namespace Gears.Interpreter.Library
                     value = value.Replace("{Random.Word()}", Random.Word());
                     stringProperty.SetValue(keyword, value);
                 }
-                
             }
         }
     }

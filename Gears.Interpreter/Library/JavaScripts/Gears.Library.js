@@ -207,12 +207,12 @@ function firstByLocation(where, elements) {
 function firstByRelativeLocation(source, elements) {
     var sorted = elements.sort(function (a, b) { return getNeighborOrder(a, source) - getNeighborOrder(b, source) });
 
-    var value = getNeighborOrder(source, sorted[0]);
+    var value = getNeighborOrder(sorted[0], source);
     var nearest = sorted[0];
     for (var i = 0; i < sorted.length; i++) {
 
-        if (getNeighborOrder(source, sorted[i]) !== value) {
-            break;
+        if (getNeighborOrder( sorted[i],source) !== value) {
+            continue;
         }
 
         if (distance(source, nearest) > distance(source, sorted[i])) {
