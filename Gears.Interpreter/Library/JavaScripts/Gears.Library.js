@@ -247,5 +247,5 @@ function getNeighborOrder(input, element) {
         }
     }
 
-    return false;
+    return 100;
 }
