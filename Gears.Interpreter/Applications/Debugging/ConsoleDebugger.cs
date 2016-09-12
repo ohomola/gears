@@ -169,9 +169,17 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = click;
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("fill (.+) (.+)", "fill X: use this to fill on element ad-hoc", input =>
+                new ConsoleDebuggerActionHook("isvisible (.+)", "isvisible X: checks visibility of text", input =>
                 {
-                    var args = ParseArguments(input, 1);
+                    var arg = ParseArguments(input, 1).First();
+                    var isVisible = new IsVisible(arg) {Expect = true};
+                    ServiceLocator.Instance.Resolve(isVisible);
+                    Command.SelectedKeyword = isVisible;
+                    Command.NextIndex = Command.NextIndex-1;
+                }),
+                new ConsoleDebuggerActionHook("fill (.+) (.+)", "fill X Y: use this to fill on element ad-hoc", input =>
+                {
+                    var args = ParseArguments(input, 2);
                     var fill = new Fill(args.First(), args.Last());
                     ServiceLocator.Instance.Resolve(fill);
                     Command.SelectedKeyword = fill;

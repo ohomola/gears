@@ -25,6 +25,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Data.Core;
 using OpenQA.Selenium;
@@ -102,8 +103,9 @@ namespace Gears.Interpreter.Library
                 location.X += 5;
 
                 UserControl.ClickOnPoint(handle, location);
+                Thread.Sleep(50);
                 UserControl.SendText(handle, Text, location);
-
+                Thread.Sleep(50);
                 UserControl.SetForegroundWindow(UserControl.GetConsoleWindow());
 
                 return element;

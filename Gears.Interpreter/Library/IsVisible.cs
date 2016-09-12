@@ -37,7 +37,7 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            var result = (Selenium.WebDriver).RunLibraryScript($"return tagMatches(getExactMatches(\"{What}\"));");
+            var result = (Selenium.WebDriver).RunLibraryScript($"return tagMatches(getExactTextMatches(\"{What}\"));");
 
             if (result != null)
             {

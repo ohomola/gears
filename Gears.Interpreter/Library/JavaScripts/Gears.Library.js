@@ -44,6 +44,28 @@ function findInput(what, where) {
     return returnValue;
 }
 
+function getExactTextMatches(searchedText) {
+
+    var allElements = document.all;
+    var matches = [];
+
+    for (var i = 0; i < allElements.length; i++) {
+
+        var element = allElements[i];
+
+        if (isHidden(element)) {
+            continue;
+        }
+
+        if (isExactTextMatch(element, searchedText.toLowerCase())) {
+            matches.push(element);
+        }
+    }
+
+    console.log("Exact: " + matches.length);
+
+    return matches;
+}
 
 function getExactMatches(searchedText) {
 
@@ -97,7 +119,19 @@ function click(theElement) {
     return theElement;
 }
 
+function isExactTextMatch(element, searchedText) {
+    var childNodes = element.childNodes;
+    for (var n = 0; n < childNodes.length; n++) {
+        var curNode = childNodes[n];
+        if (curNode.nodeName === "#text") {
+            if (curNode.nodeValue.toLowerCase() === searchedText) {
+                return true;
+            }
+        }
+    }
 
+    return false;
+}
 function isExactMatch(element, searchedText) {
 
     var childNodes = element.childNodes;
