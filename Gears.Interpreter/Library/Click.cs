@@ -41,7 +41,6 @@ namespace Gears.Interpreter.Library
         public override object Run()
         {
             Selenium.WebDriver.ClickByVisibleText(What, Where);
-
             return null;
         }
         
