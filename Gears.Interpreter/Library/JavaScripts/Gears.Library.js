@@ -191,9 +191,13 @@ function areOrthogonal(input, element) {
 
 
 function isHidden(el) {
-    return (el.offsetParent === null);
-}
+    if (el.offsetParent === null) {
+        return true;
+    }
 
+    var style = window.getComputedStyle(el);
+    return (style.display === 'none') || (style.visibility === 'hidden');
+}
 
 Node.prototype.getElementsByTagNames = function (tags) {
     var elements = [];
