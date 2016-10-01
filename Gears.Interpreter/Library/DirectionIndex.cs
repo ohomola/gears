@@ -19,35 +19,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
-using System.Xml.Serialization;
-using Gears.Interpreter.Applications.Debugging.Overlay;
-using Gears.Interpreter.Core.Registrations;
 
 namespace Gears.Interpreter.Library
 {
-    public class Comment : Keyword
+    public class DirectionIndex
     {
-        public string Text { get; set; }
-
-        [Wire]
-        [XmlIgnore]
-        public IOverlay Overlay { get; set; }
-
-        public Comment(string text)
+        public DirectionIndex(string @where)
         {
-            Text = text;
+            Order = ParseOrder(@where);
+            IsFromRight = @where.ToLower().Contains("right");
         }
 
-        public override object Run()
+        private bool ParseYDirection(string @where)
         {
-            Console.Out.Write("\""+Text+ "\"");
-
-            return null;
+            return false;
         }
 
-        public override string ToString()
+        private int ParseOrder(string @where)
         {
-            return "  Comment: " + Text;
+            return 0;
         }
+
+        public int Order { get; set; }
+        public bool IsFromRight { get; set; }
+     
     }
 }

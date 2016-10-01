@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
 using System.IO;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core.Registrations;
@@ -38,8 +37,18 @@ namespace Gears.Interpreter.Library
             What = what;
         }
 
+        public Click()
+        {
+        }
+
         public override object Run()
         {
+            if (What == null)
+            {
+                Selenium.WebDriver.ClickByTagNameAndLocation("button", new DirectionIndex(Where));
+                return null;
+            }
+
             Selenium.WebDriver.ClickByVisibleText(What, Where);
             return null;
         }

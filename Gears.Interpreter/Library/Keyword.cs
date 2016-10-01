@@ -18,13 +18,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-
 using System;
 using System.Xml.Serialization;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Configuration;
 using Gears.Interpreter.Applications.Debugging;
+using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
@@ -50,6 +50,8 @@ namespace Gears.Interpreter.Library
         [Wire]
         [XmlIgnore]
         public ISeleniumAdapter Selenium { get; set; }
+
+        
 
         [XmlIgnore]
         public string Skip { get; set; }

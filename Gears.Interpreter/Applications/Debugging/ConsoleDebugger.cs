@@ -20,17 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using Gears.Interpreter.Adapters;
+using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
-using Microsoft.Win32.SafeHandles;
-using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Applications.Debugging
 {
@@ -39,7 +34,6 @@ namespace Gears.Interpreter.Applications.Debugging
         int Update(int index, IEnumerable<Keyword> keywords);
         ConsoleDebuggerConfig Config { get; set; }
         ConsoleDebuggerCommand Command { get; set; }
-        void ConfigureConsoleWindow();
     }
 
     public class ConsoleDebugger : IConsoleDebugger
@@ -48,8 +42,6 @@ namespace Gears.Interpreter.Applications.Debugging
         public ConsoleDebuggerConfig Config { get; set; }
         public IDataContext Data { get; set; }
         public ISeleniumAdapter Selenium { get; set; }
-
-        private const int ConsoleBufferSize = 10000;
 
         public ConsoleDebugger(IDataContext data, ConsoleDebuggerConfig config, ISeleniumAdapter selenium)
         {
@@ -115,12 +107,17 @@ namespace Gears.Interpreter.Applications.Debugging
 
             if (Config.IsActive && Command.InitialisedUserControl == false)
             {
-                ConfigureConsoleWindow();
+                KernelInteropAdapter.ConfigureConsoleWindow();
+
+                Command.StepThrough = true;
+
+                Command.InitialisedUserControl = true;
             }
 
             Command.RunStep = true;
             Command.NextIndex = index;
             Command.SelectedKeyword = currentKeyword;
+
         }
 
         private void ParseInput(List<ConsoleDebuggerActionHook> commands, int index, IEnumerable<Keyword> keywords)
@@ -353,43 +350,5 @@ namespace Gears.Interpreter.Applications.Debugging
             values.Add(string.Join(" ", strings.Skip(numberOfArguments)));
             return values.ToList();
         }
-
-        private const int STD_OUTPUT_HANDLE = -11;
-        private const int MY_CODE_PAGE = 437;
-        [DllImport("kernel32.dll",
-        EntryPoint = "GetStdHandle",
-        SetLastError = true,
-        CharSet = CharSet.Auto,
-        CallingConvention = CallingConvention.StdCall)]
-        private static extern IntPtr GetStdHandle(int nStdHandle);
-
-        [DllImport("kernel32.dll",
-            EntryPoint = "AllocConsole",
-            SetLastError = true,
-            CharSet = CharSet.Auto,
-            CallingConvention = CallingConvention.StdCall)]
-        private static extern int AllocConsole();
-
-        public void ConfigureConsoleWindow()
-        {
-            AllocConsole();
-            IntPtr stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-            SafeFileHandle safeFileHandle = new SafeFileHandle(stdHandle, true);
-            FileStream fileStream = new FileStream(safeFileHandle, System.IO.FileAccess.Write);
-            Encoding encoding = Encoding.GetEncoding(MY_CODE_PAGE);
-            StreamWriter standardOutput = new StreamWriter(fileStream, encoding);
-            standardOutput.AutoFlush = true;
-
-            Console.SetOut(standardOutput);
-
-            Console.SetBufferSize(Console.LargestWindowWidth, ConsoleBufferSize);
-
-            Console.SetWindowSize(Math.Min(90, Console.LargestWindowWidth), Console.LargestWindowHeight - 8);
-
-            Command.StepThrough = true;
-
-            Command.InitialisedUserControl = true;
-        }
-
     }
 }

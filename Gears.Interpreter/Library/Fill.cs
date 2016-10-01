@@ -26,7 +26,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Xml.Serialization;
 using Gears.Interpreter.Adapters;
+using Gears.Interpreter.Adapters.Interoperability;
+using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Applications.Debugging.Overlay;
+using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
@@ -39,6 +44,10 @@ namespace Gears.Interpreter.Library
         public string Where { get; set; }
         public string Text { get; set; }
         public bool Javascript { get; set; }
+
+        [Wire]
+        [XmlIgnore]
+        public IOverlay Overlay { get; set; }
 
         public Fill(string what, string text)
         {
@@ -84,34 +93,41 @@ namespace Gears.Interpreter.Library
 
                 var xx = (rect["left"]);
                 var yy = (rect["top"]);
+
                 var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
-                var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
-                if (processes.Count() > 1)
-                {
-                    throw new ApplicationException("Please close other Chrome windows.");
-                }
-                var process = processes.FirstOrDefault();
-                if (process == null)
-                {
-                    throw new ApplicationException("Chrome window was not found");
-                }
-                var handle = process.MainWindowHandle;
+                var handle = GetChromeHandle();
 
                 var aa = Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
+                var bb = Selenium.WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth");
                 location.Y += (int) Math.Abs((long) aa);
                 location.Y += 5;
                 location.X += 5;
 
-                UserControl.ClickOnPoint(handle, location);
+                UserInteropAdapter.ClickOnPoint(handle, location);
                 Thread.Sleep(50);
-                UserControl.SendText(handle, Text, location);
+                UserInteropAdapter.SendText(handle, Text, location);
                 Thread.Sleep(50);
-                UserControl.SetForegroundWindow(UserControl.GetConsoleWindow());
+                UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
 
                 return element;
             }
         }
 
+        public static IntPtr GetChromeHandle()
+        {
+            var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
+            if (processes.Count() > 1)
+            {
+                throw new ApplicationException("Please close other Chrome windows.");
+            }
+            var process = processes.FirstOrDefault();
+            if (process == null)
+            {
+                throw new ApplicationException("Chrome window was not found");
+            }
+            var handle = process.MainWindowHandle;
+            return handle;
+        }
 
 
         public override string ToString()

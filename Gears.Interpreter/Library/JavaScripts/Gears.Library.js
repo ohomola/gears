@@ -15,7 +15,6 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * Searches the page for Input or TextArea elements labeled by text passed in What parameter.
  * @param {} what Text of a label/placeholder indentifying a nearby located input/textarea
@@ -63,6 +62,27 @@ function getExactTextMatches(searchedText) {
     }
 
     console.log("Exact: " + matches.length);
+
+    return matches;
+}
+
+function getElementsByTagName(tagName) {
+    var allElements = document.getElementsByTagName(tagName);
+    var matches = [];
+
+    for (var i = 0; i < allElements.length; i++) {
+
+        var element = allElements[i];
+
+        if (isHidden(element)) {
+            continue;
+        }
+
+        matches.push(element);
+        
+    }
+
+    console.log("Found By Tag: " + matches.length);
 
     return matches;
 }
@@ -215,10 +235,20 @@ function distance(a, b) {
 }
 
 
+function sortByLocation(isFromRight, elements) {
+    if (isFromRight) {
+        return elements.sort(function (a, b) {
+            return (
+                a.getBoundingClientRect().top - b.getBoundingClientRect().top) * 100 +
+                (b.getBoundingClientRect().left - a.getBoundingClientRect().left);
+        });
+    }
 
-
-
-
+    return elements.sort(function (a, b) {
+        return (
+            a.getBoundingClientRect().top - b.getBoundingClientRect().top) * 100
+        + (a.getBoundingClientRect().left - b.getBoundingClientRect().left) });;
+}
 
 function firstByLocation(where, elements) {
     if (where.toLowerCase() === "left") {

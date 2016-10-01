@@ -19,12 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Xml.Serialization;
+using Gears.Interpreter.Applications.Debugging.Overlay;
+using Gears.Interpreter.Core.Registrations;
 
 namespace Gears.Interpreter.Library
 {
     public class GoToUrl : Keyword
     {
         public string Url { get; }
+
+        [Wire]
+        [XmlIgnore]
+        public IOverlay Overlay { get; set; }
 
         public GoToUrl(string url)
         {

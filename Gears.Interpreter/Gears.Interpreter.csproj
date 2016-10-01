@@ -131,12 +131,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapters\Interoperability\ExternalMethodBindings\KernelBindings.cs" />
+    <Compile Include="Adapters\Interoperability\KernelInteropAdapter.cs" />
+    <Compile Include="Adapters\Interoperability\UserInteropAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerCommand.cs" />
     <Compile Include="Applications\Configuration\IConfig.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerConfig.cs" />
     <Compile Include="Adapters\SeleniumAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerActionHook.cs" />
     <Compile Include="Applications\Debugging\ConsoleExtensions.cs" />
+    <Compile Include="Applications\Debugging\Overlay\MasterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Applications\Debugging\Overlay\MasterForm.Designer.cs">
+      <DependentUpon>MasterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Applications\Debugging\Overlay\Overlay.cs" />
     <Compile Include="Core\Extensions\Extensions.cs" />
     <Compile Include="Core\Extensions\StringExtensions.cs" />
     <Compile Include="Core\Registrations\ServiceLocator.cs" />
@@ -158,9 +168,11 @@
     <Compile Include="Data\Serialization\CSV\CsvSerializer.cs" />
     <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
     <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
+    <Compile Include="Library\Show.cs" />
+    <Compile Include="Library\DirectionIndex.cs" />
     <Compile Include="Library\SaveHtml.cs" />
     <Compile Include="Library\StringResolver.cs" />
-    <Compile Include="Library\UserControl.cs" />
+    <Compile Include="Adapters\Interoperability\ExternalMethodBindings\UserBindings.cs" />
     <Compile Include="Library\Fill.cs" />
     <Compile Include="Library\Click.cs" />
     <Compile Include="Library\Comment.cs" />
@@ -205,9 +217,16 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Applications\Debugging\Overlay\MasterForm.resx">
+      <DependentUpon>MasterForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Library\JavaScripts\Gears.Library.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Pages\Iteration2TestPageRelativeButtons.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Pages\Iteration1TestPage.html">

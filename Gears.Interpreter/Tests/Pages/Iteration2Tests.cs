@@ -1,11 +1,33 @@
-﻿using System;
+﻿#region LICENSE
+/*
+Copyright 2016 Ondrej Homola <ondra.homola@gmail.com>
+
+This file is part of Gears, a software automation and assistance framework.
+
+Gears is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Gears is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#endregion
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
+using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
@@ -60,14 +82,33 @@ namespace Gears.Interpreter.Tests.Pages
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
         }
 
+        [Test]
         public void ShouldBeAbleToClickOnRelativeButton()
         {
-            new GoToUrl("http://www.material-ui.com/#/components/text-field")
+            new GoToUrl($"file:///{FileFinder.Find("Iteration2TestPageRelativeButtons.html")}")
             {
                 Selenium = _selenium
             }.Execute();
+
+            new Click() { Selenium = _selenium, Where = "right corner" }.Execute();
+            new Click() { Selenium = _selenium, Where = "left corner" }.Execute();
             
 
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b1")).GetAttribute("innerText"), "pressed");
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b4")).GetAttribute("innerText"), "pressed");
+        }
+
+        //[Test]
+        public void ShouldBeAbleToShowOccurencesOfButton()
+        {
+            new GoToUrl($"file:///{FileFinder.Find("Iteration2TestPageRelativeButtons.html")}")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+            var overlay = new Overlay();
+            new Show() { Overlay = overlay, Selenium = _selenium, Where = "from left" }.Execute();
+            new Show() { Overlay = overlay, Selenium = _selenium, Where = "from right" }.Execute();
         }
 
         

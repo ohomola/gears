@@ -19,7 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Drawing;
+using System.Windows.Forms;
 using Gears.Interpreter.Applications;
+using Gears.Interpreter.Applications.Debugging.Overlay;
 
 namespace Gears.Interpreter
 {
@@ -33,6 +36,7 @@ namespace Gears.Interpreter
             Console.Out.WriteLine("Copyright 2016 Ondrej Homola");
             Console.Out.WriteLine("----------------------------------------");
             Console.ResetColor();
+
             return new ApplicationLoop().Run(args);
         }
     }

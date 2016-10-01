@@ -27,6 +27,7 @@ using Castle.Windsor;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications.Configuration;
 using Gears.Interpreter.Applications.Debugging;
+using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
@@ -71,6 +72,7 @@ namespace Gears.Interpreter.Applications
             _container.Register(Component.For<IConsoleDebugger>().ImplementedBy<ConsoleDebugger>().LifestyleSingleton());
 
             _container.Register(Component.For<IDataContext>().ImplementedBy<DataContext>().LifestyleSingleton());
+            _container.Register(Component.For<IOverlay>().ImplementedBy<Overlay>().LifestyleSingleton());
 
             ServiceLocator.Initialise(_container);
         }
