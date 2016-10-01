@@ -60,6 +60,16 @@ namespace Gears.Interpreter.Tests.Pages
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
         }
 
+        public void ShouldBeAbleToClickOnRelativeButton()
+        {
+            new GoToUrl("http://www.material-ui.com/#/components/text-field")
+            {
+                Selenium = _selenium
+            }.Execute();
+            
+
+        }
+
         
     }
 }
