@@ -19,7 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Gears.Interpreter.Data.Core;
 using OpenQA.Selenium;
 
@@ -51,13 +53,15 @@ namespace Gears.Interpreter.Library
         {
             try
             {
-                webDriver.RunLibraryScript($"clickFirstMatch(sortByLocation(" +
+                webDriver.RunLibraryScript($"clickNthMatch(sortByLocation(" +
                                            $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
-                                           $"getElementsByTagName(\"button\")));");
+                                           $"getElementsByTagName(\"button\"))," +
+                                           $"{locationDescription.Order}" +
+                                           $");");
             }
             catch (Exception e)
             {
-                throw new ApplicationException($"Element '{what}' was not found");
+                throw new ApplicationException($"Element '{locationDescription}' was not found");
             }
         }
 
@@ -76,5 +80,7 @@ namespace Gears.Interpreter.Library
                 throw new ApplicationException($"Element '{what}' was not found");
             }
         }
+
+        
     }
 }

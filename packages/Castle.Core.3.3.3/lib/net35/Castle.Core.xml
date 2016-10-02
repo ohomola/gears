@@ -343,23 +343,6 @@
             <param name = "this"></param>
             <returns></returns>
         </member>
-        <member name="M:Castle.Core.Internal.CollectionExtensions.GetContentsHashCode``1(System.Collections.Generic.IList{``0})">
-            <summary>
-              Generates a HashCode for the contents for the list. Order of items does not matter.
-            </summary>
-            <typeparam name="T">The type of object contained within the list.</typeparam>
-            <param name="list">The list.</param>
-            <returns>The generated HashCode.</returns>
-        </member>
-        <member name="M:Castle.Core.Internal.CollectionExtensions.AreEquivalent``1(System.Collections.Generic.IList{``0},System.Collections.Generic.IList{``0})">
-            <summary>
-              Determines if two lists are equivalent. Equivalent lists have the same number of items and each item is found within the other regardless of respective position within each.
-            </summary>
-            <typeparam name="T">The type of object contained within the list.</typeparam>
-            <param name="listA">The first list.</param>
-            <param name="listB">The second list.</param>
-            <returns><c>True</c> if the two lists are equivalent.</returns>
-        </member>
         <member name="M:Castle.Core.Internal.ExceptionMessageBuilder.CreateMessageForInaccessibleType(System.Type,System.Type)">
             <summary>
             Creates a message to inform clients that a proxy couldn't be created due to reliance on an
@@ -1038,32 +1021,18 @@
               Helper class for retrieving attributes.
             </summary>
         </member>
-        <member name="M:Castle.Core.Internal.AttributesUtil.GetAttribute``1(System.Type)">
+        <member name="M:Castle.Core.Internal.AttributesUtil.GetAttribute``1(System.Reflection.ICustomAttributeProvider)">
             <summary>
-            Gets the attribute.
+              Gets the attribute.
             </summary>
-            <param name="type">The type.</param>
-            <returns>The type attribute.</returns>
-        </member>
-        <member name="M:Castle.Core.Internal.AttributesUtil.GetAttributes``1(System.Type)">
-            <summary>
-            Gets the attributes. Does not consider inherited attributes!
-            </summary>
-            <param name="type">The type.</param>
-            <returns>The type attributes.</returns>
-        </member>
-        <member name="M:Castle.Core.Internal.AttributesUtil.GetAttribute``1(System.Reflection.MemberInfo)">
-            <summary>
-            Gets the attribute.
-            </summary>
-            <param name="member">The member.</param>
+            <param name = "member">The member.</param>
             <returns>The member attribute.</returns>
         </member>
-        <member name="M:Castle.Core.Internal.AttributesUtil.GetAttributes``1(System.Reflection.MemberInfo)">
+        <member name="M:Castle.Core.Internal.AttributesUtil.GetAttributes``1(System.Reflection.ICustomAttributeProvider)">
             <summary>
-            Gets the attributes. Does not consider inherited attributes!
+              Gets the attributes. Does not consider inherited attributes!
             </summary>
-            <param name="member">The member.</param>
+            <param name = "member">The member.</param>
             <returns>The member attributes.</returns>
         </member>
         <member name="M:Castle.Core.Internal.AttributesUtil.GetTypeAttribute``1(System.Type)">
@@ -1082,10 +1051,17 @@
         </member>
         <member name="M:Castle.Core.Internal.AttributesUtil.GetTypeConverter(System.Reflection.MemberInfo)">
             <summary>
-            Gets the type converter.
+              Gets the type converter.
             </summary>
-            <param name="member">The member.</param>
+            <param name = "member">The member.</param>
             <returns></returns>
+        </member>
+        <member name="M:Castle.Core.Internal.AttributesUtil.HasAttribute``1(System.Reflection.ICustomAttributeProvider)">
+            <summary>
+              Gets the attribute.
+            </summary>
+            <param name = "member">The member.</param>
+            <returns>The member attribute.</returns>
         </member>
         <member name="T:Castle.Components.DictionaryAdapter.IDynamicValue`1">
             <summary>
@@ -2786,6 +2762,21 @@
             </summary>
             <value>The proxy builder.</value>
         </member>
+        <member name="M:Castle.DynamicProxy.Serialization.RemotableInvocation.Proceed">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Castle.DynamicProxy.Serialization.RemotableInvocation.Method">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:Castle.DynamicProxy.Serialization.RemotableInvocation.MethodInvocationTarget">
+            <summary>
+              For interface proxies, this will point to the
+              <see cref="T:System.Reflection.MethodInfo"/> on the target class
+            </summary>
+        </member>
         <member name="T:Castle.DynamicProxy.Serialization.ProxyObjectReference">
             <summary>
               Handles the deserialization of proxies.
@@ -3796,7 +3787,7 @@
         </member>
         <member name="T:Castle.Core.Logging.DiagnosticsLogger">
             <summary>
-              The Logger using standard Diagnostics namespace.
+              The Logger using standart Diagnostics namespace.
             </summary>
         </member>
         <member name="M:Castle.Core.Logging.DiagnosticsLogger.#ctor(System.String)">

@@ -127,6 +127,10 @@ function clickFirstMatch(matches) {
     return click(matches[0]);
 }
 
+function clickNthMatch(matches, n) {
+    return click(matches[n]);
+}
+
 function click(theElement) {
     theElement.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
     theElement.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));

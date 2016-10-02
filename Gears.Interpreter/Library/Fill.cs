@@ -95,7 +95,7 @@ namespace Gears.Interpreter.Library
                 var yy = (rect["top"]);
 
                 var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
-                var handle = GetChromeHandle();
+                var handle = Selenium.GetChromeHandle();
 
                 var aa = Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
                 var bb = Selenium.WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth");
@@ -112,23 +112,7 @@ namespace Gears.Interpreter.Library
                 return element;
             }
         }
-
-        public static IntPtr GetChromeHandle()
-        {
-            var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
-            if (processes.Count() > 1)
-            {
-                throw new ApplicationException("Please close other Chrome windows.");
-            }
-            var process = processes.FirstOrDefault();
-            if (process == null)
-            {
-                throw new ApplicationException("Chrome window was not found");
-            }
-            var handle = process.MainWindowHandle;
-            return handle;
-        }
-
+        
 
         public override string ToString()
         {

@@ -90,26 +90,16 @@ namespace Gears.Interpreter.Tests.Pages
                 Selenium = _selenium
             }.Execute();
 
-            new Click() { Selenium = _selenium, Where = "right corner" }.Execute();
-            new Click() { Selenium = _selenium, Where = "left corner" }.Execute();
-            
-
-            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b1")).GetAttribute("innerText"), "pressed");
+            new Click("first button in the right corner") { Selenium = _selenium}.Execute();
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b4")).GetAttribute("innerText"), "pressed");
+
+            new Click("a button in the left corner") { Selenium = _selenium }.Execute();
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b1")).GetAttribute("innerText"), "pressed");
+            
+            new Click("second from left corner") { Selenium = _selenium }.Execute();
+            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b2")).GetAttribute("innerText"), "pressed");
         }
 
-        //[Test]
-        public void ShouldBeAbleToShowOccurencesOfButton()
-        {
-            new GoToUrl($"file:///{FileFinder.Find("Iteration2TestPageRelativeButtons.html")}")
-            {
-                Selenium = _selenium
-            }.Execute();
-
-            var overlay = new Overlay();
-            new Show() { Overlay = overlay, Selenium = _selenium, Where = "from left" }.Execute();
-            new Show() { Overlay = overlay, Selenium = _selenium, Where = "from right" }.Execute();
-        }
 
         
     }

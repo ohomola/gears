@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Diagnostics;
+using System.Linq;
 using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Adapters
@@ -26,10 +28,12 @@ namespace Gears.Interpreter.Adapters
     public interface ISeleniumAdapter: IDisposable
     {
         IWebDriver WebDriver { get; set; }
+        IntPtr GetChromeHandle();
     }
 
     public class SeleniumAdapter : ISeleniumAdapter, IDisposable
     {
+        private IntPtr _handle;
         public IWebDriver WebDriver { get; set; }
 
         public SeleniumAdapter(IWebDriver webDriver)
@@ -47,6 +51,26 @@ namespace Gears.Interpreter.Adapters
             catch (Exception)
             {
             }
+        }
+
+        public IntPtr GetChromeHandle()
+        {
+            if (_handle == default(IntPtr))
+            {
+                var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
+                if (processes.Count() > 1)
+                {
+                    throw new ApplicationException("Please close other Chrome windows.");
+                }
+                var process = processes.FirstOrDefault();
+                if (process == null)
+                {
+                    throw new ApplicationException("Chrome window was not found");
+                }
+                _handle = process.MainWindowHandle;
+            }
+
+            return _handle;
         }
     }
 }

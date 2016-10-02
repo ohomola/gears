@@ -19,6 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Gears.Interpreter.Core.Extensions;
 
 namespace Gears.Interpreter.Library
 {
@@ -30,18 +33,30 @@ namespace Gears.Interpreter.Library
             IsFromRight = @where.ToLower().Contains("right");
         }
 
-        private bool ParseYDirection(string @where)
-        {
-            return false;
-        }
-
         private int ParseOrder(string @where)
         {
+            @where = @where.ToLower();
+            if (@where.Contains("first")) return 0;
+            if (@where.Contains("second")) return 1;
+            if (@where.Contains("third")) return 2;
+            if (@where.Contains("fourth")) return 3;
+            if (@where.Contains("fifth")) return 4;
+
+            var regex = new Regex(".*(\\d+).*");
+            var result = regex.Match(@where);
+            if (result.Success)
+            {
+                var number =int.Parse(result.Groups[1].Value)-1;
+                return number;
+            }
             return 0;
         }
 
         public int Order { get; set; }
         public bool IsFromRight { get; set; }
-     
+        public override string ToString()
+        {
+            return $"{Order.ToOrdinalString()} button from the {(IsFromRight ? "right" : "left")}";
+        }
     }
 }

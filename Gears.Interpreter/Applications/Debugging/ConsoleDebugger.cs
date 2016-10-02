@@ -182,6 +182,14 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = fill;
                     Command.NextIndex = Command.NextIndex-1;
                 }),
+                new ConsoleDebuggerActionHook("show", "show [left|right]: highlights buttons with their sort orders using a screen overlay", input =>
+                {
+                    var args = ParseArguments(input, 1);
+                    var show = new Show(args.First());
+                    ServiceLocator.Instance.Resolve(show);
+                    Command.SelectedKeyword = show;
+                    Command.NextIndex = Command.NextIndex-1;
+                }),
                 new ConsoleDebuggerActionHook("goto (.+)", "goto X: use this to click on element ad-hoc", input =>
                 {
                     var arg = ParseArguments(input, 1).First();

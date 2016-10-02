@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Xml.Serialization;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
@@ -39,7 +40,14 @@ namespace Gears.Interpreter.Library
     {
         public string Where { get; set; }
 
+        [Wire]
+        [XmlIgnore]
         public IOverlay Overlay { get; set; }
+
+        public Show(string @where)
+        {
+            Where = @where;
+        }
 
         public override object Run()
         {
@@ -58,7 +66,7 @@ namespace Gears.Interpreter.Library
                 DrawStuff(i, element.Location.X+ XOffset, element.Location.Y + YOffset);
             }
 
-            Console.Out.WriteColoredLine(ConsoleColor.White, $"{elements.Count} elements highlighted on screen. Press enter to continue.");
+            Console.Out.WriteColoredLine(ConsoleColor.White, $"{elements.Count} elements highlighted on screen. Press enter to continue (highlighting will disappear).");
             Console.ReadLine();
             Overlay.Graphics.Clear(Color.White);
 
@@ -68,7 +76,7 @@ namespace Gears.Interpreter.Library
         private void DrawStuff(int number, int clientX, int clientY)
         {
             var point = new Point(clientX, clientY);
-            var handle = Fill.GetChromeHandle();
+            var handle = Selenium.GetChromeHandle();
             ClientToScreen(handle, ref point);
             UserInteropAdapter.ScreenToGraphics(ref point);
             
