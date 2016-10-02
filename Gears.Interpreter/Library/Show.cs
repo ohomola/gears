@@ -48,8 +48,6 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-           
-
                 var elements =
                     Selenium.WebDriver.GetByTagNameAndLocation(new ButtonQuery(Where)) as
                         ReadOnlyCollection<IWebElement>;
