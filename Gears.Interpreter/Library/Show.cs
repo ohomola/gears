@@ -40,10 +40,7 @@ namespace Gears.Interpreter.Library
     {
         public string Where { get; set; }
 
-        [Wire]
-        [XmlIgnore]
-        public IOverlay Overlay { get; set; }
-
+       
         public Show(string @where)
         {
             Where = @where;
@@ -51,38 +48,62 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            Overlay.Init();
+           
 
-            var elements = Selenium.WebDriver.GetByTagNameAndLocation("button", new DirectionIndex(Where)) as ReadOnlyCollection<IWebElement>;
+                var elements =
+                    Selenium.WebDriver.GetByTagNameAndLocation(new ButtonQuery(Where)) as
+                        ReadOnlyCollection<IWebElement>;
+                
+                var YOffset =
+                    (int)
+                    Math.Abs(
+                        (long) Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight"));
+                var XOffset =
+                    (int)
+                    Math.Abs((long) Selenium.WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth"));
 
-            
-            var YOffset = (int)Math.Abs((long)Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight"));
-            var XOffset = (int)Math.Abs((long)Selenium.WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth"));
+                var scrollOffset =
+                    (int)
+                    Math.Abs(
+                        (long)
+                        Selenium.WebDriver.RunLibraryScript(
+                            "return window.pageYOffset || document.documentElement.scrollTop"));
+                //var top  = window.pageYOffset || document.documentElement.scrollTop,
 
-            int i = 0;
-            foreach (var element in elements)
+                if (elements == null)
+                {
+                    return null;
+                }
+
+            using (var overlay = new Overlay())
             {
-                i++;
-                DrawStuff(i, element.Location.X+ XOffset, element.Location.Y + YOffset);
-            }
+                overlay.Init();
+                int i = 0;
+                foreach (var element in elements)
+                {
+                    i++;
+                    DrawStuff(i, element.Location.X + XOffset, element.Location.Y + YOffset - scrollOffset,
+                        overlay.Graphics);
+                }
 
-            Console.Out.WriteColoredLine(ConsoleColor.White, $"{elements.Count} elements highlighted on screen. Press enter to continue (highlighting will disappear).");
-            Console.ReadLine();
-            Overlay.Graphics.Clear(Color.White);
+                Console.Out.WriteColoredLine(ConsoleColor.White,
+                    $"{elements.Count} elements highlighted on screen. Press enter to continue (highlighting will disappear).");
+                Console.ReadLine();
+            }
 
             return null;
         }
 
-        private void DrawStuff(int number, int clientX, int clientY)
+        private void DrawStuff(int number, int clientX, int clientY, Graphics overlayGraphics)
         {
             var point = new Point(clientX, clientY);
             var handle = Selenium.GetChromeHandle();
             ClientToScreen(handle, ref point);
             UserInteropAdapter.ScreenToGraphics(ref point);
             
-            Overlay.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 0, 255, 255)), point.X, point.Y, 20, 20);
-            Overlay.Graphics.DrawString(number.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.Black),point.X, point.Y);
-            Overlay.Graphics.DrawRectangle(new Pen(Color.FromArgb(255, 255,0,255)), point.X, point.Y, 21,21 );
+            overlayGraphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 0, 255, 255)), point.X, point.Y, 20, 20);
+            overlayGraphics.DrawString(number.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.DarkMagenta),point.X, point.Y);
+            overlayGraphics.DrawRectangle(new Pen(Color.FromArgb(255, 255,0,255)), point.X, point.Y, 21,21 );
         }
 
         public override string ToString()

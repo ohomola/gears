@@ -1,4 +1,6 @@
-﻿namespace Gears.Interpreter.Applications.Debugging.Overlay
+﻿using System.Drawing;
+
+namespace Gears.Interpreter.Applications.Debugging.Overlay
 {
     partial class MasterForm
     {
@@ -34,14 +36,15 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
+            //this.BackColor = Color.White;
+            this.BackColor = Color.FromArgb(255, 0, 0, 0);
             this.ClientSize = new System.Drawing.Size(284, 262);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Location = new System.Drawing.Point(-1280, 0);
-            this.Name = "MasterForm";
-            this.Text = "MasterForm";
+            this.Name = "HIGHLIGHT Overlay";
+            this.Text = "HIGHLIGHT Overlay";
             this.TopMost = true;
-            this.TransparencyKey = System.Drawing.Color.White;
+            this.TransparencyKey = Color.FromArgb(255, 0, 0, 0);
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
 

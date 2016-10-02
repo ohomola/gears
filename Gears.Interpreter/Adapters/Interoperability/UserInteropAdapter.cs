@@ -17,9 +17,32 @@ namespace Gears.Interpreter.Adapters.Interoperability
         /// <param name="p"></param>
         public static void ScreenToGraphics(ref Point p)
         {
-            p.X -= UserBindings.GetSystemMetrics(76);
-            p.Y -= UserBindings.GetSystemMetrics(77);
+            p.X -= VirtualScreenLeft;
+            p.Y -= VirtualScreenTop;
         }
+
+
+        public static int VirtualScreenLeft
+        {
+            get { return UserBindings.GetSystemMetrics(76); }
+        }
+
+        public static int VirtualScreenTop
+        {
+            get { return UserBindings.GetSystemMetrics(77); }
+        }
+
+
+        public static int VirtualScreenWidth
+        {
+            get { return UserBindings.GetSystemMetrics(78); }
+        }
+
+        public static int VirtualScreenHeight
+        {
+            get { return UserBindings.GetSystemMetrics(79); }
+        }
+
 
         public static void ClickOnPoint(IntPtr wndHandle, Point clientPoint)
         {

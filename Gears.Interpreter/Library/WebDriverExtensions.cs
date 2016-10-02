@@ -49,13 +49,13 @@ namespace Gears.Interpreter.Library
             }
         }
 
-        public static void ClickByTagNameAndLocation(this IWebDriver webDriver, string what, DirectionIndex locationDescription)
+        public static void ClickByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
         {
             try
             {
                 webDriver.RunLibraryScript($"clickNthMatch(sortByLocation(" +
                                            $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
-                                           $"getElementsByTagName(\"button\"))," +
+                                           $"getElementsByTagName(\"{locationDescription.TagName}\"))," +
                                            $"{locationDescription.Order}" +
                                            $");");
             }
@@ -65,19 +65,19 @@ namespace Gears.Interpreter.Library
             }
         }
 
-        public static object GetByTagNameAndLocation(this IWebDriver webDriver, string what, DirectionIndex locationDescription)
+        public static object GetByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
         {
             try
             {
                 var result = webDriver.RunLibraryScript($"return sortByLocation(" +
                                            $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
-                                           $"getElementsByTagName(\"button\"));");
+                                           $"getElementsByTagName(\"{locationDescription.TagName}\"));");
 
                 return result;
             }
             catch (Exception e)
             {
-                throw new ApplicationException($"Element '{what}' was not found");
+                throw new ApplicationException($"Element '{locationDescription}' was not found");
             }
         }
 

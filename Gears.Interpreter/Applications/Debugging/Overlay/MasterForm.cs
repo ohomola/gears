@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using Gears.Interpreter.Adapters.Interoperability;
 
 namespace Gears.Interpreter.Applications.Debugging.Overlay
 {
@@ -189,31 +190,20 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
         /// </summary>
         public void SetTheLayeredWindowAttribute()
         {
-            uint transparentColor = 0xffffffff;
 
-            SetLayeredWindowAttributes(this.Handle, transparentColor, 125, 0x2);
+            SetLayeredWindowAttributes(this.Handle, 0x0, 125, 0x3);
 
-            this.TransparencyKey = Color.White;
+            //mode 0x03 sets color 0x0 as transparent, and sets the entire winow to 200/255 opaque
+            //uint transparentColor = 0xffffffff;
+
+            //SetLayeredWindowAttributes(this.Handle, transparentColor, 125, 0x2);
+
+            //this.TransparencyKey = Color.White;
         }
 
-        /// <summary>
-        /// Finds the Size of all computer screens combined (assumes screens are left to right, not above and below).
-        /// </summary>
-        /// <returns>The width and height of all screens combined</returns>
-        public static Size getFullScreensSize()
+        private static Size GetFullScreensSize()
         {
-            int height = int.MinValue;
-            int width = 0;
-
-            foreach (Screen screen in System.Windows.Forms.Screen.AllScreens)
-            {
-                //take largest height
-                height = Math.Max(screen.WorkingArea.Height, height);
-
-                width += screen.Bounds.Width;
-            }
-
-            return new Size(width, height);
+            return new Size(UserInteropAdapter.VirtualScreenWidth, UserInteropAdapter.VirtualScreenHeight);
         }
 
         /// <summary>
@@ -258,7 +248,7 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
         private void MaximizeEverything()
         {
             this.Location = getTopLeft();
-            this.Size = getFullScreensSize();
+            this.Size = GetFullScreensSize();
 
             SendMessage(this.Handle, WM_SYSCOMMAND, (UIntPtr)myWParam, (IntPtr)myLparam);
         }

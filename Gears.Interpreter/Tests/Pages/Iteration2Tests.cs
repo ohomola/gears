@@ -91,13 +91,13 @@ namespace Gears.Interpreter.Tests.Pages
             }.Execute();
 
             new Click("first button in the right corner") { Selenium = _selenium}.Execute();
-            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b4")).GetAttribute("innerText"), "pressed");
+            Assert.AreEqual("pressed",_selenium.WebDriver.FindElement(By.Id("b4")).GetAttribute("innerText"));
 
             new Click("a button in the left corner") { Selenium = _selenium }.Execute();
-            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b1")).GetAttribute("innerText"), "pressed");
+            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b1")).GetAttribute("innerText"));
             
-            new Click("second from left corner") { Selenium = _selenium }.Execute();
-            Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("b2")).GetAttribute("innerText"), "pressed");
+            new Click("second from right corner") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b8")).GetAttribute("innerText"));
         }
 
 

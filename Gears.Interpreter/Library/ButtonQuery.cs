@@ -25,12 +25,16 @@ using Gears.Interpreter.Core.Extensions;
 
 namespace Gears.Interpreter.Library
 {
-    public class DirectionIndex
+    public class ButtonQuery
     {
-        public DirectionIndex(string @where)
+        public ButtonQuery(string query)
         {
-            Order = ParseOrder(@where);
-            IsFromRight = @where.ToLower().Contains("right");
+            Order = ParseOrder(query);
+            IsFromRight = query.ToLower().Contains("right");
+
+            TagName = "button";
+            if (query.ToLower().Contains("input")) TagName = "input";
+            if (query.ToLower().Contains("link")) TagName = "a";
         }
 
         private int ParseOrder(string @where)
@@ -54,6 +58,8 @@ namespace Gears.Interpreter.Library
 
         public int Order { get; set; }
         public bool IsFromRight { get; set; }
+        public string TagName { get; set; }
+
         public override string ToString()
         {
             return $"{Order.ToOrdinalString()} button from the {(IsFromRight ? "right" : "left")}";

@@ -133,12 +133,14 @@ function clickNthMatch(matches, n) {
 
 function click(theElement) {
     theElement.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-    theElement.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+    
     try {
         theElement.click();
     } catch (err) {
         console.log("WARNING: click has caused error: " + err);
     }
+
+    theElement.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
 
     return theElement;
 }
@@ -243,15 +245,15 @@ function sortByLocation(isFromRight, elements) {
     if (isFromRight) {
         return elements.sort(function (a, b) {
             return (
-                a.getBoundingClientRect().top - b.getBoundingClientRect().top) * 100 +
-                (b.getBoundingClientRect().left - a.getBoundingClientRect().left);
+                a.getBoundingClientRect().top - b.getBoundingClientRect().top) * 1 +
+                (b.getBoundingClientRect().left - a.getBoundingClientRect().left) *100;
         });
     }
 
     return elements.sort(function (a, b) {
         return (
-            a.getBoundingClientRect().top - b.getBoundingClientRect().top) * 100
-        + (a.getBoundingClientRect().left - b.getBoundingClientRect().left) });;
+            a.getBoundingClientRect().top - b.getBoundingClientRect().top) * 1
+        + (a.getBoundingClientRect().left - b.getBoundingClientRect().left) *100 });;
 }
 
 function firstByLocation(where, elements) {

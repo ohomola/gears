@@ -28,6 +28,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Gears.Interpreter.Adapters.Interoperability;
 
 namespace Gears.Interpreter.Applications.Debugging.Overlay
 {
@@ -35,12 +36,14 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
     {
         Graphics Graphics { get; set; }
         void Init();
+        void Clear();
     }
 
     public class Overlay : IOverlay, IDisposable
     {
         private MasterForm _masterForm;
-        private static bool _initialized;
+        private bool _initialized;
+        private static bool _appInitialized;
         public Graphics Graphics { get; set; }
 
         public void Init()
@@ -49,22 +52,45 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
             {
                 return;
             }
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+
+            StaticInit();
+
             _masterForm = new MasterForm();
             _masterForm.InitializeAsInvisibleForm();
             Graphics = _masterForm.CreateGraphics();
+            //Graphics.CompositingMode = CompositingMode.SourceCopy;
             Graphics.CompositingMode = CompositingMode.SourceOver;
+
+            Clear();
+
             _initialized = true;
+
+            
+        }
+
+        private static void StaticInit()
+        {
+            if (_appInitialized)
+            {
+                return;
+            }
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            _appInitialized = true;
+        }
+
+        public void Clear()
+        {
+            Graphics.Clear(Color.Black);
+            Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 0, 255, 255)), 0, 0, UserInteropAdapter.VirtualScreenWidth, 50);
+            Graphics.DrawString("HIGHLIGHTING", new Font(FontFamily.GenericSansSerif, 24), new SolidBrush(Color.FromArgb(255,0,200,200)),50, 8);
+
         }
 
         public void Dispose()
         {
             _masterForm.Dispose();
         }
-
-
-
-       
     }
 }

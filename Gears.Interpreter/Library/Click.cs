@@ -47,7 +47,9 @@ namespace Gears.Interpreter.Library
             }
             catch (Exception)
             {
-                Selenium.WebDriver.ClickByTagNameAndLocation("button", new DirectionIndex(What));
+                
+
+                Selenium.WebDriver.ClickByTagNameAndLocation(new ButtonQuery(What));
             }
             return null;
         }

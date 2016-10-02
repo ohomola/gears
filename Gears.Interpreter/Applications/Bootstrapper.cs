@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using Castle.MicroKernel.Registration;
@@ -73,6 +75,9 @@ namespace Gears.Interpreter.Applications
 
             _container.Register(Component.For<IDataContext>().ImplementedBy<DataContext>().LifestyleSingleton());
             _container.Register(Component.For<IOverlay>().ImplementedBy<Overlay>().LifestyleSingleton());
+
+            //_container.Resolve<IOverlay>().Graphics.Clear(Color.FromArgb(0,0,0,0));
+            //_container.Resolve<IOverlay>().Graphics.FillRectangle(new SolidBrush(Color.FromArgb(24, 255, 0, 0)), 100,100,200,200);
 
             ServiceLocator.Initialise(_container);
         }
