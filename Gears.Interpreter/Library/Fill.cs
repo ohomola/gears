@@ -83,36 +83,22 @@ namespace Gears.Interpreter.Library
                     throw new ApplicationException("Element was not found");
                 }
 
-                ((IJavaScriptExecutor) Selenium.WebDriver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
-                ((IJavaScriptExecutor) Selenium.WebDriver).ExecuteScript("scrollBy(0,-200);");
-
-                var rect =
-                    (Dictionary<string, object>)
-                    ((IJavaScriptExecutor) Selenium.WebDriver).ExecuteScript(
-                        "return arguments[0].getBoundingClientRect();", element);
-
-                var xx = (rect["left"]);
-                var yy = (rect["top"]);
-
-                var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
                 var handle = Selenium.GetChromeHandle();
 
-                var aa = Selenium.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
-                var bb = Selenium.WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth");
-                location.Y += (int) Math.Abs((long) aa);
-                location.Y += 5;
-                location.X += 5;
+                var screenLocation = Selenium.PutElementOnScreen(element);
 
-                UserInteropAdapter.ClickOnPoint(handle, location);
+                UserInteropAdapter.ClickOnPoint(handle, screenLocation);
                 Thread.Sleep(50);
-                UserInteropAdapter.SendText(handle, Text, location);
+                UserInteropAdapter.SendText(handle, Text, screenLocation);
                 Thread.Sleep(50);
                 UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
 
                 return element;
             }
         }
+
         
+
 
         public override string ToString()
         {

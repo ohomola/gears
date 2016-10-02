@@ -163,5 +163,49 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual("test1", (new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute() as IWebElement)?.GetAttribute("value"));
             Assert.AreEqual("test2", (new Fill("Hint Text", "test2") { Selenium = _selenium }.Execute() as IWebElement)?.GetAttribute("value"));
         }
+
+
+        [Test]
+        public void ShouldFindOnlyVisibleText()
+        {
+            new GoToUrl($"http://www.material-ui.com/#/components/snackbar")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+            
+            new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
+            new Click("Add to my calendar") { Selenium = _selenium, Where = "top" }.Execute();
+            new Wait(500).Execute();
+            new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = true }.Execute();
+            new Wait(500).Execute();
+            new Click("Add to my calendar") { Selenium = _selenium, Where = "top" }.Execute();
+            new Wait(500).Execute();
+            new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
+        }
+
+        [Test]
+        public void ShouldBeAbleToClickOnRelativeButton()
+        {
+            new GoToUrl($"file:///{FileFinder.Find("Iteration1TestPageRelativeButtons.html")}")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+            //new Show("buttons from right") { Selenium = _selenium}.Execute();
+
+            new Click("second from right corner") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b8")).GetAttribute("innerText"));
+
+            new Click("first button in the right corner") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b4")).GetAttribute("innerText"));
+
+            new Click("a button in the left corner") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b1")).GetAttribute("innerText"));
+
+          
+        }
+
+
     }
 }

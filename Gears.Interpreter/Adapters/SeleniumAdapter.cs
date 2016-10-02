@@ -19,8 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
+using Gears.Interpreter.Library;
 using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Adapters
@@ -29,6 +32,7 @@ namespace Gears.Interpreter.Adapters
     {
         IWebDriver WebDriver { get; set; }
         IntPtr GetChromeHandle();
+        Point PutElementOnScreen(IWebElement element);
     }
 
     public class SeleniumAdapter : ISeleniumAdapter, IDisposable
@@ -71,6 +75,29 @@ namespace Gears.Interpreter.Adapters
             }
 
             return _handle;
+        }
+
+        public Point PutElementOnScreen(IWebElement element)
+        {
+            ((IJavaScriptExecutor)WebDriver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
+            ((IJavaScriptExecutor)WebDriver).ExecuteScript("scrollBy(0,-200);");
+
+            var rect =
+                (Dictionary<string, object>)
+                ((IJavaScriptExecutor)WebDriver).ExecuteScript(
+                    "return arguments[0].getBoundingClientRect();", element);
+
+            var xx = (rect["left"]);
+            var yy = (rect["top"]);
+
+            var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
+
+            var aa = WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
+            var bb = WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth");
+            location.Y += (int)Math.Abs((long)aa);
+            location.Y += 5;
+            location.X += 5;
+            return location;
         }
     }
 }

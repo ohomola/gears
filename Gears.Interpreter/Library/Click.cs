@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.IO;
+using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
@@ -34,22 +35,39 @@ namespace Gears.Interpreter.Library
         public string What { get; set; }
         public string Where { get; set; }
 
+        public bool Javascript { get; set; }
+
         public Click(string what)
         {
             What = what;
+            Javascript = false;
         }
 
         public override object Run()
         {
+
             try
             {
-                Selenium.WebDriver.ClickByVisibleText(What, Where);
+                var elem = Selenium.WebDriver.GetElementByVisibleText(What, Where);
+
+                if (elem == null)
+                {
+                    elem = Selenium.WebDriver.GetByTagNameAndLocation(new ButtonQuery(What));
+                }
+
+                if (Javascript)
+                {
+                    Selenium.WebDriver.Click(elem);
+                }
+                else
+                {
+                    var screenLocation = Selenium.PutElementOnScreen(elem);
+                    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
+                }
             }
             catch (Exception)
             {
-                
-
-                Selenium.WebDriver.ClickByTagNameAndLocation(new ButtonQuery(What));
+                throw new ApplicationException($"Element was not found");
             }
             return null;
         }

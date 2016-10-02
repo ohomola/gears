@@ -132,6 +132,9 @@ function clickNthMatch(matches, n) {
 }
 
 function click(theElement) {
+
+    theElement.dispatchEvent(new Event("focus", { bubbles: true }));
+
     theElement.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
     
     try {

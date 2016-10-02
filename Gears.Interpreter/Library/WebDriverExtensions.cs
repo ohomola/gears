@@ -19,7 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using Gears.Interpreter.Data.Core;
@@ -29,19 +32,31 @@ namespace Gears.Interpreter.Library
 {
     public static class WebDriverExtensions
     {
-        public static object RunLibraryScript(this IWebDriver webDriver, string scriptCode)
+        public static object RunLibraryScript(this IWebDriver webDriver, string scriptCode, params object[] elements)
         {
             var script = File.ReadAllText(FileFinder.Find("Gears.Library.js"));
             
             script += scriptCode;
-            return ((IJavaScriptExecutor)webDriver).ExecuteScript(script);
+            return ((IJavaScriptExecutor)webDriver).ExecuteScript(script, elements);
         }
 
-        public static void ClickByVisibleText(this IWebDriver webDriver, string what, string @where)
+        //public static void ClickByVisibleText(this IWebDriver webDriver, string what, string @where)
+        //{
+        //    try
+        //    {
+        //        webDriver.RunLibraryScript($"clickFirstMatch([firstByLocation(\"{where}\", getExactMatches(\"{what}\"))]);");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw new ApplicationException($"Element '{what}' was not found");
+        //    }
+        //}
+
+        public static IWebElement GetElementByVisibleText(this IWebDriver webDriver, string what, string @where)
         {
             try
             {
-                webDriver.RunLibraryScript($"clickFirstMatch([firstByLocation(\"{where}\", getExactMatches(\"{what}\"))]);");
+                return (IWebElement) webDriver.RunLibraryScript($"return firstByLocation(\"{@where}\", getExactMatches(\"{what}\"));");
             }
             catch (Exception)
             {
@@ -49,23 +64,35 @@ namespace Gears.Interpreter.Library
             }
         }
 
-        public static void ClickByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
+
+        //public static void ClickByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
+        //{
+        //    try
+        //    {
+        //        webDriver.RunLibraryScript($"clickNthMatch(sortByLocation(" +
+        //                                   $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
+        //                                   $"getElementsByTagName(\"{locationDescription.TagName}\"))," +
+        //                                   $"{locationDescription.OneBasedOrder}" +
+        //                                   $");");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new ApplicationException($"Element '{locationDescription}' was not found");
+        //    }
+        //}
+
+        public static void Click(this IWebDriver webDriver, IWebElement element)
         {
-            try
-            {
-                webDriver.RunLibraryScript($"clickNthMatch(sortByLocation(" +
-                                           $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
-                                           $"getElementsByTagName(\"{locationDescription.TagName}\"))," +
-                                           $"{locationDescription.Order}" +
-                                           $");");
-            }
-            catch (Exception e)
-            {
-                throw new ApplicationException($"Element '{locationDescription}' was not found");
-            }
+            webDriver.RunLibraryScript($"click(arguments[0]);", element);
         }
 
-        public static object GetByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
+        public static IWebElement GetByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
+        {
+            var elements = GetAllByTagNameAndLocation(webDriver, locationDescription);
+            return elements.ElementAt(locationDescription.OneBasedOrder-1);
+        }
+
+        public static ReadOnlyCollection<IWebElement> GetAllByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
         {
             try
             {
@@ -73,7 +100,7 @@ namespace Gears.Interpreter.Library
                                            $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
                                            $"getElementsByTagName(\"{locationDescription.TagName}\"));");
 
-                return result;
+                return (ReadOnlyCollection<IWebElement>) result;
             }
             catch (Exception e)
             {
@@ -81,6 +108,8 @@ namespace Gears.Interpreter.Library
             }
         }
 
-        
+       
+
+
     }
 }

@@ -27,9 +27,12 @@ namespace Gears.Interpreter.Library
 {
     public class ButtonQuery
     {
+        private readonly string _query;
+
         public ButtonQuery(string query)
         {
-            Order = ParseOrder(query);
+            _query = query;
+            OneBasedOrder = ParseOrder(query);
             IsFromRight = query.ToLower().Contains("right");
 
             TagName = "button";
@@ -40,29 +43,29 @@ namespace Gears.Interpreter.Library
         private int ParseOrder(string @where)
         {
             @where = @where.ToLower();
-            if (@where.Contains("first")) return 0;
-            if (@where.Contains("second")) return 1;
-            if (@where.Contains("third")) return 2;
-            if (@where.Contains("fourth")) return 3;
-            if (@where.Contains("fifth")) return 4;
+            if (@where.Contains("first")) return 1;
+            if (@where.Contains("second")) return 2;
+            if (@where.Contains("third")) return 3;
+            if (@where.Contains("fourth")) return 4;
+            if (@where.Contains("fifth")) return 5;
 
-            var regex = new Regex(".*(\\d+).*");
+            var regex = new Regex("\\D*(\\d+)\\D*");
             var result = regex.Match(@where);
             if (result.Success)
             {
-                var number =int.Parse(result.Groups[1].Value)-1;
+                var number =int.Parse(result.Groups[1].Value);
                 return number;
             }
-            return 0;
+            return 1;
         }
 
-        public int Order { get; set; }
+        public int OneBasedOrder { get; set; }
         public bool IsFromRight { get; set; }
         public string TagName { get; set; }
 
         public override string ToString()
         {
-            return $"{Order.ToOrdinalString()} button from the {(IsFromRight ? "right" : "left")}";
+            return $"{OneBasedOrder.ToOrdinalString()} button from the {(IsFromRight ? "right" : "left")}";
         }
     }
 }

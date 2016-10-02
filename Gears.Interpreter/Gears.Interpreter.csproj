@@ -192,7 +192,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Tests\Pages\Iteration2Tests.cs" />
     <Compile Include="Tests\Pages\Iteration1Tests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -226,7 +225,7 @@
     <Content Include="Library\JavaScripts\Gears.Library.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Tests\Pages\Iteration2TestPageRelativeButtons.html">
+    <Content Include="Tests\Pages\Iteration1TestPageRelativeButtons.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Pages\Iteration1TestPage.html">
