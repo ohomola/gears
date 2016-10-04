@@ -104,7 +104,7 @@ namespace Gears.Interpreter.Library
             }
             catch (Exception e)
             {
-                throw new ApplicationException($"Element '{locationDescription}' was not found");
+                throw new ApplicationException($"No Element was found by looking for '{locationDescription}'.");
             }
         }   
 

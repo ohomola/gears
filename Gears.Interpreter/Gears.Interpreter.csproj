@@ -168,6 +168,7 @@
     <Compile Include="Data\Serialization\CSV\CsvSerializer.cs" />
     <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
     <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
+    <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\ButtonQuery.cs" />
     <Compile Include="Library\SaveHtml.cs" />

@@ -21,7 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.IO;
+using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
+using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
@@ -63,6 +65,8 @@ namespace Gears.Interpreter.Library
                 {
                     var screenLocation = Selenium.PutElementOnScreen(elem);
                     UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
+                    Thread.Sleep(50);
+                    UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
                 }
             }
             catch (Exception)

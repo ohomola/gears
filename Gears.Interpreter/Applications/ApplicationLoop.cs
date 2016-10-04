@@ -30,6 +30,7 @@ using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
+using OpenQA.Selenium.Remote;
 
 namespace Gears.Interpreter.Applications
 {
@@ -48,8 +49,12 @@ namespace Gears.Interpreter.Applications
 
             Bootstrapper.RegisterForConfigurationLoad();
 
-            var accesses = commandLineArguments.Select(x=>new FileObjectAccess(FileFinder.Find(x))).Cast<IDataObjectAccess>().ToList();
-            accesses.Add(new ObjectDataAccess(new ConsoleDebuggerConfig()));
+            var accesses = commandLineArguments.Where(x=>!x.StartsWith("-")).Select(x=>new FileObjectAccess(FileFinder.Find(x))).Cast<IDataObjectAccess>().ToList();
+
+            accesses.Add(new ObjectDataAccess(new ConsoleDebuggerConfig
+            {
+                IsActive = !commandLineArguments.Contains("-nodebug")
+            }));
 
             Bootstrapper.Release();
 
@@ -80,6 +85,12 @@ namespace Gears.Interpreter.Applications
                 index < keywords.Count();
                 index = debugger.Update(index, keywords.ToList()))
             {
+
+                if (debugger.Command.RunStep && debugger.Command.SelectedKeyword != null)
+                {
+                    Console.WriteLine("Running " + debugger.Command.SelectedKeyword.ToString() + "...");
+                }
+
                 var keyword = debugger.Command.SelectedKeyword;
 
                 if (debugger.Command.Break)
@@ -153,18 +164,18 @@ namespace Gears.Interpreter.Applications
 
             Console.WriteLine("\n\t - Keyword scenario ended -\n");
 
+
+            if (OutputLogFile != null)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Gray, $"Results were saved to file \'{OutputLogFile}\'.");
+                new FileObjectAccess(OutputLogFile).AddRange(keywords.ToList());
+            }
+
             if (debugger.Config.IsActive)
             {
-                if (OutputLogFile != null)
-                {
-                    Console.Out.WriteColoredLine(ConsoleColor.Gray, $"Results were saved to file \'{OutputLogFile}\'.");
-                    new FileObjectAccess(OutputLogFile).AddRange(keywords.ToList());
-                }
-                //Console.Out.WriteColoredLine(ConsoleColor.Cyan, "Press any key to close this program ...");
-                //Console.Read();
                 Console.Out.WriteColoredLine(ConsoleColor.Green, "Closing application now.");
             }
-            
+
             Bootstrapper.Release();
 
             if (keywords.Any(x => x.Status == KeywordStatus.Error.ToString()))

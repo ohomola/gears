@@ -65,7 +65,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"{OneBasedOrder.ToOrdinalString()} button from the {(IsFromRight ? "right" : "left")}";
+            return $"{OneBasedOrder.ToOrdinalString()} {(TagName=="a"?"link":TagName)} from the {(IsFromRight ? "right" : "left")}";
         }
     }
 }

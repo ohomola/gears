@@ -85,10 +85,7 @@ namespace Gears.Interpreter.Applications.Debugging
             {
                 ParseInput(hooks, index, keywords);
             
-                if (Command.RunStep && Command.SelectedKeyword != null)
-                {
-                    Console.WriteLine("Running " + Command.SelectedKeyword.ToString() + "...");
-                }
+                
                 Console.ResetColor();
             }
             catch (Exception exception)

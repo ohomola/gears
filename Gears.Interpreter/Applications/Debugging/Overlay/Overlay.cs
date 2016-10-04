@@ -90,7 +90,7 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 
         public void Dispose()
         {
-            _masterForm.Dispose();
+            _masterForm?.Dispose();
         }
     }
 }
