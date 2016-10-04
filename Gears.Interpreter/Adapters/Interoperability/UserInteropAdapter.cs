@@ -74,6 +74,26 @@ namespace Gears.Interpreter.Adapters.Interoperability
             UserBindings.SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf(typeof(UserBindings.INPUT)));
         }
 
+        private static UserBindings.INPUT GetControlKeyDown()
+        {
+            return new UserBindings.INPUT
+            {
+                Type = (UInt32)1,
+                Data =
+                {
+                    Keyboard =
+                        new UserBindings.KEYBDINPUT
+                        {
+                            KeyCode = 0,
+                            Scan = 0x11,
+                            Flags = (UInt32)0x0004,
+                            Time = 0,
+                            ExtraInfo = IntPtr.Zero
+                        }
+                }
+            };
+        }
+
         private static UserBindings.INPUT[] GetCharacterInputs(char character)
         {
             UInt16 scanCode = character;

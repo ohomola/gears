@@ -38,6 +38,43 @@ using OpenQA.Selenium.Remote;
 
 namespace Gears.Interpreter.Library
 {
+    public class Clear : Keyword
+    {
+        public string What { get; set; }
+        public string Where { get; set; }
+        public string Text { get; set; }
+
+        [Wire]
+        [XmlIgnore]
+        public IOverlay Overlay { get; set; }
+
+        public Clear(string what)
+        {
+            What = what;
+        }
+
+        public override object Run()
+        {
+            try
+            {
+                var element = Selenium.WebDriver.FindInput(What, Where);
+                element.SendKeys(Keys.LeftControl + "a");
+                element.SendKeys(Keys.Delete);
+                return element;
+            }
+            catch (Exception)
+            {
+                throw new ApplicationException($"Element {What} was not found");
+            }
+        }
+
+
+
+        public override string ToString()
+        {
+            return $"Fill {Where} '{What}'  with '{Text}'";
+        }
+    }
     public class Fill : Keyword
     {
         public string What { get; set; }
@@ -61,12 +98,7 @@ namespace Gears.Interpreter.Library
             {
                 try
                 {
-                    var results = Selenium.WebDriver.RunLibraryScript($"return findInput(\"{What}\",\"{Where}\")");
-                    var element = (results as IWebElement);
-                    if (element == null)
-                    {
-                        throw new ApplicationException("Element was not found");
-                    }
+                    var element = Selenium.WebDriver.FindInput(What, Where);
                     element.SendKeys(Text);
                     return element;
                 }
@@ -76,12 +108,7 @@ namespace Gears.Interpreter.Library
                 }
             }
             else{
-                var results = Selenium.WebDriver.RunLibraryScript($"return findInput(\"{What}\",\"{Where}\")");
-                var element = (results as IWebElement);
-                if (element == null)
-                {
-                    throw new ApplicationException("Element was not found");
-                }
+                var element = Selenium.WebDriver.FindInput( What, Where);
 
                 var handle = Selenium.GetChromeHandle();
 
@@ -98,7 +125,6 @@ namespace Gears.Interpreter.Library
         }
 
         
-
 
         public override string ToString()
         {

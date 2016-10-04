@@ -106,9 +106,19 @@ namespace Gears.Interpreter.Library
             {
                 throw new ApplicationException($"Element '{locationDescription}' was not found");
             }
-        }
+        }   
 
-       
+
+        public static IWebElement FindInput(this IWebDriver webDriver, string what, string whereLocator)
+        {
+            var results = webDriver.RunLibraryScript($"return findInput(\"{what}\",\"{whereLocator}\")");
+            var element = (results as IWebElement);
+            if (element == null)
+            {
+                throw new ApplicationException("Element was not found");
+            }
+            return element;
+        }
 
 
     }
