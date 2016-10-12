@@ -340,7 +340,9 @@ namespace Gears.Interpreter.Applications.Debugging
 
         private List<string> ParseArguments(string command, int numberOfArguments)
         {
-            var strings = command.Split(' ');
+            var separator = " ";
+            
+            var strings = command.Split(new [] {separator}, StringSplitOptions.RemoveEmptyEntries);
 
             if (strings.Count() <= numberOfArguments)
             {

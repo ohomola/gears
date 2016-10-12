@@ -65,7 +65,7 @@ namespace Gears.Interpreter.Library
         }
 
 
-        //public static void ClickByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
+        //public static void ClickByTagNameAndLocation(this IWebDriver webDriver, TagQuery locationDescription)
         //{
         //    try
         //    {
@@ -86,19 +86,23 @@ namespace Gears.Interpreter.Library
             webDriver.RunLibraryScript($"click(arguments[0]);", element);
         }
 
-        public static IWebElement GetByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
+        public static IWebElement GetByTagNameAndLocation(this IWebDriver webDriver, TagQuery locationDescription)
         {
             var elements = GetAllByTagNameAndLocation(webDriver, locationDescription);
             return elements.ElementAt(locationDescription.OneBasedOrder-1);
         }
 
-        public static ReadOnlyCollection<IWebElement> GetAllByTagNameAndLocation(this IWebDriver webDriver, ButtonQuery locationDescription)
+        public static ReadOnlyCollection<IWebElement> GetAllByTagNameAndLocation(this IWebDriver webDriver, TagQuery locationDescription)
         {
             try
             {
+                //var result = webDriver.RunLibraryScript($"return sortByLocation(" +
+                //                           $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
+                //                           $"getElementsByTagName(\"{locationDescription.TagName}\"));");
+
                 var result = webDriver.RunLibraryScript($"return sortByLocation(" +
                                            $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
-                                           $"getElementsByTagName(\"{locationDescription.TagName}\"));");
+                                           $"getElementsByTagName(arguments[0]));", ((object)locationDescription.TagNames));
 
                 return (ReadOnlyCollection<IWebElement>) result;
             }
@@ -120,6 +124,25 @@ namespace Gears.Interpreter.Library
             return element;
         }
 
+        public static ReadOnlyCollection<IWebElement> GetExactMatches(this IWebDriver webDriver, string text)
+        {
+            var result = webDriver.RunLibraryScript($"return getExactMatches(\"{text}\")");
 
+            return (ReadOnlyCollection<IWebElement>)result;
+        }
+
+        public static ReadOnlyCollection<IWebElement> GetElements(this IWebDriver webDriver, IEnumerable<string> tagNames)
+        {
+            var result = webDriver.RunLibraryScript($"return getElements(arguments[0])", tagNames);
+
+            return (ReadOnlyCollection<IWebElement>)result;
+        }
+
+        public static ReadOnlyCollection<IWebElement> FilterOrthogonalElements(this IWebDriver webDriver, ReadOnlyCollection<IWebElement> elements, IWebElement element)
+        {
+            var result = webDriver.RunLibraryScript($"return getExactMatches(arguments[0])", element);
+
+            return (ReadOnlyCollection<IWebElement>)result;
+        }
     }
 }

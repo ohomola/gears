@@ -48,7 +48,7 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            var elements = Selenium.WebDriver.GetAllByTagNameAndLocation(new ButtonQuery(Where));
+            var elements = Selenium.WebDriver.GetAllByTagNameAndLocation(new TagQuery(Where));
                 
                 var YOffset =
                     (int)

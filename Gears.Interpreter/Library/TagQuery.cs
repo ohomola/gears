@@ -22,22 +22,40 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Gears.Interpreter.Core.Extensions;
+using Microsoft.Office.Interop.Excel;
 
 namespace Gears.Interpreter.Library
 {
-    public class ButtonQuery
+    public class TagQuery
     {
+        private enum TagType
+        {
+            Link,
+            TextField,
+            Button
+        }
+
         private readonly string _query;
 
-        public ButtonQuery(string query)
+        private TagType _tagType;
+
+        public TagQuery(string query)
         {
             _query = query;
             OneBasedOrder = ParseOrder(query);
             IsFromRight = query.ToLower().Contains("right");
-
-            TagName = "button";
-            if (query.ToLower().Contains("input")) TagName = "input";
-            if (query.ToLower().Contains("link")) TagName = "a";
+            TagNames = new[] { "button" };
+            _tagType = TagType.Button;
+            if (query.ToLower().Contains("input"))
+            {
+                TagNames = new[] { "input", "textArea" };
+                _tagType = TagType.TextField;
+            }
+            if (query.ToLower().Contains("link"))
+            {
+                _tagType = TagType.Link;
+                TagNames = new[] { "a" };
+            }
         }
 
         private int ParseOrder(string @where)
@@ -61,11 +79,11 @@ namespace Gears.Interpreter.Library
 
         public int OneBasedOrder { get; set; }
         public bool IsFromRight { get; set; }
-        public string TagName { get; set; }
+        public string[] TagNames { get; set; }
 
         public override string ToString()
         {
-            return $"{OneBasedOrder.ToOrdinalString()} {(TagName=="a"?"link":TagName)} from the {(IsFromRight ? "right" : "left")}";
+            return $"{OneBasedOrder.ToOrdinalString()} {_tagType} from the {(IsFromRight ? "right" : "left")}";
         }
     }
 }

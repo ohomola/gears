@@ -47,14 +47,13 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-
             try
             {
                 var elem = Selenium.WebDriver.GetElementByVisibleText(What, Where);
 
                 if (elem == null)
                 {
-                    elem = Selenium.WebDriver.GetByTagNameAndLocation(new ButtonQuery(What));
+                    elem = Selenium.WebDriver.GetByTagNameAndLocation(new TagQuery(What));
                 }
 
                 if (Javascript)

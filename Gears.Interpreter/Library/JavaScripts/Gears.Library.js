@@ -16,11 +16,98 @@
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Searches the page for Input or TextArea elements labeled by text passed in What parameter.
- * @param {} what Text of a label/placeholder indentifying a nearby located input/textarea
- * @param {} where optional parameter to specify location on screen - (values: left,right,top,bottom)
- * @returns {} the first element found.
+  * 
+  * @param {} searchedText 
+  * @returns {} 
+  */
+function getExactMatches(searchedText) {
+
+    var allElements = document.all;
+    var matches = [];
+
+    for (var i = 0; i < allElements.length; i++) {
+
+        var element = allElements[i];
+
+        if (isHidden(element)) {
+            continue;
+        }
+
+        if (isExactMatch(element, searchedText.toLowerCase())) {
+            matches.push(element);
+        }
+    }
+
+    console.log("Exact: " + matches.length);
+
+    return matches;
+}
+
+/**
+ * 
+ * @param {} tags 
+ * @returns {} 
  */
+function getElements (tags) {
+    var allElements = [];
+
+    for (var i = 0, n = tags.length; i < n; i++) {
+        allElements = allElements.concat(Array.prototype.slice.call(document.getElementsByTagName(tags[i])));
+    }
+
+    console.log("getElements - allElements " + allElements.length);
+
+    var visible = [];
+
+    for (var i = 0; i < allElements.length; i++) {
+
+        var element = allElements[i];
+
+        if (isHidden(element)) {
+            continue;
+        }
+
+        visible.push(element);
+    }
+
+    console.log("getElements - visible " + allElements.length);
+
+    return visible;
+};
+
+function getElementsByTagName(tagNames) {
+    var allElements = document.getElementsByTagNames(tagNames);
+    var matches = [];
+
+    for (var i = 0; i < allElements.length; i++) {
+
+        var element = allElements[i];
+
+        if (isHidden(element)) {
+            continue;
+        }
+
+        matches.push(element);
+
+    }
+
+    console.log("Found By Tag: " + matches.length);
+
+    return matches;
+}
+
+Node.prototype.getElementsByTagNames = function (tags) {
+    var elements = [];
+
+    for (var i = 0, n = tags.length; i < n; i++) {
+        elements = elements.concat(Array.prototype.slice.call(this.getElementsByTagName(tags[i])));
+    }
+
+    return elements;
+};
+
+
+
 function findInput(what, where) {
     var labelCandidates = getExactMatches(what);
 
@@ -66,49 +153,9 @@ function getExactTextMatches(searchedText) {
     return matches;
 }
 
-function getElementsByTagName(tagName) {
-    var allElements = document.getElementsByTagName(tagName);
-    var matches = [];
 
-    for (var i = 0; i < allElements.length; i++) {
 
-        var element = allElements[i];
 
-        if (isHidden(element)) {
-            continue;
-        }
-
-        matches.push(element);
-        
-    }
-
-    console.log("Found By Tag: " + matches.length);
-
-    return matches;
-}
-
-function getExactMatches(searchedText) {
-
-    var allElements = document.all;
-    var matches = [];
-
-    for (var i = 0; i < allElements.length; i++) {
-
-        var element = allElements[i];
-
-        if (isHidden(element)) {
-            continue;
-        }
-
-        if (isExactMatch(element, searchedText.toLowerCase())) {
-            matches.push(element);
-        }
-    }
-
-    console.log("Exact: " + matches.length);
-
-    return matches;
-}
 
 
 function tagMatches(matches) {

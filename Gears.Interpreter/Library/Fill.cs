@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -33,6 +34,7 @@ using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 
 namespace Gears.Interpreter.Library
@@ -54,43 +56,63 @@ namespace Gears.Interpreter.Library
             Text = text;
         }
 
+        public Fill(string fulltextInstruction)
+        {
+            
+        }
+
+
         public override object Run()
         {
-            if(Javascript)
-            {
-                try
-                {
-                    var element = Selenium.WebDriver.FindInput(What, Where);
-                    element.SendKeys(Text);
-                    return element;
-                }
-                catch (Exception)
-                {
-                    throw new ApplicationException($"Element {What} was not found");
-                }
-            }
-            else{
-                var element = Selenium.WebDriver.FindInput( What, Where);
+            string label = "";
+            var labels = Selenium.WebDriver.GetExactMatches(label);
 
-                var handle = Selenium.GetChromeHandle();
+            var orthogonalInputs = Selenium.WebDriver.Get
 
-                var screenLocation = Selenium.PutElementOnScreen(element);
-
-                UserInteropAdapter.ClickOnPoint(handle, screenLocation);
-                Thread.Sleep(50);
-                UserInteropAdapter.SendText(handle, Text, screenLocation);
-                Thread.Sleep(50);
-                UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
-
-                return element;
-            }
+            return true;
         }
 
         
 
+
+        //public override object Run()
+        //{
+        //    if(Javascript)
+        //    {
+        //        try
+        //        {
+        //            var element = Selenium.WebDriver.FindInput(What, Where);
+        //            element.SendKeys(Text);
+        //            return element;
+        //        }
+        //        catch (Exception)
+        //        {
+        //            throw new ApplicationException($"Element {What} was not found");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var element = Selenium.WebDriver.FindInput( What, Where);
+
+        //        var handle = Selenium.GetChromeHandle();
+
+        //        var screenLocation = Selenium.PutElementOnScreen(element);
+
+        //        UserInteropAdapter.ClickOnPoint(handle, screenLocation);
+        //        Thread.Sleep(50);
+        //        UserInteropAdapter.SendText(handle, Text, screenLocation);
+        //        Thread.Sleep(50);
+        //        UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+
+        //        return element;
+        //    }
+        //}
+
+
+
         public override string ToString()
         {
-            return $"Fill {Where} '{What}'  with '{Text}'";
+            return $"Fill {Where} '{What}' with '{Text}'";
         }
     }
 }
