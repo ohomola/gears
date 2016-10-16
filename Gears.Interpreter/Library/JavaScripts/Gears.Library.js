@@ -15,40 +15,9 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
-  * 
-  * @param {} searchedText 
-  * @returns {} 
-  */
-function getExactMatches(searchedText) {
 
-    var allElements = document.all;
-    var matches = [];
-
-    for (var i = 0; i < allElements.length; i++) {
-
-        var element = allElements[i];
-
-        if (isHidden(element)) {
-            continue;
-        }
-
-        if (isExactMatch(element, searchedText.toLowerCase())) {
-            matches.push(element);
-        }
-    }
-
-    console.log("Exact: " + matches.length);
-
-    return matches;
-}
-
-/**
- * 
- * @param {} tags 
- * @returns {} 
- */
-function getElements (tags) {
+//WrappedByWebdriverExtension
+function GetElementsByTagNames(tags) {
     var allElements = [];
 
     for (var i = 0, n = tags.length; i < n; i++) {
@@ -74,6 +43,65 @@ function getElements (tags) {
 
     return visible;
 };
+
+//WrappedByWebdriverExtension
+function GetElementsByText(searchedText) {
+
+    var allElements = document.all;
+    var matches = [];
+
+    for (var i = 0; i < allElements.length; i++) {
+
+        var element = allElements[i];
+
+        if (isHidden(element)) {
+            continue;
+        }
+
+        if (isExactMatch(element, searchedText.toLowerCase())) {
+            matches.push(element);
+        }
+    }
+
+    console.log("GetElementsByText: " + matches.length);
+
+    return matches;
+}
+
+//WrappedByWebdriverExtension
+function FilterOrthogonalElements(allElements, element) {
+    var matches = [];
+    
+    for (var i = 0; i < allElements.length; i++) {
+        if (!isHidden(allElements[i]) && areOrthogonal(allElements[i], element)) {
+            matches.push(allElements[i]);
+        }
+    }
+
+    console.log("FilterOrthogonalElements: " + matches.length);
+
+    return matches;
+}
+
+////WrappedByWebdriverExtension
+//function GetOrthogonalInputs(elements) {
+
+//    var matches = [];
+//    var allElements = document.getElementsByTagNames(["input", "textarea"]);
+//    for (var input = 0; input < allElements.length; input++) {
+//        for (var i = 0; i < elements.length; i++) {
+//            if (!isHidden(allElements[input]) && areOrthogonal(allElements[input], elements[i])) {
+//                matches.push(allElements[input]);
+//            }
+//        }
+//    }
+
+//    console.log("GetOrthogonalInputs: " + matches.length);
+
+//    return matches;
+//}
+
+
 
 function getElementsByTagName(tagNames) {
     var allElements = document.getElementsByTagNames(tagNames);
@@ -233,22 +261,7 @@ function isExactMatch(element, searchedText) {
 }
 
 
-function getOrthogonalInputs(elements) {
 
-    var matches = [];
-    var allElements = document.getElementsByTagNames(["input", "textarea"]);
-    for (var input = 0; input < allElements.length; input++) {
-        for (var i = 0; i < elements.length; i++) {
-            if (!isHidden(allElements[input]) && areOrthogonal(allElements[input], elements[i])) {
-                matches.push(allElements[input]);
-            }
-        }
-    }
-
-    console.log("Orthogonal: "+matches.length);
-
-    return matches;
-}
 
 function areOrthogonal(input, element) {
     var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);

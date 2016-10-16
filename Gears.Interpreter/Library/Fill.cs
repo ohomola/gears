@@ -65,9 +65,15 @@ namespace Gears.Interpreter.Library
         public override object Run()
         {
             string label = "";
-            var labels = Selenium.WebDriver.GetExactMatches(label);
+            var labels = Selenium.WebDriver.GetElementsByText(label);
 
-            var orthogonalInputs = Selenium.WebDriver.Get
+            foreach (var webElement in labels)
+            {
+                var inputs = Selenium.WebDriver.GetElementsByTagNames(new [] {"input", "textArea"});
+
+                var orthogonalInputs = Selenium.WebDriver.FilterOrthogonalElements(inputs, webElement);
+            }
+            
 
             return true;
         }

@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Gears.Interpreter.Data.Core;
 using OpenQA.Selenium;
 
@@ -124,25 +125,37 @@ namespace Gears.Interpreter.Library
             return element;
         }
 
-        public static ReadOnlyCollection<IWebElement> GetExactMatches(this IWebDriver webDriver, string text)
+
+        [JavascriptFunctionWrapper]
+        public static ReadOnlyCollection<IWebElement> GetElementsByText(this IWebDriver webDriver, string text)
         {
-            var result = webDriver.RunLibraryScript($"return getExactMatches(\"{text}\")");
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(\"{text}\")");
 
             return (ReadOnlyCollection<IWebElement>)result;
         }
 
-        public static ReadOnlyCollection<IWebElement> GetElements(this IWebDriver webDriver, IEnumerable<string> tagNames)
+        [JavascriptFunctionWrapper]
+        public static ReadOnlyCollection<IWebElement> GetElementsByTagNames(this IWebDriver webDriver, IEnumerable<string> tagNames)
         {
-            var result = webDriver.RunLibraryScript($"return getElements(arguments[0])", tagNames);
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0])", tagNames);
 
             return (ReadOnlyCollection<IWebElement>)result;
         }
 
+        [JavascriptFunctionWrapper]
         public static ReadOnlyCollection<IWebElement> FilterOrthogonalElements(this IWebDriver webDriver, ReadOnlyCollection<IWebElement> elements, IWebElement element)
         {
-            var result = webDriver.RunLibraryScript($"return getExactMatches(arguments[0])", element);
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0], arguments[1])", elements, element);
 
             return (ReadOnlyCollection<IWebElement>)result;
         }
+    }
+
+    /// <summary>
+    /// Marker attribute to identify methods wrapping javascript library functions.
+    /// It does not ave any other function except convenience
+    /// </summary>
+    public class JavascriptFunctionWrapperAttribute : Attribute
+    {
     }
 }
