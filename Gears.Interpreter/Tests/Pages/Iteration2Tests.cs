@@ -63,7 +63,7 @@ namespace Gears.Interpreter.Tests.Pages
         }
 
         [Test]
-        public void ShouldFillLoginPassword()
+        public void ShouldClearLoginPassword()
         {
             new GoToUrl($"file:///{FileFinder.Find("Iteration2TestPage.html")}")
             {

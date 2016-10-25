@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
@@ -65,14 +66,20 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldFillLoginPassword()
         {
+
+            //var text = "input under Login with ondrej";
+            //var text = "textArea under 'Login to something' with ondrej blah blah";
+           
             new GoToUrl($"file:///{FileFinder.Find("Iteration3TestPage.html")}")
             {
                 Selenium = _selenium
             }.Execute();
 
-            var fill = new Fill("textfield next to TextArea1 with ble") { Selenium = _selenium };
-            fill.Execute();
-            Assert.AreEqual("ble", _selenium.WebDriver.FindElement(By.Id("test3")).GetAttribute("value"));
+            var fill = new Fill("textfield next to 'TextArea 1' with ble") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("ble", _selenium.WebDriver.FindElement(By.Id("test1")).GetAttribute("value"));
+
+            var fill2 = new Fill("textfield left from Password: with bla") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("bla", _selenium.WebDriver.FindElement(By.Id("test4login")).GetAttribute("value"));
 
             //new Fill("first input above first button save from the left with blah"){Selenium = _selenium}.Execute();
             //Assert.AreEqual("blah", _selenium.WebDriver.FindElement(By.Id("test3")).GetAttribute("value"));
@@ -81,5 +88,7 @@ namespace Gears.Interpreter.Tests.Pages
             //Assert.AreEqual("blahblah", _selenium.WebDriver.FindElement(By.Id("test3")).GetAttribute("value"));
 
         }
+
+        
     }
 }

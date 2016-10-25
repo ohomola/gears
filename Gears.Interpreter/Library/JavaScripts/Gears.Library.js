@@ -15,6 +15,14 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+//WrappedByWebdriverExtension
+function SelectWithLocation(elements) {
+    var matches = [];
+    for (var i = 0; i < elements.length; i++) {
+        matches.push([elements[i], elements[i].getBoundingClientRect()]);
+    }
+    return matches;
+}
 
 //WrappedByWebdriverExtension
 function GetElementsByTagNames(tags) {
@@ -72,6 +80,56 @@ function GetElementsByText(searchedText) {
 function FilterOrthogonalElements(allElements, element) {
     var matches = [];
     
+    for (var i = 0; i < allElements.length; i++) {
+        if (!isHidden(allElements[i]) && areOrthogonal(allElements[i], element)) {
+            matches.push(allElements[i]);
+        }
+    }
+
+    console.log("FilterOrthogonalElements: " + matches.length);
+
+    return matches;
+}
+
+//WrappedByWebdriverExtension
+function FilterDomNeighbours(allElements, element) {
+
+    var matches = [];
+    
+    for (var i = 0; i < allElements.length; i++) {
+
+        var candidate = allElements[i];
+
+        if (candidate.parentNode != null) {
+            var siblings = getSiblings(candidate);
+            for (var s = 0; s < siblings.length; s++) {
+                if (siblings[s] === element) {
+                    matches.push(candidate);
+                    break;
+                }
+            }
+        }
+    }
+    return matches;
+}
+
+
+function getChildren(n, skipMe) {
+    var r = [];
+    for (; n; n = n.nextSibling)
+        if (n.nodeType == 1 && n != skipMe)
+            r.push(n);
+    return r;
+};
+
+function getSiblings(n) {
+    return getChildren(n.parentNode.firstChild, n);
+}
+
+//WrappedByWebdriverExtension
+function FilterOrthogonalElements(allElements, element) {
+    var matches = [];
+
     for (var i = 0; i < allElements.length; i++) {
         if (!isHidden(allElements[i]) && areOrthogonal(allElements[i], element)) {
             matches.push(allElements[i]);
@@ -340,6 +398,9 @@ function firstByLocation(where, elements) {
         return elements[0];
     }
 }
+
+
+
 
 function firstByRelativeLocation(source, elements) {
     var sorted = elements.sort(function (a, b) { return getNeighborOrder(a, source) - getNeighborOrder(b, source) });

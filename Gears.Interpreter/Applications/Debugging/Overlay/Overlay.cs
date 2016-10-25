@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Gears.Interpreter.Adapters.Interoperability;
+using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 
 namespace Gears.Interpreter.Applications.Debugging.Overlay
 {
@@ -66,6 +67,18 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
             _initialized = true;
 
             
+        }
+
+        public void DrawStuff(IntPtr handle, int number, int clientX, int clientY, Graphics overlayGraphics)
+        {
+            var point = new Point(clientX, clientY);
+            
+            UserBindings.ClientToScreen(handle, ref point);
+            UserInteropAdapter.ScreenToGraphics(ref point);
+
+            overlayGraphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 0, 255, 255)), point.X, point.Y, 20, 20);
+            overlayGraphics.DrawString(number.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.DarkMagenta), point.X, point.Y);
+            overlayGraphics.DrawRectangle(new Pen(Color.FromArgb(255, 255, 0, 255)), point.X, point.Y, 21, 21);
         }
 
         private static void StaticInit()

@@ -169,6 +169,8 @@
     <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
     <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
     <Compile Include="Library\Clear.cs" />
+    <Compile Include="Library\KeywordSpecification.cs" />
+    <Compile Include="Library\LocationHeuristictSearchStrategy.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\TagQuery.cs" />
     <Compile Include="Library\SaveHtml.cs" />

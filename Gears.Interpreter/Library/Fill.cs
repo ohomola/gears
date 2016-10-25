@@ -26,6 +26,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Serialization;
 using Gears.Interpreter.Adapters;
@@ -34,6 +35,7 @@ using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Tests.Pages;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 
@@ -41,9 +43,15 @@ namespace Gears.Interpreter.Library
 {
     public class Fill : Keyword
     {
-        public string What { get; set; }
-        public string Where { get; set; }
+        private IElementSearchStrategy _searchStrategy;
         public string Text { get; set; }
+
+        public string LabelText { get; set; }
+
+        public SearchDirection Direction { get; set; }
+
+        public string Where { get; set; }
+        
         public bool Javascript { get; set; }
 
         [Wire]
@@ -52,34 +60,33 @@ namespace Gears.Interpreter.Library
 
         public Fill(string what, string text)
         {
-            What = what;
+            LabelText = what;
             Text = text;
         }
 
-        public Fill(string fulltextInstruction)
+        public Fill(string what)
         {
-            
+            var spec= new KeywordSpecification(what);
+
+            LabelText = spec.LabelText;
+            Direction = spec.Direction;
+            Text = spec.Text;
         }
-
-
+        
         public override object Run()
         {
-            string label = "";
-            var labels = Selenium.WebDriver.GetElementsByText(label);
+            _searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
 
-            foreach (var webElement in labels)
+            var theInput = _searchStrategy.FindInput(LabelText, Direction);
+
+            if (theInput == null)
             {
-                var inputs = Selenium.WebDriver.GetElementsByTagNames(new [] {"input", "textArea"});
-
-                var orthogonalInputs = Selenium.WebDriver.FilterOrthogonalElements(inputs, webElement);
+                throw new ApplicationException("Input not found");
             }
-            
 
-            return true;
+            theInput.WebElement.SendKeys(Text);
+            return theInput;
         }
-
-        
-
 
         //public override object Run()
         //{
@@ -87,18 +94,18 @@ namespace Gears.Interpreter.Library
         //    {
         //        try
         //        {
-        //            var element = Selenium.WebDriver.FindInput(What, Where);
+        //            var element = Selenium.WebDriver.FindInput(LabelText, Where);
         //            element.SendKeys(Text);
         //            return element;
         //        }
         //        catch (Exception)
         //        {
-        //            throw new ApplicationException($"Element {What} was not found");
+        //            throw new ApplicationException($"Element {LabelText} was not found");
         //        }
         //    }
         //    else
         //    {
-        //        var element = Selenium.WebDriver.FindInput( What, Where);
+        //        var element = Selenium.WebDriver.FindInput( LabelText, Where);
 
         //        var handle = Selenium.GetChromeHandle();
 
@@ -114,11 +121,9 @@ namespace Gears.Interpreter.Library
         //    }
         //}
 
-
-
         public override string ToString()
         {
-            return $"Fill {Where} '{What}' with '{Text}'";
+            return $"Fill '{LabelText}' with '{Text}'";
         }
     }
 }

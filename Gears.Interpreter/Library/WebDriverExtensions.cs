@@ -131,7 +131,11 @@ namespace Gears.Interpreter.Library
         {
             var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(\"{text}\")");
 
-            return (ReadOnlyCollection<IWebElement>)result;
+            if (result is ReadOnlyCollection<IWebElement>)
+            {
+                return (ReadOnlyCollection<IWebElement>)result;
+            }
+            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
         }
 
         [JavascriptFunctionWrapper]
@@ -139,7 +143,11 @@ namespace Gears.Interpreter.Library
         {
             var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0])", tagNames);
 
-            return (ReadOnlyCollection<IWebElement>)result;
+            if (result is ReadOnlyCollection<IWebElement>)
+            {
+                return (ReadOnlyCollection<IWebElement>)result;
+            }
+            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
         }
 
         [JavascriptFunctionWrapper]
@@ -147,8 +155,97 @@ namespace Gears.Interpreter.Library
         {
             var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0], arguments[1])", elements, element);
 
-            return (ReadOnlyCollection<IWebElement>)result;
+            if (result is ReadOnlyCollection<IWebElement>)
+            {
+                return (ReadOnlyCollection<IWebElement>)result;
+            }
+            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
         }
+
+        [JavascriptFunctionWrapper]
+        public static ReadOnlyCollection<IWebElement> FilterDomNeighbours(this IWebDriver webDriver, ReadOnlyCollection<IWebElement> elements, IWebElement element)
+        {
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0], arguments[1])", elements, element);
+
+            if (result is ReadOnlyCollection<IWebElement>)
+            {
+                return (ReadOnlyCollection<IWebElement>) result;
+            }
+            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+            
+        }
+
+        [JavascriptFunctionWrapper]
+        public static IEnumerable<IBufferedElement> SelectWithLocation(this IWebDriver webDriver, ReadOnlyCollection<IWebElement> elements)
+        {
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0])",
+                elements);
+
+            var returnValue = new List<IBufferedElement>();
+            foreach (var pair in result as ReadOnlyCollection<object>)
+            {
+                var dictionary = ((ReadOnlyCollection<object>)pair)[1] as Dictionary<string, object>;
+                var left = ConvertToIntFromTypeUnsafe(dictionary["left"]);
+                var top = ConvertToIntFromTypeUnsafe(dictionary["top"]);
+                var height = ConvertToIntFromTypeUnsafe(dictionary["height"]);
+                var width = ConvertToIntFromTypeUnsafe(dictionary["width"]);
+
+                var bufferedElement = new BufferedElement
+                {
+                    WebElement = ((ReadOnlyCollection<object>) pair)[0] as IWebElement,
+                    Rectangle = new Rectangle(left, top, width, height)
+                };
+
+                returnValue.Add(bufferedElement);
+            }
+
+            return returnValue;
+        }
+
+        private static int ConvertToIntFromTypeUnsafe( object @object)
+        {
+            if (@object == null)
+            {
+                throw new ArgumentException();
+            }
+            if (@object is double)
+            {
+                return (int)Math.Round((double)@object);
+            }
+            else if (@object is int)
+            {
+                return (int)@object;
+            }
+            else if (@object is long)
+            {
+                var val = (long) @object;
+                return unchecked((int)val);
+            }
+            throw new InvalidCastException($"Cannot convert {@object} of type {@object.GetType()} to int");
+        }
+    }
+
+    public interface IBufferedElement
+    {
+        IWebElement WebElement { get; set; }
+        Rectangle Rectangle { get; set; }
+    }
+
+    public class BufferedElement : IBufferedElement
+    {
+        public BufferedElement(IWebElement webElement)
+        {
+            WebElement = webElement;
+            Rectangle = new Rectangle(webElement.Location.X, webElement.Location.Y, webElement.Size.Width, webElement.Size.Height);
+        }
+
+        public BufferedElement()
+        {
+        }
+
+        public IWebElement WebElement { get; set; }
+
+        public Rectangle Rectangle { get; set; }
     }
 
     /// <summary>

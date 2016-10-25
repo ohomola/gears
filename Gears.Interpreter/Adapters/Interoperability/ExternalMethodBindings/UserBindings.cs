@@ -77,5 +77,25 @@ namespace Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings
 
         [DllImport("kernel32.dll")]
         internal static extern IntPtr GetConsoleWindow();
+
+
+        //[DllImport("user32", ExactSpelling = true, SetLastError = true)]
+        //internal static extern bool ClientToScreen(IntPtr hWnd, [In, Out] ref Point lpPoint);
+
+        [DllImport("user32", ExactSpelling = true, SetLastError = true)]
+        internal static extern int MapWindowPoints(IntPtr hWndFrom, IntPtr hWndTo, [In, Out] ref System.Drawing.Point pt, [MarshalAs(UnmanagedType.U4)] int cPoints);
+
+        [DllImport("user32", ExactSpelling = true, SetLastError = true)]
+        internal static extern bool GetWindowRect(IntPtr hWndTo, [In, Out] ref RECT rect);
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
     }
 }

@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
@@ -35,6 +36,15 @@ namespace Gears.Interpreter.Library
 {
     public interface IKeyword
     {
+    }
+
+    public interface IRegularExpressionFluentBuilder
+    {
+        string Optional(string s);
+        string Or(params string[] strings);
+        string CapturingGroup(string groupName, string subRegex = "([\\S]+)|('[^']+')");
+        string ControlWord(string keyword);
+        string GetCapturedValue(Match result, string groupname);
     }
 
     public abstract class Keyword : Runnable, IKeyword
@@ -91,6 +101,8 @@ namespace Gears.Interpreter.Library
 
             return Result;
         }
+
+    
     }
 
     public enum KeywordStatus

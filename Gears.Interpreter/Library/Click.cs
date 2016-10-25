@@ -74,10 +74,59 @@ namespace Gears.Interpreter.Library
             }
             return null;
         }
-        
+
         public override string ToString()
         {
             return $"Click {Where} '{What}'";
         }
     }
+
+    //public class Click : Keyword
+    //{
+    //    public string What { get; set; }
+    //    public string Where { get; set; }
+
+    //    public bool Javascript { get; set; }
+
+    //    public Click(string what)
+    //    {
+    //        What = what;
+    //        Javascript = false;
+    //    }
+
+    //    public override object Run()
+    //    {
+    //        try
+    //        {
+    //            var elem = Selenium.WebDriver.GetElementByVisibleText(What, Where);
+
+    //            if (elem == null)
+    //            {
+    //                elem = Selenium.WebDriver.GetByTagNameAndLocation(new TagQuery(What));
+    //            }
+
+    //            if (Javascript)
+    //            {
+    //                Selenium.WebDriver.Click(elem);
+    //            }
+    //            else
+    //            {
+    //                var screenLocation = Selenium.PutElementOnScreen(elem);
+    //                UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
+    //                Thread.Sleep(50);
+    //                UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+    //            }
+    //        }
+    //        catch (Exception)
+    //        {
+    //            throw new ApplicationException($"Element was not found");
+    //        }
+    //        return null;
+    //    }
+
+    //    public override string ToString()
+    //    {
+    //        return $"Click {Where} '{What}'";
+    //    }
+    //}
 }

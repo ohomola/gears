@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml.Serialization;
+using Castle.MicroKernel.ModelBuilder.Descriptors;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core.Registrations;
 using OpenQA.Selenium;
@@ -8,9 +9,9 @@ namespace Gears.Interpreter.Library
 {
     public class Clear : Keyword
     {
-        public string What { get; set; }
-        public string Where { get; set; }
-        public string Text { get; set; }
+        private IElementSearchStrategy _searchStrategy;
+        public string LabelText { get; set; }
+        public SearchDirection Direction { get; set; }
 
         [Wire]
         [XmlIgnore]
@@ -18,21 +19,28 @@ namespace Gears.Interpreter.Library
 
         public Clear(string what)
         {
-            What = what;
+            var spec = new KeywordSpecification(what);
+
+            LabelText = spec.LabelText;
+            Direction = spec.Direction;
         }
+
+        
 
         public override object Run()
         {
             try
             {
-                var element = Selenium.WebDriver.FindInput(What, Where);
+                _searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
+
+                var element = _searchStrategy.FindInput(LabelText, Direction).WebElement;
                 element.SendKeys(Keys.LeftControl + "a");
                 element.SendKeys(Keys.Delete);
                 return element;
             }
             catch (Exception)
             {
-                throw new ApplicationException($"Element {What} was not found");
+                throw new ApplicationException($"Element {LabelText} was not found");
             }
         }
 
@@ -40,7 +48,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"Fill {Where} '{What}'  with '{Text}'";
+            return $"Clear '{LabelText}'";
         }
     }
 }

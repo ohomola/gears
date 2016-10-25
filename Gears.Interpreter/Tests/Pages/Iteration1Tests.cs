@@ -160,8 +160,10 @@ namespace Gears.Interpreter.Tests.Pages
                 Selenium = _selenium
             }.Execute();
 
-            Assert.AreEqual("test1", (new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute() as IWebElement)?.GetAttribute("value"));
-            Assert.AreEqual("test2", (new Fill("Hint Text", "test2") { Selenium = _selenium }.Execute() as IWebElement)?.GetAttribute("value"));
+            var webElement = ((IBufferedElement)new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute()).WebElement;
+            Assert.AreEqual("test1", webElement?.GetAttribute("value"));
+            var element = ((IBufferedElement)new Fill("Hint Text", "test2") { Selenium = _selenium }.Execute()).WebElement;
+            Assert.AreEqual("test2", element?.GetAttribute("value"));
         }
 
 
