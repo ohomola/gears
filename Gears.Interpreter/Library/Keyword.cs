@@ -38,14 +38,7 @@ namespace Gears.Interpreter.Library
     {
     }
 
-    public interface IRegularExpressionFluentBuilder
-    {
-        string Optional(string s);
-        string Or(params string[] strings);
-        string CapturingGroup(string groupName, string subRegex = "([\\S]+)|('[^']+')");
-        string ControlWord(string keyword);
-        string GetCapturedValue(Match result, string groupname);
-    }
+    
 
     public abstract class Keyword : Runnable, IKeyword
     {

@@ -1,0 +1,128 @@
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Forms;
+using Gears.Interpreter.Adapters;
+using OpenQA.Selenium;
+
+namespace Gears.Interpreter.Library
+{
+    public interface IElementSearchStrategy
+    {
+        IBufferedElement FindElementNextToAnotherElement(string text, SearchDirection direction);
+    }
+
+    public class LocationHeuristictSearchStrategy : IElementSearchStrategy
+    {
+        private readonly ISeleniumAdapter _seleniumAdapter;
+
+        public LocationHeuristictSearchStrategy(ISeleniumAdapter seleniumAdapter)
+        {
+            _seleniumAdapter = seleniumAdapter;
+        }
+
+        public IBufferedElement FindElementNextToAnotherElement(string visibleTextOfTheRelativeElement, SearchDirection direction)
+        {
+            var returnValue = default(IBufferedElement);
+
+            var searchedTagNames = new[] {"input", "textArea"};
+
+            var relativeElements = _seleniumAdapter.WebDriver.GetElementsByText(visibleTextOfTheRelativeElement);
+            
+            var candidates = _seleniumAdapter.WebDriver.GetElementsByTagNames(searchedTagNames);
+
+            foreach (var relative in relativeElements)
+            {
+                if (RelativeHasTagName(searchedTagNames, relative))
+                {
+                    returnValue = new BufferedElement(relative);
+                    break;
+                }
+
+                var domNeighbours = _seleniumAdapter.WebDriver.FilterDomNeighbours(candidates, relative);
+                if (domNeighbours.Any())
+                {
+                    if (domNeighbours.Count() == 1)
+                    {
+                        returnValue = new BufferedElement(domNeighbours.First());
+                        break;
+                    }
+                }
+
+                var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative);
+
+                var bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(orthogonalInputs);
+
+                bufferedElements = SortByDistance(bufferedElements, relative.Location.X, relative.Location.Y);
+
+                bufferedElements = PutNeighborsToFront(bufferedElements, domNeighbours);
+
+
+                if (direction == SearchDirection.LeftFromAnotherElement)
+                {
+                    bufferedElements = FilterLeftItems(relative.Location.X, bufferedElements);
+                }
+
+                if (bufferedElements.Any())
+                {
+                    returnValue = bufferedElements.First();
+                    break;
+                }
+
+                //Show.HighlightElements(bufferedElements.Select(x=>x.WebElement), Selenium);
+            }
+            return returnValue;
+        }
+
+        private static bool RelativeHasTagName(string[] searchedTagNames, IWebElement relative)
+        {
+            return searchedTagNames.Contains(relative.TagName.ToLower());
+        }
+
+        private IEnumerable<IBufferedElement> FilterLeftItems(int x, IEnumerable<IBufferedElement> bufferedElements)
+        {
+            return bufferedElements.Where(e => e.Rectangle.Right < x);
+
+        }
+
+        
+
+        private IEnumerable<IBufferedElement> PutNeighborsToFront(IEnumerable<IBufferedElement> bufferedElements, ReadOnlyCollection<IWebElement> domNeighbours)
+        {
+            var neighbors = new List<IBufferedElement>();
+            var nonNeighbors = new List<IBufferedElement>();
+
+            foreach (var bufferedElement in bufferedElements)
+            {
+                if (domNeighbours.Contains(bufferedElement.WebElement))
+                {
+                    neighbors.Add(bufferedElement);
+                }
+                else
+                {
+                    nonNeighbors.Add(bufferedElement);
+                }
+            }
+
+            var result = new List<IBufferedElement>(neighbors);
+            result.AddRange(nonNeighbors);
+
+            return result;
+        }
+
+        private object GetDistance(int sourceX, int sourceY, int targetX, int targetY)
+        {
+            var x = sourceX - targetX;
+            var y = sourceY - targetY;
+            return (x * x + y * y);
+        }
+
+        private IEnumerable<IBufferedElement> SortByDistance(IEnumerable<IBufferedElement> bufferedElements, int x, int y)
+        {
+            return bufferedElements.OrderBy(e => GetDistance(e.Rectangle.Left, e.Rectangle.Top, x, y));
+        }
+
+    }
+
+    
+}

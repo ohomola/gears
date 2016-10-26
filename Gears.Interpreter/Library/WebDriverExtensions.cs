@@ -31,6 +31,14 @@ using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
 {
+    public static class WebElementExtensions
+    {
+        public static IBufferedElement AsBufferedElement(this IWebElement webElement)
+        {
+            return new BufferedElement(webElement);
+        }
+    }
+
     public static class WebDriverExtensions
     {
         public static object RunLibraryScript(this IWebDriver webDriver, string scriptCode, params object[] elements)
@@ -125,41 +133,36 @@ namespace Gears.Interpreter.Library
             return element;
         }
 
-
         [JavascriptFunctionWrapper]
-        public static ReadOnlyCollection<IWebElement> GetElementsByText(this IWebDriver webDriver, string text)
+        public static ReadOnlyCollection<IWebElement> GetAllElements(this IWebDriver webDriver)
         {
-            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(\"{text}\")");
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}()");
 
-            if (result is ReadOnlyCollection<IWebElement>)
-            {
-                return (ReadOnlyCollection<IWebElement>)result;
-            }
-            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+            return ToCollection(result);
         }
 
         [JavascriptFunctionWrapper]
         public static ReadOnlyCollection<IWebElement> GetElementsByTagNames(this IWebDriver webDriver, IEnumerable<string> tagNames)
         {
             var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0])", tagNames);
-
-            if (result is ReadOnlyCollection<IWebElement>)
-            {
-                return (ReadOnlyCollection<IWebElement>)result;
-            }
-            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+            
+            return ToCollection(result);
         }
 
+        [JavascriptFunctionWrapper]
+        public static ReadOnlyCollection<IWebElement> FilterElementsByText(this IWebDriver webDriver, string text, ReadOnlyCollection<IWebElement> elements)
+        {
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(\"{text}\",arguments[0])", elements);
+
+            return ToCollection(result);
+        }
+        
         [JavascriptFunctionWrapper]
         public static ReadOnlyCollection<IWebElement> FilterOrthogonalElements(this IWebDriver webDriver, ReadOnlyCollection<IWebElement> elements, IWebElement element)
         {
             var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0], arguments[1])", elements, element);
 
-            if (result is ReadOnlyCollection<IWebElement>)
-            {
-                return (ReadOnlyCollection<IWebElement>)result;
-            }
-            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+            return ToCollection(result);
         }
 
         [JavascriptFunctionWrapper]
@@ -167,12 +170,7 @@ namespace Gears.Interpreter.Library
         {
             var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0], arguments[1])", elements, element);
 
-            if (result is ReadOnlyCollection<IWebElement>)
-            {
-                return (ReadOnlyCollection<IWebElement>) result;
-            }
-            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-            
+            return ToCollection(result);
         }
 
         [JavascriptFunctionWrapper]
@@ -200,6 +198,15 @@ namespace Gears.Interpreter.Library
             }
 
             return returnValue;
+        }
+
+        private static ReadOnlyCollection<IWebElement> ToCollection(object result)
+        {
+            if (result is ReadOnlyCollection<IWebElement>)
+            {
+                return (ReadOnlyCollection<IWebElement>)result;
+            }
+            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
         }
 
         private static int ConvertToIntFromTypeUnsafe( object @object)

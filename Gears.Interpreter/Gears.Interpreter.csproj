@@ -169,7 +169,7 @@
     <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
     <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
     <Compile Include="Library\Clear.cs" />
-    <Compile Include="Library\KeywordSpecification.cs" />
+    <Compile Include="Library\Instruction.cs" />
     <Compile Include="Library\LocationHeuristictSearchStrategy.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\TagQuery.cs" />
@@ -198,6 +198,7 @@
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />
     <Compile Include="Tests\Pages\Iteration2Tests.cs" />
     <Compile Include="Tests\Pages\Iteration1Tests.cs" />
+    <Compile Include="Tests\Pages\Iteration4Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

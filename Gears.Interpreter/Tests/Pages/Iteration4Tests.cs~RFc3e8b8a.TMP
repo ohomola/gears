@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Gears.Interpreter.Library;
+using NUnit.Framework;
+
+namespace Gears.Interpreter.Tests.Pages
+{
+    public class Iteration4Tests
+    {
+        [Test]
+        public void ShouldParseInstructionCorrectly1()
+        {
+            Assert.AreEqual("blah",new Instruction("blah").Subject);
+
+            var instruction = "blah left from bleh with aa";
+            Assert.AreEqual("blah", new Instruction(instruction).Tag);
+            Assert.AreEqual("bleh", new Instruction(instruction).Subject);
+            Assert.AreEqual(SearchDirection.Left, new Instruction(instruction).Direction);
+            Assert.AreEqual("aa", new Instruction(instruction).With);
+
+        }
+
+        [Test]
+        public void ShouldParseInstructionCorrectly2()
+        {
+            var instruction = new Instruction("'something long' above 'something even longer' with ' an absurdely long text with numb3rs and stuff'");
+            Assert.AreEqual("something long", instruction.Tag);
+            Assert.AreEqual("something even longer", instruction.Subject);
+            Assert.AreEqual(SearchDirection.Up, instruction.Direction);
+            Assert.AreEqual("an absurdely long text with numb3rs and stuff", instruction.With);
+        }
+
+        [Test]
+        public void ShouldParseInstructionCorrectly3()
+        {
+            var instruction = new Instruction("blah blah with bluh bluh");
+            Assert.AreEqual("blah blah", instruction.Tag);
+            Assert.AreEqual("bleh bleh", instruction.Subject);
+            Assert.AreEqual(SearchDirection.Up, instruction.Direction);
+            Assert.AreEqual("bluh bluh", instruction.With);
+        }
+
+    }
+}

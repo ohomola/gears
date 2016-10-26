@@ -19,9 +19,17 @@ namespace Gears.Interpreter.Library
 
         public Clear(string what)
         {
-            var spec = new KeywordSpecification(what);
+            var spec = new Instruction(what);
 
-            LabelText = spec.LabelText;
+            if (string.IsNullOrEmpty(spec.Locale))
+            {
+                LabelText = spec.SubjectName;
+            }
+            else
+            {
+                LabelText = spec.Locale;
+            }
+
             Direction = spec.Direction;
         }
 
@@ -33,7 +41,7 @@ namespace Gears.Interpreter.Library
             {
                 _searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
 
-                var element = _searchStrategy.FindInput(LabelText, Direction).WebElement;
+                var element = _searchStrategy.FindElementNextToAnotherElement(LabelText, Direction).WebElement;
                 element.SendKeys(Keys.LeftControl + "a");
                 element.SendKeys(Keys.Delete);
                 return element;

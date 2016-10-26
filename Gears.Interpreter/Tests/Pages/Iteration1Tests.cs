@@ -116,8 +116,8 @@ namespace Gears.Interpreter.Tests.Pages
                 Selenium = _selenium
             }.Execute();
 
-            new Click("SAVE") {Selenium = _selenium, Where = "right"}.Execute();
-            new Click("load") {Selenium = _selenium, Where = "left"}.Execute();
+            new Click("SAVE", "right") {Selenium = _selenium}.Execute();
+            new Click("load", "left") {Selenium = _selenium}.Execute();
 
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("but1"))
                 .GetAttribute("innerText"), "success");
@@ -177,11 +177,11 @@ namespace Gears.Interpreter.Tests.Pages
 
             
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
-            new Click("Add to my calendar") { Selenium = _selenium, Where = "top" }.Execute();
+            new Click("Add to my calendar", "top") { Selenium = _selenium}.Execute();
             new Wait(500).Execute();
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = true }.Execute();
             new Wait(500).Execute();
-            new Click("Add to my calendar") { Selenium = _selenium, Where = "top" }.Execute();
+            new Click("Add to my calendar", "top") { Selenium = _selenium}.Execute();
             new Wait(500).Execute();
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
         }
@@ -196,16 +196,19 @@ namespace Gears.Interpreter.Tests.Pages
 
             //new Show("buttons from right") { Selenium = _selenium}.Execute();
 
-            new Click("second from right corner") { Selenium = _selenium }.Execute();
-            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b8")).GetAttribute("innerText"));
-
-            new Click("first button in the right corner") { Selenium = _selenium }.Execute();
+            new Click("1st button from right") { Selenium = _selenium }.Execute();
             Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b4")).GetAttribute("innerText"));
 
-            new Click("a button in the left corner") { Selenium = _selenium }.Execute();
-            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b1")).GetAttribute("innerText"));
+            new Click("2nd button left from pressed") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b2")).GetAttribute("innerText"));
 
-          
+            new Click("4th button from left") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b6")).GetAttribute("innerText"));
+
+            new Click("1st button right from Button7") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b8")).GetAttribute("innerText"));
+
+
         }
 
 

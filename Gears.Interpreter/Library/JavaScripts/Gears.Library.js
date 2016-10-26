@@ -17,6 +17,7 @@
 
 //WrappedByWebdriverExtension
 function SelectWithLocation(elements) {
+
     var matches = [];
     for (var i = 0; i < elements.length; i++) {
         matches.push([elements[i], elements[i].getBoundingClientRect()]);
@@ -25,7 +26,20 @@ function SelectWithLocation(elements) {
 }
 
 //WrappedByWebdriverExtension
+function GetAllElements() {
+    var allElements = document.all;
+    var matches = [];
+
+    for (var i = 0; i < allElements.length; i++) {
+        matches.push(allElements[i]);
+    }
+
+    return matches;
+};
+
+//WrappedByWebdriverExtension
 function GetElementsByTagNames(tags) {
+
     var allElements = [];
 
     for (var i = 0, n = tags.length; i < n; i++) {
@@ -53,9 +67,8 @@ function GetElementsByTagNames(tags) {
 };
 
 //WrappedByWebdriverExtension
-function GetElementsByText(searchedText) {
-
-    var allElements = document.all;
+function FilterElementsByText(searchedText, allElements) {
+    
     var matches = [];
 
     for (var i = 0; i < allElements.length; i++) {

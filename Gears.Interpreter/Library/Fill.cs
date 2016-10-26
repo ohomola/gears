@@ -58,26 +58,33 @@ namespace Gears.Interpreter.Library
         [XmlIgnore]
         public IOverlay Overlay { get; set; }
 
-        public Fill(string what, string text)
+        public Fill(string what, string text) : this(what)
         {
-            LabelText = what;
             Text = text;
         }
 
         public Fill(string what)
         {
-            var spec= new KeywordSpecification(what);
+            var spec= new Instruction(what);
 
-            LabelText = spec.LabelText;
+            if (string.IsNullOrEmpty(spec.Locale))
+            {
+                LabelText = spec.SubjectName;
+            }
+            else
+            {
+                LabelText = spec.Locale;
+            }
+
             Direction = spec.Direction;
-            Text = spec.Text;
+            Text = spec.With;
         }
         
         public override object Run()
         {
             _searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
 
-            var theInput = _searchStrategy.FindInput(LabelText, Direction);
+            var theInput = _searchStrategy.FindElementNextToAnotherElement(LabelText, Direction);
 
             if (theInput == null)
             {
@@ -94,7 +101,7 @@ namespace Gears.Interpreter.Library
         //    {
         //        try
         //        {
-        //            var element = Selenium.WebDriver.FindInput(LabelText, Where);
+        //            var element = Selenium.WebDriver.FindElementNextToAnotherElement(LabelText, Where);
         //            element.SendKeys(Text);
         //            return element;
         //        }
@@ -105,7 +112,7 @@ namespace Gears.Interpreter.Library
         //    }
         //    else
         //    {
-        //        var element = Selenium.WebDriver.FindInput( LabelText, Where);
+        //        var element = Selenium.WebDriver.FindElementNextToAnotherElement( LabelText, Where);
 
         //        var handle = Selenium.GetChromeHandle();
 
