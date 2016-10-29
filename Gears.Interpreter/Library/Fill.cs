@@ -41,92 +41,171 @@ using OpenQA.Selenium.Remote;
 
 namespace Gears.Interpreter.Library
 {
-    public class Fill : Keyword
+    public class Fill : Keyword, IHasTechnique
     {
         private IElementSearchStrategy _searchStrategy;
+
         public string Text { get; set; }
 
         public string LabelText { get; set; }
 
         public SearchDirection Direction { get; set; }
 
-        public string Where { get; set; }
-        
-        public bool Javascript { get; set; }
+        public Technique Technique { get; set; }
+
+        public int Order { get; set; }
 
         [Wire]
         [XmlIgnore]
         public IOverlay Overlay { get; set; }
 
-        public Fill(string what, string text) : this(what)
+        [Obsolete("Backward compatibility")]
+        public bool Javascript
         {
-            Text = text;
+            get { return Technique == Technique.Javascript; }
+            set { Technique = value == true ? Technique.Javascript : Technique.MouseAndKeyboard; }
         }
 
         public Fill(string what)
         {
-            var spec= new Instruction(what);
+            var _spec = new Instruction(what);
 
-            if (string.IsNullOrEmpty(spec.Locale))
+            if (string.IsNullOrEmpty(_spec.Locale))
             {
-                LabelText = spec.SubjectName;
+                LabelText = _spec.SubjectName;
             }
             else
             {
-                LabelText = spec.Locale;
+                LabelText = _spec.Locale;
             }
 
-            Direction = spec.Direction;
-            Text = spec.With;
+            Direction = _spec.Direction;
+            Text = _spec.With;
+            Order = _spec.Order;
+        }
+
+        public Fill(string what, string text) : this(what)
+        {
+            Text = text;
         }
         
+        [Obsolete("Backward compatibility")]
+        public Fill(string what, string where, string text) : this(what, text)
+        {
+            where = @where.ToLower().Trim();
+            switch (@where)
+            {
+                case ("right"):
+                    Direction = SearchDirection.LeftFromRightEdge;
+                    break;
+                case ("top"):
+                case ("up"):
+                    Direction = SearchDirection.DownFromTopEdge;
+                    break;
+                case ("down"):
+                case ("bottom"):
+                    Direction = SearchDirection.UpFromBottomEdge;
+                    break;
+                default:
+                    Direction = SearchDirection.RightFromLeftEdge;
+                    break;
+            }
+        }
+
+
+
         public override object Run()
         {
+            IBufferedElement theInput;
+            IEnumerable<IBufferedElement> validResults;
+
             _searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
 
-            var theInput = _searchStrategy.FindElementNextToAnotherElement(LabelText, Direction);
+            var allInputs = _searchStrategy.Elements(new[] { "input", "textArea" });
+
+            var allInputsWithText = allInputs.WithText(LabelText, matchWhenTextIsInChild:false);
+
+            if (allInputsWithText.Any())
+            {
+                validResults = allInputsWithText
+                    .SortBy(Direction)
+                    .Results()
+                    .Skip(Order);
+            }
+            else
+            {
+                validResults = allInputs
+                    .RelativeTo(LabelText, Direction)
+                    .SortBy(Direction)
+                    .Results()
+                    .Skip(Order);
+            }
+
+            theInput = validResults.FirstOrDefault();
 
             if (theInput == null)
             {
                 throw new ApplicationException("Input not found");
             }
 
-            theInput.WebElement.SendKeys(Text);
+            switch (Technique)
+            {
+                case Technique.HighlightOnly:
+                    Show.HighlightElements(Selenium, validResults);
+                    break;
+                case Technique.Javascript:
+                    theInput.WebElement.SendKeys(Text);
+                    break;
+                case Technique.MouseAndKeyboard:
+                    var handle = Selenium.GetChromeHandle();
+
+                    var screenLocation = Selenium.PutElementOnScreen(theInput.WebElement);
+
+                    UserInteropAdapter.ClickOnPoint(handle, screenLocation);
+                    Thread.Sleep(50);
+                    UserInteropAdapter.SendText(handle, Text, screenLocation);
+                    Thread.Sleep(50);
+                    UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+                    break;
+            }
+
             return theInput;
         }
 
+        
+
         //public override object Run()
-        //{
-        //    if(Javascript)
-        //    {
-        //        try
-        //        {
-        //            var element = Selenium.WebDriver.FindElementNextToAnotherElement(LabelText, Where);
-        //            element.SendKeys(Text);
-        //            return element;
-        //        }
-        //        catch (Exception)
-        //        {
-        //            throw new ApplicationException($"Element {LabelText} was not found");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        var element = Selenium.WebDriver.FindElementNextToAnotherElement( LabelText, Where);
+            //{
+            //    if(Javascript)
+            //    {
+            //        try
+            //        {
+            //            var element = Selenium.WebDriver.FindElementNextToAnotherElement(LabelText, Where);
+            //            element.SendKeys(Text);
+            //            return element;
+            //        }
+            //        catch (Exception)
+            //        {
+            //            throw new ApplicationException($"Element {LabelText} was not found");
+            //        }
+            //    }
+            //    else
+            //    {
+            //        var element = Selenium.WebDriver.FindElementNextToAnotherElement( LabelText, Where);
 
-        //        var handle = Selenium.GetChromeHandle();
+            //        var handle = Selenium.GetChromeHandle();
 
-        //        var screenLocation = Selenium.PutElementOnScreen(element);
+            //        var screenLocation = Selenium.PutElementOnScreen(element);
 
-        //        UserInteropAdapter.ClickOnPoint(handle, screenLocation);
-        //        Thread.Sleep(50);
-        //        UserInteropAdapter.SendText(handle, Text, screenLocation);
-        //        Thread.Sleep(50);
-        //        UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+            //        UserInteropAdapter.ClickOnPoint(handle, screenLocation);
+            //        Thread.Sleep(50);
+            //        UserInteropAdapter.SendText(handle, Text, screenLocation);
+            //        Thread.Sleep(50);
+            //        UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
 
-        //        return element;
-        //    }
-        //}
+            //        return element;
+            //    }
+            //}
 
         public override string ToString()
         {

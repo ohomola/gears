@@ -67,7 +67,7 @@ function GetElementsByTagNames(tags) {
 };
 
 //WrappedByWebdriverExtension
-function FilterElementsByText(searchedText, allElements) {
+function FilterElementsByText(searchedText, allElements, matchWhenTextIsInChild) {
     
     var matches = [];
 
@@ -79,8 +79,14 @@ function FilterElementsByText(searchedText, allElements) {
             continue;
         }
 
-        if (isExactMatch(element, searchedText.toLowerCase())) {
-            matches.push(element);
+        if (matchWhenTextIsInChild) {
+            if (isExactMatchOrChild(element, searchedText.toLowerCase())) {
+                matches.push(element);
+            }
+        } else {
+            if (isExactMatch(element, searchedText.toLowerCase())) {
+                matches.push(element);
+            }
         }
     }
 
@@ -307,6 +313,23 @@ function isExactTextMatch(element, searchedText) {
 
     return false;
 }
+
+function isExactMatchOrChild(element, searchedText) {
+    
+    if (isExactMatch(element)) {
+        return true;
+    }
+
+    var childNodes = element.childNodes;
+    for (var n = 0; n < childNodes.length; n++) {
+        var curNode = childNodes[n];
+        if (isExactMatchOrChild(curNode, searchedText)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function isExactMatch(element, searchedText) {
 
     var childNodes = element.childNodes;

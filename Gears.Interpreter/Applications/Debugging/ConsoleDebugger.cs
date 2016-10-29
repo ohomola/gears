@@ -179,13 +179,29 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = fill;
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("show", "show [left|right]: highlights buttons with their sort orders using a screen overlay", input =>
+                new ConsoleDebuggerActionHook("show", "show : currently selected keyword will not preform any controller action but instead will only highlight the element it owuld normally interact with.", input =>
                 {
-                    var args = ParseArguments(input, 1);
-                    var show = new Show(args.First());
-                    ServiceLocator.Instance.Resolve(show);
-                    Command.SelectedKeyword = show;
-                    Command.NextIndex = Command.NextIndex-1;
+                    var technique = Command.SelectedKeyword as IHasTechnique;
+                    if (technique != null)
+                    {
+                        DontDoAnything(index);
+                        Technique oldValue = technique.Technique;
+                        technique.Technique = Technique.HighlightOnly;
+                        try
+                        {
+                            ServiceLocator.Instance.Resolve(Command.SelectedKeyword);
+                            Command.SelectedKeyword.Execute();
+                        }
+                        finally
+                        {
+                            technique.Technique = oldValue;
+                        }
+                    }
+                    else
+                    {
+                        Console.Out.WriteColoredLine(ConsoleColor.Yellow, "The selected keyword cannot be called with highlight technique.");
+                        DontDoAnything(index);
+                    }
                 }),
                 new ConsoleDebuggerActionHook("goto (.+)", "goto X: use this to click on element ad-hoc", input =>
                 {

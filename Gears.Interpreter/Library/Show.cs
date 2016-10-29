@@ -57,12 +57,22 @@ namespace Gears.Interpreter.Library
                 return null;
             }
 
-            HighlightElements(elements, Selenium);
+            HighlightElements(Selenium, elements.Select(x=>x.AsBufferedElement()));
 
             return null;
         }
 
-        public static void HighlightElements(IEnumerable<IWebElement> elements, ISeleniumAdapter seleniumAdapter)
+        public static void HighlightElements(ISeleniumAdapter seleniumAdapter, params IBufferedElement[] elements)
+        {
+            HighlightElements(seleniumAdapter, elements.ToList());
+        }
+
+        public static void HighlightElements(ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements)
+        {
+            HighlightElements(seleniumAdapter,elements, Color.FromArgb(255, 0, 255, 255), Color.FromArgb(255, 255, 0, 255));
+        }
+
+        public static void HighlightElements(ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor)
         {
             var YOffset =
                 (int)
@@ -87,8 +97,10 @@ namespace Gears.Interpreter.Library
                 foreach (var element in elements)
                 {
                     i++;
-                    overlay.DrawStuff(handle, i, element.Location.X + XOffset, element.Location.Y + YOffset - scrollOffset,
-                        overlay.Graphics);
+                    overlay.DrawStuff(handle, i, element.Rectangle.Left + XOffset, element.Rectangle.Top + YOffset - scrollOffset,
+                        overlay.Graphics, element.Rectangle.Width, element.Rectangle.Height, 
+                        innerColor, 
+                        outerColor);
                 }
 
                 Console.Out.WriteColoredLine(ConsoleColor.White,

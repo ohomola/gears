@@ -86,7 +86,6 @@ namespace Gears.Interpreter.Data
             return false;
         }
 
-        //TODO: implement add system
         public void Add<T>(T obj) where T : class
         {
             if (!DataAccesses.OfType<ObjectDataAccess>().Any())

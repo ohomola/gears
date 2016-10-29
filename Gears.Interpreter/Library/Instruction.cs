@@ -1,29 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Gears.Interpreter.Core.Extensions;
 
 namespace Gears.Interpreter.Library
 {
-    public enum SearchDirection
-    {
-        RightFromAnotherElementInclusive =0,
-        RightFromAnotherElement,
-        LeftFromAnotherElement,
-        Up,
-        LeftFromRightEdge,
-        RightFromLeftEdge,
-        Down,
-        DownFromTopEdge,
-        UpFromBottomEdge
-    }
-
     public class Instruction
     {
-        //private const string DefaultCapturingGroupForValues = "(\\s+[\\S]+\\s+)|(\\s+'[^']+'\\s+)";
-        
         private static string QuotedWord = "(\\s+'[^']+'\\s+)";
-        private static string NotPrecedingAnyControlWord = "(?!under|next to|above|below|left from|right from|near|with|from left|from right|from top)";
+        private static string NotPrecedingAnyControlWord = "(?!((with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
         private static string AnythingExceptQuote = "[^']";
-        private static string UnquotedWord = $"((?:{AnythingExceptQuote}{NotPrecedingAnyControlWord})*)";
+        private static string UnquotedWord = $"(({NotPrecedingAnyControlWord}{AnythingExceptQuote})*)";
         private static string DefaultCapturingGroupForValues = $"{UnquotedWord}|{QuotedWord}";
         private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+))(\\S*\\s?";
 
@@ -36,7 +22,9 @@ namespace Gears.Interpreter.Library
         public int Order { get; set; }
 
         public string SubjectName { get; set; }
+
         public SubjectType SubjectType { get; set; }
+
         public List<string> TagNames { get; set; }
 
         public Instruction(string what)
@@ -45,7 +33,7 @@ namespace Gears.Interpreter.Library
             what = " " + what + " ";
             var regex = new Regex("^"+
                     Optional(CapturingGroup("Order", NumberStrippingOffNthTextSuffix))+
-                    CapturingGroup("Tag") +
+                    CapturingGroup("Subject") +
                     Optional(
                         CapturingGroup("Direction",
                             Or(
@@ -58,7 +46,8 @@ namespace Gears.Interpreter.Library
                             ControlWord("near"),
                             ControlWord("from left"),
                             ControlWord("from right"),
-                            ControlWord("from top")
+                            ControlWord("from top"),
+                            ControlWord("from bottom")
                             ))) +
                     Optional(CapturingGroup("Locale")) +
                     Optional(ControlWord("with") + CapturingGroup("Text") )
@@ -78,7 +67,7 @@ namespace Gears.Interpreter.Library
                 Locale = GetCapturedValue(result, "Locale");
                 With = GetCapturedValue(result, "Text");
 
-                var subject = GetCapturedValue(result, "Tag");
+                var subject = GetCapturedValue(result, "Subject");
                 SubjectName = CutoffTagNamesAndSubjectName(subject, TagNames);
             }
         }
@@ -96,16 +85,47 @@ namespace Gears.Interpreter.Library
                 tagNames.Add("a");
                 this.SubjectType = SubjectType.Link;
             }
-            else if(subject.Contains("input"))
+            else if(subject.Contains("input") || subject.Contains("textfield") || subject.Contains("textarea"))
             {
                 tagNames.Add("input");
                 tagNames.Add("textArea");
                 this.SubjectType = SubjectType.Input;
             }
 
-            return subject.Replace("button", "").Replace("link", "").Replace("input", "").Trim();
+            return subject
+                .Replace("button", "")
+                .Replace("link", "")
+                .Replace("input", "")
+                .Replace("textarea", "")
+                .Replace("textfield", "")
+                .Trim();
         }
 
+        private SearchDirection ParseDirection(string direction)
+        {
+            direction = direction.ToLower().Trim();
+            switch (direction)
+            {
+                case ("left from"):
+                    return SearchDirection.LeftFromAnotherElement;
+                case ("right from"):
+                    return SearchDirection.RightFromAnotherElement;
+                case ("from right"):
+                    return SearchDirection.LeftFromRightEdge;
+                case ("from left"):
+                    return SearchDirection.RightFromLeftEdge;
+                case ("above"):
+                    return SearchDirection.AboveAnotherElement;
+                case ("below"):
+                    return SearchDirection.BelowAnotherElement;
+                case ("from top"):
+                    return SearchDirection.DownFromTopEdge;
+                case ("from bottom"):
+                    return SearchDirection.UpFromBottomEdge;
+                default:
+                    return SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo;
+            }
+        }
 
         public string Optional(string s)
         {
@@ -137,54 +157,10 @@ namespace Gears.Interpreter.Library
             return result.Groups[groupname].Value.Replace("'", "").Trim();
         }
 
-        // TODO fully implement
-        private SearchDirection ParseDirection(string direction)
+
+        public override string ToString()
         {
-            if (direction.ToLower().Contains("left from"))
-            {
-                return SearchDirection.LeftFromAnotherElement;
-            }
-
-            if (direction.ToLower().Contains("right from"))
-            {
-                return SearchDirection.RightFromAnotherElement;
-            }
-
-            if (direction.ToLower().Contains("from right"))
-            {
-                return SearchDirection.LeftFromRightEdge;
-            }
-
-            if (direction.ToLower().Contains("from left"))
-            {
-                return SearchDirection.RightFromLeftEdge;
-            }
-
-            if (direction.ToLower().Contains("above"))
-            {
-                return SearchDirection.Up;
-            }
-            
-            if (direction.ToLower().Contains("below"))
-            {
-                return SearchDirection.Down;
-            }
-
-            if (direction.ToLower().Contains("from top"))
-            {
-                return SearchDirection.DownFromTopEdge;
-            }
-
-            return SearchDirection.RightFromAnotherElementInclusive;
+            return $"{(this.Order+1).ToOrdinalString()} {(SubjectType == default(SubjectType) ? "element" : SubjectType.ToString())} with text '{this.SubjectName}' {(Direction==default(SearchDirection)?"":"looking '"+Direction+"'")} {(string.IsNullOrEmpty(Locale)?"":"'"+Locale+"'")}";
         }
-
-    }
-
-    public enum SubjectType
-    {
-        Any = 0,
-        Button,
-        Input,
-        Link
     }
 }

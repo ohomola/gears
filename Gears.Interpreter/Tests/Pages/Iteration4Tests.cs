@@ -1,16 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Gears.Interpreter.Adapters;
+using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 
 namespace Gears.Interpreter.Tests.Pages
 {
-    public class Iteration4Tests
+    public class Iteration4Tests : IDisposable
     {
+        private SeleniumAdapter _selenium;
+
+        public Iteration4Tests()
+        {
+            SetUp();
+        }
+        public void Dispose()
+        {
+            TearDown();
+        }
+
+        //[SetUp]
+        public void SetUp()
+        {
+            _selenium =
+                new SeleniumAdapter(new ChromeDriver(Path.GetDirectoryName(FileFinder.Find("chromedriver.exe")),
+                    new ChromeOptions()));
+        }
+
+        //[TearDown]
+        public void TearDown()
+        {
+            _selenium?.Dispose();
+        }
+
         [Test]
         public void ShouldParseInstructionCorrectly1()
         {
@@ -21,7 +51,6 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual("bleh", instruction.Locale);
             Assert.AreEqual(SearchDirection.LeftFromAnotherElement, instruction.Direction);
             Assert.AreEqual("aa", instruction.With);
-
         }
 
         [Test]
@@ -30,7 +59,7 @@ namespace Gears.Interpreter.Tests.Pages
             var instruction = new Instruction("'something long' above 'something even longer' with ' an absurdely long text with numb3rs and stuff'");
             Assert.AreEqual("something long", instruction.SubjectName);
             Assert.AreEqual("something even longer", instruction.Locale);
-            Assert.AreEqual(SearchDirection.Up, instruction.Direction);
+            Assert.AreEqual(SearchDirection.AboveAnotherElement, instruction.Direction);
             Assert.AreEqual("an absurdely long text with numb3rs and stuff", instruction.With);
         }
 
@@ -40,7 +69,7 @@ namespace Gears.Interpreter.Tests.Pages
             var instruction = new Instruction("something long above something even longer with ' an absurdely long text with numb3rs and stuff'");
             Assert.AreEqual("something long", instruction.SubjectName);
             Assert.AreEqual("something even longer", instruction.Locale);
-            Assert.AreEqual(SearchDirection.Up, instruction.Direction);
+            Assert.AreEqual(SearchDirection.AboveAnotherElement, instruction.Direction);
             Assert.AreEqual("an absurdely long text with numb3rs and stuff", instruction.With);
         }
 
@@ -49,7 +78,7 @@ namespace Gears.Interpreter.Tests.Pages
         {
             var instruction = new Instruction("blah blah with bluh bluh");
             Assert.AreEqual("blah blah", instruction.SubjectName);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusive, instruction.Direction);
+            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
             Assert.AreEqual("bluh bluh", instruction.With);
         }
 
@@ -59,16 +88,17 @@ namespace Gears.Interpreter.Tests.Pages
             var instruction = new Instruction("2nd button");
             Assert.AreEqual(string.Empty, instruction.SubjectName);
             Assert.AreEqual(SubjectType.Button, instruction.SubjectType);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusive, instruction.Direction);
+            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
             Assert.AreEqual(1, instruction.Order);
         }
 
         [Test]
         public void ShouldParseInstructionCorrectly6()
         {
-            var instruction = new Instruction("4 textfield left from Password with 'Hello'");
+            var instruction = new Instruction("4 textfield blah left from Password with 'Hello'");
             Assert.AreEqual(3, instruction.Order);
-            Assert.AreEqual("textfield", instruction.SubjectName);
+            Assert.AreEqual(SubjectType.Input, instruction.SubjectType);
+            Assert.AreEqual("blah", instruction.SubjectName);
             Assert.AreEqual(SearchDirection.LeftFromAnotherElement, instruction.Direction);
             Assert.AreEqual("Password", instruction.Locale);
             Assert.AreEqual("Hello", instruction.With);
@@ -106,5 +136,68 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual(string.Empty, instruction.Locale);
         }
 
+        [Test]
+        public void ShouldParseInstructionCorrectly10()
+        {
+            var instruction = new Instruction("223421th input from bottom with flowers");
+            Assert.AreEqual(223420, instruction.Order);
+            Assert.AreEqual(string.Empty, instruction.SubjectName);
+            Assert.AreEqual(SubjectType.Input, instruction.SubjectType);
+            Assert.AreEqual(SearchDirection.UpFromBottomEdge, instruction.Direction);
+            Assert.AreEqual(string.Empty, instruction.Locale);
+            Assert.AreEqual("flowers", instruction.With);
+        }
+        
+
+        [Test]
+        public void ShoulClickOnExpectedButtons1()
+        {
+            new GoToUrl($"http://www.material-ui.com/#/components/snackbar")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+
+            new Click("1st Drawer from top") { Selenium = _selenium }.Execute();
+
+            new Click("1st Toggle drawer from top") { Selenium = _selenium }.Execute();
+            new IsVisible("Menu Item") { Selenium = _selenium, Expect = true }.Execute();
+            new Click("1st Toggle drawer from top") { Selenium = _selenium }.Execute();
+
+            new Click("2nd Toggle drawer from top") { Selenium = _selenium }.Execute();
+            new IsVisible("App bar") { Selenium = _selenium, Expect = true }.Execute();
+        }
+
+
+        [Test]
+        public void ShoulClickOnExpectedButtons2()
+        {
+            new GoToUrl($"file:///{FileFinder.Find("Iteration4TestPage.html")}")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+            new Fill("2nd textfield from bottom with login2") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("login2", _selenium.WebDriver.FindElement(By.Id("test5login")).GetAttribute("value"));
+
+            new Fill("2nd textfield above Password2: with logog") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("logog", _selenium.WebDriver.FindElement(By.Id("test4")).GetAttribute("value"));
+
+            new Fill("2nd textfield below TextArea 2 with gugugu") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("gugugu", _selenium.WebDriver.FindElement(By.Id("test3")).GetAttribute("value"));
+        }
+
+        [Test]
+        public void ShoulClickOnTheButtonNotOnTheSpan()
+        {
+            new GoToUrl($"file:///{FileFinder.Find("Iteration4TestPage.html")}")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+            new Click("save") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("success", _selenium.WebDriver.FindElement(By.Id("span1")).GetAttribute("innerText"));
+
+        }
     }
 }

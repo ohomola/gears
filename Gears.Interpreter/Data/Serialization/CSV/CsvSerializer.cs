@@ -27,7 +27,6 @@ using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Data.Serialization.CSV
 {
-    //TODO: Merge to one serializer class with Excel, separate by dependent modules
     internal class CsvSerializer : ISerializer
     {
         private readonly TextReader _textReader;

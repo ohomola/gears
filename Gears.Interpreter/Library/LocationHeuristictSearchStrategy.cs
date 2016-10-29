@@ -12,68 +12,82 @@ namespace Gears.Interpreter.Library
     {
         IBufferedElement FindElementNextToAnotherElement(string text, SearchDirection direction);
         IElementSearchStrategy Elements(IEnumerable<string> searchedTagNames);
-        IElementSearchStrategy WithText(string text);
+        IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild);
         IElementSearchStrategy RelativeTo(string text, SearchDirection specDirection);
         IElementSearchStrategy SortBy(SearchDirection specDirection);
         IEnumerable<IBufferedElement> Results();
+        bool Any();
+        IElementSearchStrategy Elements();
     }
 
     public class LocationHeuristictSearchStrategy : IElementSearchStrategy
     {
         private readonly ISeleniumAdapter _seleniumAdapter;
 
+        private readonly ReadOnlyCollection<IWebElement> _query;
+
         public LocationHeuristictSearchStrategy(ISeleniumAdapter seleniumAdapter)
         {
             _seleniumAdapter = seleniumAdapter;
         }
 
-        /// <summary>
-        /// simple Fluent
-        /// </summary>
-        public ReadOnlyCollection<IWebElement> Query { get; set; }
+        private LocationHeuristictSearchStrategy(ISeleniumAdapter seleniumAdapter, ReadOnlyCollection<IWebElement> query)
+        {
+            _seleniumAdapter = seleniumAdapter;
+            _query = new ReadOnlyCollection<IWebElement>(new List<IWebElement>(query));
+        }
+
+        public IElementSearchStrategy Elements()
+        {
+            return Elements(new List<string>());
+        }
 
         public IElementSearchStrategy Elements(IEnumerable<string> searchedTagNames)
         {
+            var newQuery = _query;
+
             if (searchedTagNames.Any())
             {
-                Query = _seleniumAdapter.WebDriver.GetElementsByTagNames(searchedTagNames);
+                newQuery = _seleniumAdapter.WebDriver.GetElementsByTagNames(searchedTagNames);
             }
             else
             {
-                Query = _seleniumAdapter.WebDriver.GetAllElements();
+                newQuery = _seleniumAdapter.WebDriver.GetAllElements();
             }
             
-            return this;
+            return new LocationHeuristictSearchStrategy(_seleniumAdapter, newQuery);
         }
 
-        public IElementSearchStrategy WithText(string text)
+        public IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild)
         {
+            var newQuery = _query;
+
             if (!string.IsNullOrEmpty(text))
             {
-                Query = _seleniumAdapter.WebDriver.FilterElementsByText(text, Query);
+                newQuery = _seleniumAdapter.WebDriver.FilterElementsByText(text, _query, matchWhenTextIsInChild);
             }
 
-            return this;
+            return new LocationHeuristictSearchStrategy(_seleniumAdapter, newQuery);
         }
 
         public IElementSearchStrategy RelativeTo(string visibleTextOfTheRelativeElement, SearchDirection direction)
         {
             if (string.IsNullOrEmpty(visibleTextOfTheRelativeElement))
             {
-                return this;
+                return new LocationHeuristictSearchStrategy(_seleniumAdapter, _query);
             }
 
             var results = new List<IBufferedElement>();
-            var relativeElements = _seleniumAdapter.WebDriver.FilterElementsByText(visibleTextOfTheRelativeElement, _seleniumAdapter.WebDriver.GetAllElements());
+            var relativeElements = _seleniumAdapter.WebDriver.FilterElementsByText(visibleTextOfTheRelativeElement, _seleniumAdapter.WebDriver.GetAllElements(), false);
 
-            var candidates = Query;
+            var candidates = _query;
 
             foreach (var relative in relativeElements)
             {
-                if (direction == SearchDirection.RightFromAnotherElementInclusive && 
-                    Query.Any(q=>q.Equals(relative)))
+                if (direction == SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo && 
+                    _query.Any(q=>q.Equals(relative)))
                 {
-                    results.AddRange(Query.Where(q => q.Equals(relative)).Select(q=>new BufferedElement(q)));
+                    results.AddRange(_query.Where(q => q.Equals(relative)).Select(q=>new BufferedElement(q)));
                 }
 
                 var domNeighbours = _seleniumAdapter.WebDriver.FilterDomNeighbours(candidates, relative);
@@ -100,9 +114,7 @@ namespace Gears.Interpreter.Library
                 //Show.HighlightElements(bufferedElements.Select(x=>x.WebElement), Selenium);
             }
 
-            Query = new ReadOnlyCollection<IWebElement>(results.Select(x=>x.WebElement).ToList());
-
-            return this;
+            return new LocationHeuristictSearchStrategy(_seleniumAdapter, new ReadOnlyCollection<IWebElement>(results.Select(x => x.WebElement).ToList()));
         }
 
         private static IEnumerable<IBufferedElement> FilterOtherDirections(SearchDirection direction, IEnumerable<IBufferedElement> bufferedElements,
@@ -110,18 +122,22 @@ namespace Gears.Interpreter.Library
         {
             switch (direction)
             {
-                case SearchDirection.Up:
-                    bufferedElements = bufferedElements.Where(e => e.Rectangle.Bottom < relative.Location.Y);
+                case SearchDirection.AboveAnotherElement:
+                    bufferedElements = bufferedElements.Where(e => e.Rectangle.Top < relative.Location.Y);
                     break;
-                case SearchDirection.Down:
-                    bufferedElements = bufferedElements.Where(e => e.Rectangle.Top > relative.Location.Y);
+                case SearchDirection.BelowAnotherElement:
+                    bufferedElements = bufferedElements.Where(e => e.Rectangle.Bottom > relative.Location.Y);
                     break;
                 case SearchDirection.LeftFromAnotherElement:
                     bufferedElements = bufferedElements.Where(e => e.Rectangle.Right < relative.Location.X);
                     break;
                 case SearchDirection.RightFromAnotherElement:
-                case SearchDirection.RightFromAnotherElementInclusive:
                     bufferedElements = bufferedElements.Where(e => e.Rectangle.Left > relative.Location.X);
+                    break;
+                case SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo:
+                    var list  = bufferedElements.Where(e => e.Rectangle.Left > relative.Location.X).ToList();
+                    list.AddRange(bufferedElements.Where(e => e.Rectangle.Left <= relative.Location.X));
+                    bufferedElements = list;
                     break;
             }
             return bufferedElements;
@@ -129,15 +145,18 @@ namespace Gears.Interpreter.Library
 
         public IElementSearchStrategy SortBy(SearchDirection specDirection)
         {
-            var buffs = Query.Select(x => x.AsBufferedElement());
-            IOrderedEnumerable<IBufferedElement> orderedEnumerable;
+            var buffs = _query.Select(x => x.AsBufferedElement());
+            IEnumerable<IBufferedElement> orderedEnumerable;
             switch (specDirection)
             {
-                case SearchDirection.Up:
-                case SearchDirection.UpFromBottomEdge:
-                    orderedEnumerable = buffs.OrderBy(e => e.Rectangle.Location.Y);
+                case SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo:
+                    orderedEnumerable = buffs;
                     break;
-                case SearchDirection.Down:
+                case SearchDirection.AboveAnotherElement:
+                case SearchDirection.UpFromBottomEdge:
+                    orderedEnumerable = buffs.OrderByDescending(e => e.Rectangle.Location.Y);
+                    break;
+                case SearchDirection.BelowAnotherElement:
                 case SearchDirection.DownFromTopEdge:
                     orderedEnumerable = buffs.OrderBy(e => e.Rectangle.Location.Y);
                     break;
@@ -150,14 +169,17 @@ namespace Gears.Interpreter.Library
                     break;
             }
 
-            Query = new ReadOnlyCollection<IWebElement>(orderedEnumerable.Select(x => x.WebElement).ToList());
-
-            return this;
+            return new LocationHeuristictSearchStrategy(_seleniumAdapter, new ReadOnlyCollection<IWebElement>(orderedEnumerable.Select(x => x.WebElement).ToList()));
         }
 
         public IEnumerable<IBufferedElement> Results()
         {
-            return Query.Select(x=>x.AsBufferedElement());
+            return _query.Select(x=>x.AsBufferedElement());
+        }
+
+        public bool Any()
+        {
+            return _query.Any();
         }
 
         public IBufferedElement FindElementNextToAnotherElement(string visibleTextOfTheRelativeElement, SearchDirection direction)
@@ -166,7 +188,7 @@ namespace Gears.Interpreter.Library
 
             var searchedTagNames = new[] {"input", "textArea"};
 
-            var relativeElements = _seleniumAdapter.WebDriver.FilterElementsByText(visibleTextOfTheRelativeElement, _seleniumAdapter.WebDriver.GetAllElements());
+            var relativeElements = _seleniumAdapter.WebDriver.FilterElementsByText(visibleTextOfTheRelativeElement, _seleniumAdapter.WebDriver.GetAllElements(), false);
             
             var candidates = _seleniumAdapter.WebDriver.GetElementsByTagNames(searchedTagNames);
 

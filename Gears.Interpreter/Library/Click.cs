@@ -34,81 +34,110 @@ using OpenQA.Selenium.Support.Extensions;
 
 namespace Gears.Interpreter.Library
 {
-    public class Click : Keyword
+    public interface IHasTechnique
     {
-        private Instruction spec;
+        Technique Technique { get; set; }
+    }
 
+    public class Click : Keyword, IHasTechnique
+    {
+        private Instruction _spec;
 
-        public int Order { get; set; }
+        public Technique Technique { get; set; }
 
-        public bool Javascript { get; set; }
+        public Click(Instruction spec)
+        {
+            this._spec = spec;
+        }
 
-        public Click(string what)
+        public Click(string what): this(new Instruction(what))
         {
             Javascript = false;
-            spec = new Instruction(what);
         }
 
         [Obsolete("Backward compatibility")]
-        public Click(string what, string where):this(what)
-        {
-            //TODO cleanup
-            if (@where.ToLower().Contains("right"))
-            {
-                spec.Direction = SearchDirection.LeftFromRightEdge;
-            }
-            else if (@where.ToLower().Contains("top"))
-            {
-                spec.Direction = SearchDirection.DownFromTopEdge;
-            }
-            else spec.Direction = SearchDirection.RightFromLeftEdge;
+        public bool Javascript {
+            get { return Technique == Technique.Javascript; }
+            set { Technique = value == true ? Technique.Javascript : Technique.MouseAndKeyboard; }
         }
 
-
-        public SearchDirection Direction { get; set; }
-
-        public string LabelText { get; set; }
-
+        [Obsolete("Backward compatibility")]
+        public Click(string what, string where) : this(what)
+        {
+            where = @where.ToLower().Trim();
+            switch (@where)
+            {
+                case ("right"):
+                    _spec.Direction = SearchDirection.LeftFromRightEdge;
+                    break;
+                case ("top"):
+                case ("up"):
+                    _spec.Direction = SearchDirection.DownFromTopEdge;
+                    break;
+                case ("down"):
+                case ("bottom"):
+                    _spec.Direction = SearchDirection.UpFromBottomEdge;
+                    break;
+                default:
+                    _spec.Direction = SearchDirection.RightFromLeftEdge;
+                    break;
+            }
+        }
 
         public override object Run()
         {
-            var element = default(IWebElement);
-            var elements = new LocationHeuristictSearchStrategy(Selenium) as IElementSearchStrategy;
+            var theButton = default(IBufferedElement);
+            var query = new LocationHeuristictSearchStrategy(Selenium) as IElementSearchStrategy;
 
-            elements = elements.Elements(spec.TagNames).WithText(spec.SubjectName);
+            var lookingForSpecificElements = _spec.TagNames.Any();
+            query = query.Elements(_spec.TagNames).WithText(_spec.SubjectName, lookingForSpecificElements);
 
-            if (!string.IsNullOrEmpty(spec.Locale))
+            if (!string.IsNullOrEmpty(_spec.Locale))
             {
-                elements = elements.RelativeTo(spec.Locale, spec.Direction);
+                query = query.RelativeTo(_spec.Locale, _spec.Direction);
             }
 
-            elements = elements.SortBy(spec.Direction);
-            var results = elements.Results().ToList();
+            query = query.SortBy(_spec.Direction);
 
-            if (spec.Order >= results.Count())
+            var validResults = query.Results().ToList();
+
+            if (_spec.Order >= validResults.Count())
             {
-                throw new ApplicationException($"Cannot find element {(spec.Order>0?(spec.Order+1).ToString():"")}({results.Count()} results found)");
+                throw new ApplicationException($"Cannot find element {(_spec.Order>0?(_spec.Order+1).ToString():"")}({validResults.Count()} results found)");
             }
-
             
-            element = results.Skip(spec.Order).First().WebElement;
+            theButton = validResults.Skip(_spec.Order).First();
 
-            if (Javascript)
+            switch (Technique)
             {
-                Selenium.WebDriver.Click(element);
-            }
-            else
-            {
-                var screenLocation = Selenium.PutElementOnScreen(element);
-                UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
-                Thread.Sleep(50);
-                UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+                case Technique.HighlightOnly:
+                    Show.HighlightElements(Selenium, validResults);
+                    break;
+                case Technique.Javascript:
+                    Selenium.WebDriver.Click(theButton.WebElement);
+                    break;
+                case Technique.MouseAndKeyboard:
+                    var screenLocation = Selenium.PutElementOnScreen(theButton.WebElement);
+                    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
+                    Thread.Sleep(50);
+                    UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+                    break;
             }
 
-            return null;
+            return theButton;
         }
 
-       
+        public override string ToString()
+        {
+            return $"Click {_spec}";
+        }
+    }
+
+    public enum Technique
+    {
+        MouseAndKeyboard = 0,
+        Javascript,
+        HighlightOnly
     }
 
     //public class Click : Keyword

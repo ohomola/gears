@@ -23,8 +23,6 @@ using Castle.Windsor;
 
 namespace Gears.Interpreter.Core.Registrations
 {
-    //TODO: ---- Remove dependency on Windsor from core and pull up to application
-    //TODO: --- wrap staticcontainer to some 'servicelocator' interface which is optional for implementation
     public static class ServiceLocator
     {
         private static bool _isInitialised;

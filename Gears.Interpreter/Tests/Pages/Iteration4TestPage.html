@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    
+<div>
+    <label>TextArea 1</label>
+    <input id ="test1"/>
+</div>
+    
+<div>
+    <div>
+        <label>TextArea 2</label>
+    </div>
+    <input id ="test2"/>
+</div>
+
+<div>
+   <input id="test3" title="TextArea 3"/>
+</div>
+
+<div>
+    <div onclick="this.innerText = 'failure'" >
+        SAVE
+    </div>
+    <button onclick="document.getElementById('span1').innerText = 'success'" id="but1">
+        <span id="span1">SAVE</span>
+    </button>
+</div>
+<div>
+    
+    <button onclick="this.innerText = 'success'" id="but2">
+        <span>load</span>
+    </button>
+    <button onclick="this.innerText = 'failure'" >
+        <span>load</span>
+    </button>
+</div>
+    
+<div>
+    <label>Login:</label>
+    <input id="test4login"type="text"/>
+    <label>Password:</label>
+    <input id="test4password"type="text"/>
+</div>
+<input id="test4"type="text"/>
+    
+    
+<div>
+    <div><label>Login2:</label></div>
+    <input id="test5login"type="text"/>
+    <div><label>Password2:</label></div>
+    <input id="test5password"type="text"/>
+</div>
+
+
+</body>
+</html>

@@ -69,16 +69,16 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
             
         }
 
-        public void DrawStuff(IntPtr handle, int number, int clientX, int clientY, Graphics overlayGraphics)
+        public void DrawStuff(IntPtr handle, int number, int clientX, int clientY, Graphics overlayGraphics, int width, int height, Color innerColor, Color outerColor)
         {
             var point = new Point(clientX, clientY);
             
             UserBindings.ClientToScreen(handle, ref point);
             UserInteropAdapter.ScreenToGraphics(ref point);
 
-            overlayGraphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 0, 255, 255)), point.X, point.Y, 20, 20);
-            overlayGraphics.DrawString(number.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.DarkMagenta), point.X, point.Y);
-            overlayGraphics.DrawRectangle(new Pen(Color.FromArgb(255, 255, 0, 255)), point.X, point.Y, 21, 21);
+            overlayGraphics.FillRectangle(new SolidBrush(innerColor), point.X, point.Y, width, height);
+            overlayGraphics.DrawString(number.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.FromArgb(1,1,1)), point.X, point.Y);
+            overlayGraphics.DrawRectangle(new Pen(outerColor), point.X, point.Y, width+1, height+1);
         }
 
         private static void StaticInit()

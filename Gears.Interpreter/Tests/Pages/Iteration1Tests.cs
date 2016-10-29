@@ -79,7 +79,7 @@ namespace Gears.Interpreter.Tests.Pages
             {
                 Selenium = _selenium
             }.Execute();
-            new Fill("TextArea 1", "filledText{Random.Word()}") { Selenium = _selenium }.Execute();
+            new Fill("Text Area 1", "filledText{Random.Word()}") { Selenium = _selenium }.Execute();
 
             var value = _selenium.WebDriver.FindElement(By.Id("test1")).GetAttribute("value");
             Assert.AreNotEqual(value, "filledText{Random.Word()}");
@@ -94,9 +94,9 @@ namespace Gears.Interpreter.Tests.Pages
             {
                 Selenium = _selenium
             }.Execute();
-            new Fill("TextArea 1", "filledText1") {Selenium = _selenium}.Execute();
-            new Fill("TextArea 2", "filledText2") {Selenium = _selenium}.Execute();
-            new Fill("TextArea 3", "filledText3") {Selenium = _selenium}.Execute();
+            new Fill("Text Area 1", "filledText1") {Selenium = _selenium}.Execute();
+            new Fill("Text Area 2", "filledText2") {Selenium = _selenium}.Execute();
+            new Fill("Text Area 3", "filledText3") {Selenium = _selenium}.Execute();
 
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("test1"))
                 .GetAttribute("value"), "filledText1");

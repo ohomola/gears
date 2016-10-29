@@ -37,15 +37,18 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            var result = (Selenium.WebDriver).RunLibraryScript($"return tagMatches(getExactTextMatches(\"{What}\"));");
+            var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
+            var result = searchStrategy.Elements().WithText(What, false).Any();
+            return result;
+            //var result = (Selenium.WebDriver).RunLibraryScript($"return tagMatches(getExactTextMatches(\"{What}\"));");
 
-            if (result != null)
-            {
-                var elements = (IEnumerable) result;
+            //if (result != null)
+            //{
+            //    var elements = (IEnumerable) result;
 
-                return elements.Cast<object>().Any();
-            }
-            return false;
+            //    return elements.Cast<object>().Any();
+            //}
+            //return false;
         }
 
         public override string ToString()

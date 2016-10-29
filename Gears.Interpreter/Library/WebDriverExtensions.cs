@@ -150,9 +150,9 @@ namespace Gears.Interpreter.Library
         }
 
         [JavascriptFunctionWrapper]
-        public static ReadOnlyCollection<IWebElement> FilterElementsByText(this IWebDriver webDriver, string text, ReadOnlyCollection<IWebElement> elements)
+        public static ReadOnlyCollection<IWebElement> FilterElementsByText(this IWebDriver webDriver, string text, IEnumerable<IWebElement> elements, bool matchWhenTextIsInChild)
         {
-            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(\"{text}\",arguments[0])", elements);
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(\"{text}\",arguments[0],arguments[1])", elements, matchWhenTextIsInChild);
 
             return ToCollection(result);
         }
