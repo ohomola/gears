@@ -9,7 +9,6 @@ namespace Gears.Interpreter.Library
 {
     public class Clear : Keyword
     {
-        private IElementSearchStrategy _searchStrategy;
         public string LabelText { get; set; }
         public SearchDirection Direction { get; set; }
         public int Order { get; set; }
@@ -34,27 +33,28 @@ namespace Gears.Interpreter.Library
             Order = spec.Order;
         }
 
-        
-
-
         public override object Run()
         {
             try
             {
-                _searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
+                var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
 
-                var element = _searchStrategy.FindElementNextToAnotherElement(LabelText, Direction, true).WebElement;
-                element.SendKeys(Keys.LeftControl + "a");
-                element.SendKeys(Keys.Delete);
-                return element;
+                var lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order);
+
+                if (lookupResult.Success == false)
+                {
+                    throw new LookupFailureException(lookupResult, "Input not found");
+                }
+
+                lookupResult.Result.WebElement.SendKeys(Keys.LeftControl + "a");
+                lookupResult.Result.WebElement.SendKeys(Keys.Delete);
+                return lookupResult.Result.WebElement;
             }
             catch (Exception)
             {
                 throw new ApplicationException($"Element {LabelText} was not found");
             }
         }
-
-
 
         public override string ToString()
         {
