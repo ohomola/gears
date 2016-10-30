@@ -74,19 +74,58 @@ namespace Gears.Interpreter.Adapters.Interoperability
             UserBindings.SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf(typeof(UserBindings.INPUT)));
         }
 
-        private static UserBindings.INPUT GetControlKeyDown()
+        public static void PressWithControl(IntPtr wndHandle, ushort c)
         {
+            var inputs = new List<UserBindings.INPUT>();
+
+            inputs.Add(CreateInput(KeyPressInputType.Down, keyCode: 0x11));
+            inputs.Add(CreateInput(KeyPressInputType.Down, keyCode: c));
+            inputs.Add(CreateInput(KeyPressInputType.Up, keyCode: c));
+            inputs.Add(CreateInput(KeyPressInputType.Up, keyCode: 0x11));
+            UserBindings.SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf(typeof(UserBindings.INPUT)));
+        }
+
+        private static UserBindings.INPUT[] GetCharacterInputs(char character)
+        {
+            var down = CreateInput(KeyPressInputType.Down, scanCode:character);
+            var up = CreateInput(KeyPressInputType.Up, scanCode: character);
+
+            if ((character & 0xFF00) == 0xE000)
+            {
+                down.Data.Keyboard.Flags |= 0x0001;
+                up.Data.Keyboard.Flags |= 0x0001;
+            }
+
+            return new [] {down, up};
+        }
+
+        private static UserBindings.INPUT CreateInput(KeyPressInputType upOrDown, ushort scanCode=0, ushort keyCode=0)
+        {
+            uint flags = 0x0000; // Flag input as 'sending basic key'
+            if (keyCode == 0x11)//Control
+            {
+                flags = 0x0001; // Flag input as 'sending extended key'
+            }
+            if (keyCode == 0 && scanCode != 0)
+            {
+                flags = 0x0004; // Flag input as 'sending Unicode character'
+            }
+
+            if (upOrDown == KeyPressInputType.Up)
+            {
+                flags = flags | 0x0002; // add 'sending UP' flag
+            }
             return new UserBindings.INPUT
             {
-                Type = (UInt32)1,
+                Type = 1,
                 Data =
                 {
                     Keyboard =
                         new UserBindings.KEYBDINPUT
                         {
-                            KeyCode = 0,
-                            Scan = 0x11,
-                            Flags = (UInt32)0x0004,
+                            KeyCode = keyCode,
+                            Scan = scanCode,
+                            Flags =flags,
                             Time = 0,
                             ExtraInfo = IntPtr.Zero
                         }
@@ -94,51 +133,10 @@ namespace Gears.Interpreter.Adapters.Interoperability
             };
         }
 
-        private static UserBindings.INPUT[] GetCharacterInputs(char character)
+        public enum KeyPressInputType
         {
-            UInt16 scanCode = character;
-
-            var down = new UserBindings.INPUT
-            {
-                Type = (UInt32)1,
-                Data =
-                {
-                    Keyboard =
-                        new UserBindings.KEYBDINPUT
-                        {
-                            KeyCode = 0,
-                            Scan = scanCode,
-                            Flags = (UInt32)0x0004,
-                            Time = 0,
-                            ExtraInfo = IntPtr.Zero
-                        }
-                }
-            };
-
-            var up = new UserBindings.INPUT
-            {
-                Type = (UInt32)1,
-                Data =
-                {
-                    Keyboard =
-                        new UserBindings.KEYBDINPUT
-                        {
-                            KeyCode = 0,
-                            Scan = scanCode,
-                            Flags =(UInt32)(0x0002 | 0x0004),
-                            Time = 0,
-                            ExtraInfo = IntPtr.Zero
-                        }
-                }
-            };
-       
-            if ((scanCode & 0xFF00) == 0xE000)
-            {
-                down.Data.Keyboard.Flags |= (UInt32)0x0001;
-                up.Data.Keyboard.Flags |= (UInt32)0x0001;
-            }
-
-            return new [] {down, up};
+            Up,
+            Down
         }
     }
 }

@@ -148,13 +148,6 @@ namespace Gears.Interpreter.Applications.Debugging
         {
             var commands = new List<ConsoleDebuggerActionHook>()
             {
-                new ConsoleDebuggerActionHook("find (.+)", "find X: use this to test a web element locator", input =>
-                {
-                    var arg = ParseArguments(input, 1).First();
-                    var script = $@"tagMatches(getExactMatches(""{arg}""));";
-                    (Selenium.WebDriver).RunLibraryScript(script);
-                    DontDoAnything(index);
-                }),
                 new ConsoleDebuggerActionHook("click (.+)", "click X: use this to click on element ad-hoc", input =>
                 {
                     var arg = ParseArguments(input, 1).First();
@@ -202,6 +195,22 @@ namespace Gears.Interpreter.Applications.Debugging
                         Console.Out.WriteColoredLine(ConsoleColor.Yellow, "The selected keyword cannot be called with highlight technique.");
                         DontDoAnything(index);
                     }
+                }),
+                new ConsoleDebuggerActionHook("show click (.+)", "show click X:  a full-text instruction to display on screen.", input =>
+                {
+                    var args = ParseArguments(input, 2);
+                    var show = new Click(args.Last()) {Technique = Technique.HighlightOnly};
+                    ServiceLocator.Instance.Resolve(show);
+                    Command.SelectedKeyword = show;
+                    Command.NextIndex = Command.NextIndex-1;
+                }),
+                new ConsoleDebuggerActionHook("show fill (.+)", "show fill X:  a full-text instruction to display on screen.", input =>
+                {
+                    var args = ParseArguments(input, 2);
+                    var show = new Fill(args.Last()) {Technique = Technique.HighlightOnly};
+                    ServiceLocator.Instance.Resolve(show);
+                    Command.SelectedKeyword = show;
+                    Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("goto (.+)", "goto X: use this to click on element ad-hoc", input =>
                 {

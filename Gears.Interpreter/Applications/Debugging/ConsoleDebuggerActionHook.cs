@@ -38,7 +38,7 @@ namespace Gears.Interpreter.Applications.Debugging
 
         public bool Matches(string userInput)
         {
-            return new Regex(_commandRegEx).IsMatch(userInput);
+            return new Regex("^"+ _commandRegEx+ "$").IsMatch(userInput);
         }
     }
 }

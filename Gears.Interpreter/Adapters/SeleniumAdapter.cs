@@ -33,6 +33,7 @@ namespace Gears.Interpreter.Adapters
         IWebDriver WebDriver { get; set; }
         IntPtr GetChromeHandle();
         Point PutElementOnScreen(IWebElement element);
+        void BrowserToClient(ref Point p);
     }
 
     public class SeleniumAdapter : ISeleniumAdapter, IDisposable
@@ -75,6 +76,26 @@ namespace Gears.Interpreter.Adapters
             }
 
             return _handle;
+        }
+
+        public void BrowserToClient(ref Point p)
+        {
+            var YOffset =
+                (int)
+                Math.Abs(
+                    (long)WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight"));
+            var XOffset =
+                (int)
+                Math.Abs((long)WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth"));
+
+            var scrollOffset =
+                (int)
+                Math.Abs(
+                    (long)
+                    WebDriver.RunLibraryScript("return window.pageYOffset || document.documentElement.scrollTop"));
+
+            p.X += XOffset;
+            p.Y += YOffset - scrollOffset;
         }
 
         public Point PutElementOnScreen(IWebElement element)

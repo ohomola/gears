@@ -100,6 +100,10 @@
       <HintPath>..\packages\Castle.Windsor.3.3.0\lib\net45\Castle.Windsor.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="JetBrains.Annotations, Version=10.2.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.10.2.1\lib\net\JetBrains.Annotations.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
@@ -168,10 +172,13 @@
     <Compile Include="Data\Serialization\CSV\CsvSerializer.cs" />
     <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
     <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
+    <Compile Include="Library\BufferedElement.cs" />
     <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Enums.cs" />
+    <Compile Include="Library\IInstructed.cs" />
     <Compile Include="Library\Instruction.cs" />
     <Compile Include="Library\LocationHeuristictSearchStrategy.cs" />
+    <Compile Include="Core\LookupFailureException.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\TagQuery.cs" />
     <Compile Include="Library\SaveHtml.cs" />

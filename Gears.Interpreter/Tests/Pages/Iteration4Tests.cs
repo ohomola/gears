@@ -160,12 +160,21 @@ namespace Gears.Interpreter.Tests.Pages
 
             new Click("1st Drawer from top") { Selenium = _selenium }.Execute();
 
+            new IsVisible("Menu Item 2 left from Examples") { Selenium = _selenium, Expect = false }.Execute();
             new Click("1st Toggle drawer from top") { Selenium = _selenium }.Execute();
-            new IsVisible("Menu Item") { Selenium = _selenium, Expect = true }.Execute();
+            new Wait(900).Execute();
+            new IsVisible("Menu Item 2 left from Examples") { Selenium = _selenium, Expect = true }.Execute();
             new Click("1st Toggle drawer from top") { Selenium = _selenium }.Execute();
+            new Wait(900).Execute();
+            new IsVisible("Menu Item 2 left from Examples") { Selenium = _selenium, Expect = false }.Execute();
 
+            new IsVisible("AppBar right from Examples") { Selenium = _selenium, Expect = false }.Execute();
             new Click("2nd Toggle drawer from top") { Selenium = _selenium }.Execute();
-            new IsVisible("App bar") { Selenium = _selenium, Expect = true }.Execute();
+            new Wait(900).Execute();
+            new IsVisible("AppBar right from Examples") { Selenium = _selenium, Expect = true }.Execute();
+            new Click("2nd Toggle drawer from top") { Selenium = _selenium }.Execute();
+            new Wait(900).Execute();
+            new IsVisible("AppBar right from Examples") { Selenium = _selenium, Expect = false }.Execute();
         }
 
 
@@ -199,5 +208,20 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual("success", _selenium.WebDriver.FindElement(By.Id("span1")).GetAttribute("innerText"));
 
         }
+
+        [Test]
+        public void ShouldFillSpecialCharacters()
+        {
+            new GoToUrl($"file:///{FileFinder.Find("Iteration4TestPage.html")}")
+            {
+                Selenium = _selenium
+            }.Execute();
+
+            new Fill("Password: with <|>=5") { Selenium = _selenium }.Execute();
+            Assert.AreEqual("<|>=5", _selenium.WebDriver.FindElement(By.Id("test4password")).GetAttribute("value"));
+
+        }
+
+
     }
 }

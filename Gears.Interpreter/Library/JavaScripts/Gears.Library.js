@@ -15,15 +15,7 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//WrappedByWebdriverExtension
-function SelectWithLocation(elements) {
 
-    var matches = [];
-    for (var i = 0; i < elements.length; i++) {
-        matches.push([elements[i], elements[i].getBoundingClientRect()]);
-    }
-    return matches;
-}
 
 //WrappedByWebdriverExtension
 function GetAllElements() {
@@ -44,6 +36,10 @@ function GetElementsByTagNames(tags) {
 
     for (var i = 0, n = tags.length; i < n; i++) {
         allElements = allElements.concat(Array.prototype.slice.call(document.getElementsByTagName(tags[i])));
+        var additionalElementsFoundByAttributes = _findByAttributeValue("type", tags[i]);
+        if (additionalElementsFoundByAttributes != null) {
+            allElements = allElements.concat(Array.prototype.slice.call(additionalElementsFoundByAttributes));
+        }
     }
 
     console.log("getElements - allElements " + allElements.length);
@@ -132,6 +128,33 @@ function FilterDomNeighbours(allElements, element) {
     return matches;
 }
 
+//WrappedByWebdriverExtension
+function SelectWithLocation(elements) {
+
+    var matches = [];
+    for (var i = 0; i < elements.length; i++) {
+        matches.push([elements[i], elements[i].getBoundingClientRect()]);
+    }
+    return matches;
+}
+
+//WrappedByWebdriverExtension
+function Click(theElement) {
+
+    theElement.dispatchEvent(new Event("focus", { bubbles: true }));
+
+    theElement.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+
+    try {
+        theElement.click();
+    } catch (err) {
+        console.log("WARNING: click has caused error: " + err);
+    }
+
+    theElement.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+
+    return theElement;
+}
 
 function getChildren(n, skipMe) {
     var r = [];
@@ -145,40 +168,13 @@ function getSiblings(n) {
     return getChildren(n.parentNode.firstChild, n);
 }
 
-//WrappedByWebdriverExtension
-function FilterOrthogonalElements(allElements, element) {
-    var matches = [];
 
-    for (var i = 0; i < allElements.length; i++) {
-        if (!isHidden(allElements[i]) && areOrthogonal(allElements[i], element)) {
-            matches.push(allElements[i]);
-        }
+function _findByAttributeValue(attribute, value) {
+    var All = document.getElementsByTagName('*');
+    for (var i = 0; i < All.length; i++) {
+        if (All[i].getAttribute(attribute) == value) { return All[i]; }
     }
-
-    console.log("FilterOrthogonalElements: " + matches.length);
-
-    return matches;
 }
-
-////WrappedByWebdriverExtension
-//function GetOrthogonalInputs(elements) {
-
-//    var matches = [];
-//    var allElements = document.getElementsByTagNames(["input", "textarea"]);
-//    for (var input = 0; input < allElements.length; input++) {
-//        for (var i = 0; i < elements.length; i++) {
-//            if (!isHidden(allElements[input]) && areOrthogonal(allElements[input], elements[i])) {
-//                matches.push(allElements[input]);
-//            }
-//        }
-//    }
-
-//    console.log("GetOrthogonalInputs: " + matches.length);
-
-//    return matches;
-//}
-
-
 
 function getElementsByTagName(tagNames) {
     var allElements = document.getElementsByTagNames(tagNames);
@@ -211,119 +207,15 @@ Node.prototype.getElementsByTagNames = function (tags) {
     return elements;
 };
 
-
-
-function findInput(what, where) {
-    var labelCandidates = getExactMatches(what);
-
-    try {
-        // check if one of the candidates is not actually the input
-        var returnValue = firstByLocation(where, labelCandidates);
-        if (returnValue !== null &&
-            (returnValue.nodeName.toLowerCase() === "input" || returnValue.nodeName.toLowerCase() === "textarea")) {
-            return returnValue;
-        }
-    } catch (err) {
-    }
-
-    if (where === "") {
-        returnValue = tagMatches(firstByRelativeLocation(labelCandidates[0], getOrthogonalInputs(labelCandidates)));
-    } else {
-        returnValue = tagMatches([firstByLocation(where, getOrthogonalInputs(labelCandidates))]); 
-    }
-
-    return returnValue;
-}
-
-function getExactTextMatches(searchedText) {
-
-    var allElements = document.all;
-    var matches = [];
-
-    for (var i = 0; i < allElements.length; i++) {
-
-        var element = allElements[i];
-
-        if (isHidden(element)) {
-            continue;
-        }
-
-        if (isExactTextMatch(element, searchedText.toLowerCase())) {
-            matches.push(element);
-        }
-    }
-
-    console.log("Exact: " + matches.length);
-
-    return matches;
-}
-
-
-
-
-
-
-function tagMatches(matches) {
-    for (var i = 0; i < matches.length; i++) {
-        matches[i].style.backgroundColor = "cyan";
-        matches[i].style.color = "blue";
-        matches[i].style.borderStyle = "solid";
-        matches[i].style.borderColor = "magenta";
-    }
-    console.log("Tagged: " + matches.length);
-    return matches;
-}
-
-
-function clickFirstMatch(matches) {
-    return click(matches[0]);
-}
-
-function clickNthMatch(matches, n) {
-    return click(matches[n]);
-}
-
-function click(theElement) {
-
-    theElement.dispatchEvent(new Event("focus", { bubbles: true }));
-
-    theElement.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-    
-    try {
-        theElement.click();
-    } catch (err) {
-        console.log("WARNING: click has caused error: " + err);
-    }
-
-    theElement.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
-
-    return theElement;
-}
-
-function isExactTextMatch(element, searchedText) {
-    var childNodes = element.childNodes;
-    for (var n = 0; n < childNodes.length; n++) {
-        var curNode = childNodes[n];
-        if (curNode.nodeName === "#text") {
-            if (curNode.nodeValue.toLowerCase() === searchedText) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 function isExactMatchOrChild(element, searchedText) {
     
-    if (isExactMatch(element)) {
+    if (isExactMatch(element, searchedText)) {
         return true;
     }
-
     var childNodes = element.childNodes;
     for (var n = 0; n < childNodes.length; n++) {
         var curNode = childNodes[n];
-        if (isExactMatchOrChild(curNode, searchedText)) {
+        if (curNode.nodeType === 1 && isExactMatchOrChild(curNode, searchedText)) {
             return true;
         }
     }
@@ -354,9 +246,6 @@ function isExactMatch(element, searchedText) {
     return false;
 }
 
-
-
-
 function areOrthogonal(input, element) {
     var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);
     if (dif < 5) return true;
@@ -366,12 +255,6 @@ function areOrthogonal(input, element) {
 
     return false;
 }
-
-
-
-
-
-
 
 function isHidden(el) {
     if (el.offsetParent === null) {
@@ -392,94 +275,7 @@ Node.prototype.getElementsByTagNames = function (tags) {
     return elements;
 };
 
-function distance(a, b) {
-    return Math.abs(a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom) +
-        Math.abs(a.getBoundingClientRect().left - b.getBoundingClientRect().left);
-}
-
-
-function sortByLocation(isFromRight, elements) {
-    if (isFromRight) {
-        return elements.sort(function (a, b) {
-            return (
-                a.getBoundingClientRect().top - b.getBoundingClientRect().top) * 1 +
-                (b.getBoundingClientRect().left - a.getBoundingClientRect().left) *100;
-        });
-    }
-
-    return elements.sort(function (a, b) {
-        return (
-            a.getBoundingClientRect().top - b.getBoundingClientRect().top) * 1
-        + (a.getBoundingClientRect().left - b.getBoundingClientRect().left) *100 });;
-}
-
-function firstByLocation(where, elements) {
-    if (where.toLowerCase() === "left") {
-        var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().left - b.getBoundingClientRect().left });
-        return sorted[0];
-    }
-    else if (where.toLowerCase() === "right") {
-        var sorted = elements.sort(function (a, b) { return b.getBoundingClientRect().left - a.getBoundingClientRect().left });
-        return sorted[0];
-    }
-    if (where.toLowerCase() === "top") {
-        var sorted = elements.sort(function (a, b) { return a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom });
-        return sorted[0];
-    }
-    else if (where.toLowerCase() === "bottom") {
-        var sorted = elements.sort(function (a, b) { return b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom });
-        return sorted[0];
-    }
-    else {
-        return elements[0];
-    }
-}
 
 
 
 
-function firstByRelativeLocation(source, elements) {
-    var sorted = elements.sort(function (a, b) { return getNeighborOrder(a, source) - getNeighborOrder(b, source) });
-
-    var value = getNeighborOrder(sorted[0], source);
-    var nearest = sorted[0];
-    for (var i = 0; i < sorted.length; i++) {
-
-        if (getNeighborOrder( sorted[i],source) !== value) {
-            continue;
-        }
-
-        if (distance(source, nearest) > distance(source, sorted[i])) {
-            nearest = sorted[i];
-        }
-    }
-
-    return nearest;
-}
-
-function firstByDistance(source, elements) {
-    var sorted = elements.sort(function (a, b) { return distance(a, source) - distance(b, source) });
-    return sorted[0];
-}
-
-function getNeighborOrder(input, element) {
-    var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);
-    if (dif < 5) {
-        if (input.getBoundingClientRect().right > element.getBoundingClientRect().left) {
-            return 1;
-        } else {
-            return 4;
-        }
-    }
-
-    dif = Math.abs(input.getBoundingClientRect().left - element.getBoundingClientRect().left);
-    if (dif < 5) {
-        if (input.getBoundingClientRect().bottom > element.getBoundingClientRect().top) {
-            return 2;
-        } else {
-            return 3;
-        }
-    }
-
-    return 100;
-}

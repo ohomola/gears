@@ -10,14 +10,38 @@ namespace Gears.Interpreter.Library
 {
     public interface IElementSearchStrategy
     {
-        IBufferedElement FindElementNextToAnotherElement(string text, SearchDirection direction);
+        IBufferedElement FindElementNextToAnotherElement(string text, SearchDirection direction, bool orthogonalOnly);
+
+        LookupResult DirectLookup(List<string> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int Order, bool orthogonalOnly);
+
         IElementSearchStrategy Elements(IEnumerable<string> searchedTagNames);
         IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild);
-        IElementSearchStrategy RelativeTo(string text, SearchDirection specDirection);
+        IElementSearchStrategy RelativeTo(string text, SearchDirection specDirection, bool orthogonalOnly);
         IElementSearchStrategy SortBy(SearchDirection specDirection);
         IEnumerable<IBufferedElement> Results();
         bool Any();
         IElementSearchStrategy Elements();
+
+        LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order);
+    }
+
+    public class LookupResult
+    {
+        public LookupResult(bool success)
+        {
+            Success = success;
+        }
+
+        public LookupResult(List<IBufferedElement> otherValidResults, IBufferedElement result, bool success)
+        {
+            OtherValidResults = otherValidResults;
+            Result = result;
+            Success = success;
+        }
+
+        public List<IBufferedElement> OtherValidResults { get; set; }
+        public IBufferedElement Result { get; set; }
+        public bool Success { get; set; }
     }
 
     public class LocationHeuristictSearchStrategy : IElementSearchStrategy
@@ -35,6 +59,66 @@ namespace Gears.Interpreter.Library
         {
             _seleniumAdapter = seleniumAdapter;
             _query = new ReadOnlyCollection<IWebElement>(new List<IWebElement>(query));
+        }
+
+        
+        public LookupResult DirectLookup(List<string> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int order, bool orthogonalOnly)
+        {
+            var lookingForSpecificElements = searchedTagNames.Any();
+
+            var query = Elements(searchedTagNames).WithText(subjectName, lookingForSpecificElements);
+
+            if (!string.IsNullOrEmpty(locale))
+            {
+                query = query.RelativeTo(locale, searchDirection, orthogonalOnly);
+            }
+
+            query = query.SortBy(searchDirection);
+
+            var validResults = query.Results().ToList();
+
+            if (order >= validResults.Count())
+            {
+                return new LookupResult(validResults, result: null, success: false);
+            }
+
+            return new LookupResult(validResults, validResults.Skip(order).First(), success: true);
+        }
+
+        /// <summary>
+        /// This lookup method searches automatically for elements orthogonal to the specified text. If searching by instruction 'login' for instance, this method will also look for all elements next to all 'login' labels.
+        /// </summary>
+        /// <param name="labelText"></param>
+        /// <param name="searchDirection"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order)
+        {
+            List<IBufferedElement> validResults;
+            var allInputs = Elements(new[] { "input", "textArea" });
+
+            var allInputsWithText = allInputs.WithText(labelText, matchWhenTextIsInChild: false);
+
+            if (allInputsWithText.Any())
+            {
+                validResults = allInputsWithText
+                    .SortBy(searchDirection)
+                    .Results().ToList();
+            }
+            else
+            {
+                validResults = allInputs
+                    .RelativeTo(labelText, searchDirection, true)
+                    .SortBy(searchDirection)
+                    .Results().ToList();
+            }
+
+            if (order >= validResults.Count())
+            {
+                return new LookupResult(validResults, result: null, success: false);
+            }
+
+            return new LookupResult(validResults, validResults.Skip(order).First(), success: true);
         }
 
         public IElementSearchStrategy Elements()
@@ -70,7 +154,7 @@ namespace Gears.Interpreter.Library
             return new LocationHeuristictSearchStrategy(_seleniumAdapter, newQuery);
         }
 
-        public IElementSearchStrategy RelativeTo(string visibleTextOfTheRelativeElement, SearchDirection direction)
+        public IElementSearchStrategy RelativeTo(string visibleTextOfTheRelativeElement, SearchDirection direction, bool orthogonalOnly)
         {
             if (string.IsNullOrEmpty(visibleTextOfTheRelativeElement))
             {
@@ -99,10 +183,17 @@ namespace Gears.Interpreter.Library
                 //    }
                 //}
 
-                var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative);
-
-                var bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(orthogonalInputs);
-
+                IEnumerable<IBufferedElement> bufferedElements;
+                if (orthogonalOnly)
+                {
+                    var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative);
+                    bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(orthogonalInputs);
+                }
+                else
+                {
+                    bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(candidates);
+                }
+                
                 bufferedElements = SortByDistance(bufferedElements, relative.Location.X, relative.Location.Y);
 
                 bufferedElements = PutNeighborsToFront(bufferedElements, domNeighbours);
@@ -182,7 +273,7 @@ namespace Gears.Interpreter.Library
             return _query.Any();
         }
 
-        public IBufferedElement FindElementNextToAnotherElement(string visibleTextOfTheRelativeElement, SearchDirection direction)
+        public IBufferedElement FindElementNextToAnotherElement(string visibleTextOfTheRelativeElement, SearchDirection direction, bool orthogonalOnly)
         {
             var returnValue = default(IBufferedElement);
 
@@ -211,9 +302,17 @@ namespace Gears.Interpreter.Library
                     }
                 }
 
-                var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative);
+                IEnumerable<IBufferedElement> bufferedElements;
 
-                var bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(orthogonalInputs);
+                if (orthogonalOnly)
+                {
+                    var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative);
+                    bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(orthogonalInputs);
+                }
+                else
+                {
+                    bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(candidates);
+                }
 
                 bufferedElements = SortByDistance(bufferedElements, relative.Location.X, relative.Location.Y);
 

@@ -39,29 +39,8 @@ using OpenQA.Selenium.Support.Extensions;
 
 namespace Gears.Interpreter.Library
 {
-    public class Show : Keyword
+    public static class Show
     {
-        public string Where { get; set; }
-
-       
-        public Show(string @where)
-        {
-            Where = @where;
-        }
-
-        public override object Run()
-        {
-            var elements = Selenium.WebDriver.GetAllByTagNameAndLocation(new TagQuery(Where));
-            if (elements == null)
-            {
-                return null;
-            }
-
-            HighlightElements(Selenium, elements.Select(x=>x.AsBufferedElement()));
-
-            return null;
-        }
-
         public static void HighlightElements(ISeleniumAdapter seleniumAdapter, params IBufferedElement[] elements)
         {
             HighlightElements(seleniumAdapter, elements.ToList());
@@ -69,26 +48,16 @@ namespace Gears.Interpreter.Library
 
         public static void HighlightElements(ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements)
         {
-            HighlightElements(seleniumAdapter,elements, Color.FromArgb(255, 0, 255, 255), Color.FromArgb(255, 255, 0, 255));
+            HighlightElements(seleniumAdapter,elements, Color.FromArgb(255, 0, 255, 255), Color.FromArgb(255, 255, 0, 255), 0, Color.FromArgb(255, 0, 255, 255));
         }
 
-        public static void HighlightElements(ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor)
+        public static void HighlightElements(ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, int selectionIndex)
         {
-            var YOffset =
-                (int)
-                Math.Abs(
-                    (long) seleniumAdapter.WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight"));
-            var XOffset =
-                (int)
-                Math.Abs((long) seleniumAdapter.WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth"));
+            HighlightElements(seleniumAdapter, elements, Color.FromArgb(255, 0, 255, 255), Color.FromArgb(255, 255, 0, 255), selectionIndex, Color.FromArgb(255, 0, 255, 0));
+        }
 
-            var scrollOffset =
-                (int)
-                Math.Abs(
-                    (long)
-                    seleniumAdapter.WebDriver.RunLibraryScript(
-                        "return window.pageYOffset || document.documentElement.scrollTop"));
-
+        public static void HighlightElements(ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor, int selectionIndex, Color selectionColor)
+        {
             using (var overlay = new Overlay())
             {
                 var handle = seleniumAdapter.GetChromeHandle();
@@ -97,9 +66,13 @@ namespace Gears.Interpreter.Library
                 foreach (var element in elements)
                 {
                     i++;
-                    overlay.DrawStuff(handle, i, element.Rectangle.Left + XOffset, element.Rectangle.Top + YOffset - scrollOffset,
+
+                    var p = new Point(element.Rectangle.Left, element.Rectangle.Top);
+                    seleniumAdapter.BrowserToClient(ref p);
+
+                    overlay.DrawStuff(handle, i, p.X, p.Y,
                         overlay.Graphics, element.Rectangle.Width, element.Rectangle.Height, 
-                        innerColor, 
+                        i==(1+selectionIndex)?selectionColor:innerColor, 
                         outerColor);
                 }
 
@@ -107,12 +80,6 @@ namespace Gears.Interpreter.Library
                     $"{elements.Count()} elements highlighted on screen. Press enter to continue (highlighting will disappear).");
                 Console.ReadLine();
             }
-        }
-
-
-        public override string ToString()
-        {
-            return $"Show {Where}";
         }
     }
 }

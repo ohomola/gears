@@ -177,12 +177,12 @@ namespace Gears.Interpreter.Tests.Pages
 
             
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
-            new Click("Add to my calendar", "top") { Selenium = _selenium}.Execute();
-            new Wait(500).Execute();
+            new Click("Add to my calendar", "top") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium}.Execute();
+            new Wait(800).Execute();
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = true }.Execute();
-            new Wait(500).Execute();
-            new Click("Add to my calendar", "top") { Selenium = _selenium}.Execute();
-            new Wait(500).Execute();
+            new Wait(800).Execute();
+            new Click("Add to my calendar", "top") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium}.Execute();
+            new Wait(800).Execute();
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
         }
 
@@ -196,16 +196,16 @@ namespace Gears.Interpreter.Tests.Pages
 
             //new Show("buttons from right") { Selenium = _selenium}.Execute();
 
-            new Click("1st button from right") { Selenium = _selenium }.Execute();
+            new Click("1st button from right") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium }.Execute();
             Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b4")).GetAttribute("innerText"));
 
-            new Click("2nd button left from pressed") { Selenium = _selenium }.Execute();
+            new Click("2nd button left from pressed") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium }.Execute();
             Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b2")).GetAttribute("innerText"));
 
-            new Click("4th button from left") { Selenium = _selenium }.Execute();
+            new Click("4th button from left") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium }.Execute();
             Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b6")).GetAttribute("innerText"));
 
-            new Click("1st button right from Button7") { Selenium = _selenium }.Execute();
+            new Click("1st button right from Button7") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium }.Execute();
             Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b8")).GetAttribute("innerText"));
 
 

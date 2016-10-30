@@ -48,89 +48,11 @@ namespace Gears.Interpreter.Library
             script += scriptCode;
             return ((IJavaScriptExecutor)webDriver).ExecuteScript(script, elements);
         }
-
-        //public static void ClickByVisibleText(this IWebDriver webDriver, string what, string @where)
-        //{
-        //    try
-        //    {
-        //        webDriver.RunLibraryScript($"clickFirstMatch([firstByLocation(\"{where}\", getExactMatches(\"{what}\"))]);");
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw new ApplicationException($"Element '{what}' was not found");
-        //    }
-        //}
-
-        public static IWebElement GetElementByVisibleText(this IWebDriver webDriver, string what, string @where)
-        {
-            try
-            {
-                return (IWebElement) webDriver.RunLibraryScript($"return firstByLocation(\"{@where}\", getExactMatches(\"{what}\"));");
-            }
-            catch (Exception)
-            {
-                throw new ApplicationException($"Element '{what}' was not found");
-            }
-        }
-
-
-        //public static void ClickByTagNameAndLocation(this IWebDriver webDriver, TagQuery locationDescription)
-        //{
-        //    try
-        //    {
-        //        webDriver.RunLibraryScript($"clickNthMatch(sortByLocation(" +
-        //                                   $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
-        //                                   $"getElementsByTagName(\"{locationDescription.TagName}\"))," +
-        //                                   $"{locationDescription.OneBasedOrder}" +
-        //                                   $");");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw new ApplicationException($"Element '{locationDescription}' was not found");
-        //    }
-        //}
-
+        
+        [JavascriptFunctionWrapper]
         public static void Click(this IWebDriver webDriver, IWebElement element)
         {
-            webDriver.RunLibraryScript($"click(arguments[0]);", element);
-        }
-
-        public static IWebElement GetByTagNameAndLocation(this IWebDriver webDriver, TagQuery locationDescription)
-        {
-            var elements = GetAllByTagNameAndLocation(webDriver, locationDescription);
-            return elements.ElementAt(locationDescription.OneBasedOrder-1);
-        }
-
-        public static ReadOnlyCollection<IWebElement> GetAllByTagNameAndLocation(this IWebDriver webDriver, TagQuery locationDescription)
-        {
-            try
-            {
-                //var result = webDriver.RunLibraryScript($"return sortByLocation(" +
-                //                           $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
-                //                           $"getElementsByTagName(\"{locationDescription.TagName}\"));");
-
-                var result = webDriver.RunLibraryScript($"return sortByLocation(" +
-                                           $"{locationDescription.IsFromRight.ToString().ToLower()}, " +
-                                           $"getElementsByTagName(arguments[0]));", ((object)locationDescription.TagNames));
-
-                return (ReadOnlyCollection<IWebElement>) result;
-            }
-            catch (Exception e)
-            {
-                throw new ApplicationException($"No Element was found by looking for '{locationDescription}'.");
-            }
-        }   
-
-
-        public static IWebElement FindInput(this IWebDriver webDriver, string what, string whereLocator)
-        {
-            var results = webDriver.RunLibraryScript($"return findInput(\"{what}\",\"{whereLocator}\")");
-            var element = (results as IWebElement);
-            if (element == null)
-            {
-                throw new ApplicationException("Element was not found");
-            }
-            return element;
+            webDriver.RunLibraryScript($"{MethodBase.GetCurrentMethod().Name}(arguments[0]);", element);
         }
 
         [JavascriptFunctionWrapper]
@@ -230,29 +152,6 @@ namespace Gears.Interpreter.Library
             }
             throw new InvalidCastException($"Cannot convert {@object} of type {@object.GetType()} to int");
         }
-    }
-
-    public interface IBufferedElement
-    {
-        IWebElement WebElement { get; set; }
-        Rectangle Rectangle { get; set; }
-    }
-
-    public class BufferedElement : IBufferedElement
-    {
-        public BufferedElement(IWebElement webElement)
-        {
-            WebElement = webElement;
-            Rectangle = new Rectangle(webElement.Location.X, webElement.Location.Y, webElement.Size.Width, webElement.Size.Height);
-        }
-
-        public BufferedElement()
-        {
-        }
-
-        public IWebElement WebElement { get; set; }
-
-        public Rectangle Rectangle { get; set; }
     }
 
     /// <summary>

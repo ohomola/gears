@@ -12,6 +12,7 @@ namespace Gears.Interpreter.Library
         private IElementSearchStrategy _searchStrategy;
         public string LabelText { get; set; }
         public SearchDirection Direction { get; set; }
+        public int Order { get; set; }
 
         [Wire]
         [XmlIgnore]
@@ -20,7 +21,6 @@ namespace Gears.Interpreter.Library
         public Clear(string what)
         {
             var spec = new Instruction(what);
-
             if (string.IsNullOrEmpty(spec.Locale))
             {
                 LabelText = spec.SubjectName;
@@ -31,9 +31,11 @@ namespace Gears.Interpreter.Library
             }
 
             Direction = spec.Direction;
+            Order = spec.Order;
         }
 
         
+
 
         public override object Run()
         {
@@ -41,7 +43,7 @@ namespace Gears.Interpreter.Library
             {
                 _searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
 
-                var element = _searchStrategy.FindElementNextToAnotherElement(LabelText, Direction).WebElement;
+                var element = _searchStrategy.FindElementNextToAnotherElement(LabelText, Direction, true).WebElement;
                 element.SendKeys(Keys.LeftControl + "a");
                 element.SendKeys(Keys.Delete);
                 return element;
