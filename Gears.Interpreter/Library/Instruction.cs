@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Gears.Interpreter.Core.Extensions;
 
@@ -25,11 +26,11 @@ namespace Gears.Interpreter.Library
 
         public SubjectType SubjectType { get; set; }
 
-        public List<string> TagNames { get; set; }
+        public List<ITagSelector> TagNames { get; set; }
 
         public Instruction(string what)
         {
-            TagNames = new List<string>();
+            TagNames = new List<ITagSelector>();
             what = " " + what + " ";
             var regex = new Regex("^"+
                     Optional(CapturingGroup("Order", NumberStrippingOffNthTextSuffix))+
@@ -72,23 +73,25 @@ namespace Gears.Interpreter.Library
             }
         }
 
-        private string CutoffTagNamesAndSubjectName(string subject, List<string> tagNames)
+        private string CutoffTagNamesAndSubjectName(string subject, List<ITagSelector> selectors)
         {
             subject = subject.ToLower();
+
             if (subject.Contains("button"))
             {
-                tagNames.Add("button");
+                selectors.Add(new TagNameSelector("button"));
+                selectors.Add(new AttributeSelector("type", "button"));
                 this.SubjectType = SubjectType.Button;
             }
             else if (subject.Contains("link"))
             {
-                tagNames.Add("a");
+                selectors.Add(new TagNameSelector("a"));
                 this.SubjectType = SubjectType.Link;
             }
             else if(subject.Contains("input") || subject.Contains("textfield") || subject.Contains("textarea"))
             {
-                tagNames.Add("input");
-                tagNames.Add("textArea");
+                selectors.Add(new TagNameSelector("input"));
+                selectors.Add(new TagNameSelector("textArea"));
                 this.SubjectType = SubjectType.Input;
             }
 

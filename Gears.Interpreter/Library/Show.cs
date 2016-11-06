@@ -81,5 +81,21 @@ namespace Gears.Interpreter.Library
                 Console.ReadLine();
             }
         }
+
+        public static void HighlightPoints(ISeleniumAdapter selenium, params Point[] points)
+        {
+            using (var overlay = new Overlay())
+            {
+                var handle = selenium.GetChromeHandle();
+                overlay.Init();
+
+
+                for (int index = 0; index < points.Length; index++)
+                {
+                    var point = points[index];
+                    overlay.DrawStuff(handle, index, point.X - 5, point.Y - 5, overlay.Graphics, 10, 10, Color.FromArgb(255, 0, 255, 255), Color.FromArgb(255, 255, 0, 255));
+                }
+            }
+        }
     }
 }

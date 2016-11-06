@@ -37,7 +37,7 @@ namespace Gears.Interpreter.Library
     public class IsVisible : Keyword
     {
         private Instruction spec;
-        public List<string> TagNames { get; set; }
+        public List<ITagSelector> TagNames { get; set; }
 
         public string SubjectName { get; set; }
 
@@ -69,12 +69,16 @@ namespace Gears.Interpreter.Library
                 var browserBox = new UserBindings.RECT();
                 UserBindings.GetWindowRect(chromeHandle, ref browserBox);
 
-                for (int index = 0; index < lookupResult.OtherValidResults.Count; index++)
+                for (int index = 0; index < lookupResult.OtherValidResults.Count(); index++)
                 {
-                    var e = lookupResult.OtherValidResults[index];
+                    var e = lookupResult.OtherValidResults.ElementAt(index);
 
-                    var centerX = e.Rectangle.X + e.Rectangle.Width/2;
-                    var centerY = e.Rectangle.Y + e.Rectangle.Height/2;
+                    Selenium.PutElementOnScreen(e.WebElement);
+
+                    var refreshedPosition = e.WebElement.AsBufferedElement().Rectangle;
+
+                    var centerX = refreshedPosition.X + refreshedPosition.Width/2;
+                    var centerY = refreshedPosition.Y + refreshedPosition.Height/2;
 
                     var p = new Point(centerX, centerY);
                     Selenium.BrowserToClient(ref p);
@@ -85,11 +89,11 @@ namespace Gears.Interpreter.Library
                     }
                     else
                     {
-                        Show.HighlightElements(Selenium, lookupResult.OtherValidResults, index);
+                        //Show.HighlightElements(Selenium, lookupResult.OtherValidResults, index);
                         return true;
                     }
                 }
-                Show.HighlightElements(Selenium, lookupResult.OtherValidResults);
+                //Show.HighlightElements(Selenium, lookupResult.OtherValidResults);
                 return false;
             }
 

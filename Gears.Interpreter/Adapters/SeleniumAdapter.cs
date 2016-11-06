@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Library;
 using OpenQA.Selenium;
 
@@ -101,24 +102,57 @@ namespace Gears.Interpreter.Adapters
         public Point PutElementOnScreen(IWebElement element)
         {
             ((IJavaScriptExecutor)WebDriver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
-            ((IJavaScriptExecutor)WebDriver).ExecuteScript("scrollBy(0,-200);");
+            //((IJavaScriptExecutor)WebDriver).ExecuteScript("scrollBy(0,-200);");
 
+            var location = GetLocation(element);
+
+            var browserBox = new UserBindings.RECT();
+            UserBindings.GetWindowRect(GetChromeHandle(), ref browserBox);
+
+            ScrollToCenterOfScreen(location, browserBox);
+
+            location = GetLocation(element);
+
+            var browserBarHeight = WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
+            var bb = WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth");
+            location.Y += (int)Math.Abs((long)browserBarHeight);
+            location.Y += 5;
+            location.X += 5;
+            return location;
+        }
+
+        private Point GetLocation(IWebElement element)
+        {
             var rect =
                 (Dictionary<string, object>)
-                ((IJavaScriptExecutor)WebDriver).ExecuteScript(
+                ((IJavaScriptExecutor) WebDriver).ExecuteScript(
                     "return arguments[0].getBoundingClientRect();", element);
 
             var xx = (rect["left"]);
             var yy = (rect["top"]);
 
             var location = new Point(Convert.ToInt32(xx), System.Convert.ToInt32(yy));
-
-            var aa = WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
-            var bb = WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth");
-            location.Y += (int)Math.Abs((long)aa);
-            location.Y += 5;
-            location.X += 5;
             return location;
+        }
+
+        private void ScrollToCenterOfScreen(Point location, UserBindings.RECT browserBox)
+        {
+            var diff = location.Y - browserBox.Top;
+            if (diff < 200)
+            {
+                var scrollBy = 200-diff;
+                ((IJavaScriptExecutor)WebDriver).ExecuteScript($"scrollBy(0,-{scrollBy});");
+                location.Y += scrollBy;
+            }
+
+            diff = browserBox.Bottom - location.Y;
+            if (diff < 200)
+            {
+                var scrollBy = -200+diff;
+                ((IJavaScriptExecutor)WebDriver).ExecuteScript($"scrollBy(0,{scrollBy});");
+                location.Y += scrollBy;
+            }
+
         }
     }
 }

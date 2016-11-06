@@ -29,19 +29,24 @@ function GetAllElements() {
     return matches;
 };
 
+function GetElementsByAttributeValues(names, values) {
+    var allElements = [];
+    for (var i = 0, n = names.length; i < n; i++) {
+        var elementsFoundByAttributeValue = findByAttributeValue(names[i], values[i]);
+        if (elementsFoundByAttributeValue != null) {
+            allElements = allElements.concat(Array.prototype.slice.call(elementsFoundByAttributeValue));
+        }
+    }
+    return allElements;
+}
+
 //WrappedByWebdriverExtension
 function GetElementsByTagNames(tags) {
 
     var allElements = [];
-
     for (var i = 0, n = tags.length; i < n; i++) {
         allElements = allElements.concat(Array.prototype.slice.call(document.getElementsByTagName(tags[i])));
-        var additionalElementsFoundByAttributes = _findByAttributeValue("type", tags[i]);
-        if (additionalElementsFoundByAttributes != null) {
-            allElements = allElements.concat(Array.prototype.slice.call(additionalElementsFoundByAttributes));
-        }
     }
-
     console.log("getElements - allElements " + allElements.length);
 
     var visible = [];
@@ -169,13 +174,16 @@ function getSiblings(n) {
 }
 
 
-function _findByAttributeValue(attribute, value) {
+function findByAttributeValue(attribute, value) {
     var All = document.getElementsByTagName('*');
+    var matches = [];
     for (var i = 0; i < All.length; i++) {
-        if (All[i].getAttribute(attribute) == value) { return All[i]; }
+        if (All[i].getAttribute(attribute) == value) {
+            matches.push(All[i]);
+        }
     }
+    return matches;
 }
-
 function getElementsByTagName(tagNames) {
     var allElements = document.getElementsByTagNames(tagNames);
     var matches = [];

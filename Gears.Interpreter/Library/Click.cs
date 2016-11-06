@@ -40,7 +40,7 @@ namespace Gears.Interpreter.Library
 
         public int Order { get; set; }
         public SubjectType SearchedType { get; set; }
-        public List<string> SearchedTagNames { get; set; }
+        public List<ITagSelector> SearchedTagNames { get; set; }
         public string VisibleTextOfTheButton { get; set; }
         public SearchDirection Direction { get; set; }
         public string NeighbourToLookFrom { get; set; }
@@ -87,6 +87,7 @@ namespace Gears.Interpreter.Library
                     break;
                 case Technique.MouseAndKeyboard:
                     var screenLocation = Selenium.PutElementOnScreen(result.Result.WebElement);
+                    //Show.HighlightPoints(Selenium, screenLocation);
                     UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
                     Thread.Sleep(50);
                     UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());

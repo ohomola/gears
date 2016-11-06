@@ -72,6 +72,15 @@ namespace Gears.Interpreter.Library
         }
 
         [JavascriptFunctionWrapper]
+        public static ReadOnlyCollection<IWebElement> GetElementsByAttributeValues(this IWebDriver webDriver,
+            IEnumerable<string> attributeNames, IEnumerable<string> values)
+        {
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0],arguments[1])", attributeNames, values);
+
+            return ToCollection(result);
+        }
+
+        [JavascriptFunctionWrapper]
         public static ReadOnlyCollection<IWebElement> FilterElementsByText(this IWebDriver webDriver, string text, IEnumerable<IWebElement> elements, bool matchWhenTextIsInChild)
         {
             var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(\"{text}\",arguments[0],arguments[1])", elements, matchWhenTextIsInChild);

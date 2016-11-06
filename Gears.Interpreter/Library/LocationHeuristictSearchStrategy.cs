@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Gears.Interpreter.Adapters;
+using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Applications.Debugging;
 using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
 {
     public interface IElementSearchStrategy
     {
-        IBufferedElement FindElementNextToAnotherElement(string text, SearchDirection direction, bool orthogonalOnly);
-
-        LookupResult DirectLookup(List<string> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int Order, bool orthogonalOnly);
+        LookupResult DirectLookup(List<ITagSelector> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int Order, bool orthogonalOnly);
 
         IElementSearchStrategy Elements(IEnumerable<string> searchedTagNames);
         IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild);
@@ -32,14 +33,14 @@ namespace Gears.Interpreter.Library
             Success = success;
         }
 
-        public LookupResult(List<IBufferedElement> otherValidResults, IBufferedElement result, bool success)
+        public LookupResult(IEnumerable<IBufferedElement> otherValidResults, IBufferedElement result, bool success)
         {
             OtherValidResults = otherValidResults;
             Result = result;
             Success = success;
         }
 
-        public List<IBufferedElement> OtherValidResults { get; set; }
+        public IEnumerable<IBufferedElement> OtherValidResults { get; set; }
         public IBufferedElement Result { get; set; }
         public bool Success { get; set; }
     }
@@ -61,28 +62,43 @@ namespace Gears.Interpreter.Library
             _query = new ReadOnlyCollection<IWebElement>(new List<IWebElement>(query));
         }
 
-        
-        public LookupResult DirectLookup(List<string> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int order, bool orthogonalOnly)
+        private static int _staleElementCounter = 0;
+        public LookupResult DirectLookup(List<ITagSelector> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int order, bool orthogonalOnly)
         {
-            var lookingForSpecificElements = searchedTagNames.Any();
-
-            var query = Elements(searchedTagNames).WithText(subjectName, lookingForSpecificElements);
-
-            if (!string.IsNullOrEmpty(locale))
+            try
             {
-                query = query.RelativeTo(locale, searchDirection, orthogonalOnly);
+                var lookingForSpecificElements = searchedTagNames.Any();
+
+                var query = Elements(searchedTagNames).WithText(subjectName, lookingForSpecificElements);
+
+                if (!string.IsNullOrEmpty(locale))
+                {
+                    query = query.RelativeTo(locale, searchDirection, orthogonalOnly);
+                }
+
+                query = query.SortBy(searchDirection);
+
+                var validResults = OnScreen(query.Results());
+
+                try
+                {
+                    return new LookupResult(validResults, validResults.Skip(order).First(), success: true);
+                }
+                catch (Exception)
+                {
+                    return new LookupResult(validResults, result: null, success: false);
+                }
             }
-
-            query = query.SortBy(searchDirection);
-
-            var validResults = query.Results().ToList();
-
-            if (order >= validResults.Count())
+            catch (StaleElementReferenceException)
             {
-                return new LookupResult(validResults, result: null, success: false);
+                _staleElementCounter++;
+                if (_staleElementCounter < 10)
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Yellow, "warning: StaleElement exception was caught");
+                    return DirectLookup(searchedTagNames, subjectName, locale, searchDirection, order, orthogonalOnly);
+                }
+                throw;
             }
-
-            return new LookupResult(validResults, validResults.Skip(order).First(), success: true);
         }
 
         /// <summary>
@@ -94,31 +110,48 @@ namespace Gears.Interpreter.Library
         /// <returns></returns>
         public LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order)
         {
-            List<IBufferedElement> validResults;
-            var allInputs = Elements(new[] { "input", "textArea" });
-
-            var allInputsWithText = allInputs.WithText(labelText, matchWhenTextIsInChild: false);
-
-            if (allInputsWithText.Any())
+            try
             {
-                validResults = allInputsWithText
-                    .SortBy(searchDirection)
-                    .Results().ToList();
-            }
-            else
-            {
-                validResults = allInputs
-                    .RelativeTo(labelText, searchDirection, true)
-                    .SortBy(searchDirection)
-                    .Results().ToList();
-            }
+                IEnumerable<IBufferedElement> validResults;
+                var allInputs = Elements(new[] { "input", "textArea" });
 
-            if (order >= validResults.Count())
-            {
-                return new LookupResult(validResults, result: null, success: false);
-            }
+                var allInputsWithText = allInputs.WithText(labelText, matchWhenTextIsInChild: false);
 
-            return new LookupResult(validResults, validResults.Skip(order).First(), success: true);
+                if (allInputsWithText.Any())
+                {
+                    validResults = allInputsWithText
+                        .SortBy(searchDirection)
+                        .Results();
+                }
+                else
+                {
+                    validResults = allInputs
+                        .RelativeTo(labelText, searchDirection, true)
+                        .SortBy(searchDirection)
+                        .Results();
+                }
+
+                validResults = OnScreen(validResults);
+
+                try
+                {
+                    return new LookupResult(validResults, validResults.Skip(order).First(), success: true);
+                }
+                catch (Exception)
+                {
+                    return new LookupResult(validResults, result: null, success: false);
+                }
+            }
+            catch (StaleElementReferenceException)
+            {
+                _staleElementCounter++;
+                if (_staleElementCounter < 10)
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Yellow, "warning: StaleElement exception was caught");
+                    return DirectLookupWithNeighbours(labelText, searchDirection, order);
+                }
+                throw;
+            }
         }
 
         public IElementSearchStrategy Elements()
@@ -128,18 +161,33 @@ namespace Gears.Interpreter.Library
 
         public IElementSearchStrategy Elements(IEnumerable<string> searchedTagNames)
         {
-            var newQuery = _query;
+            return Elements(searchedTagNames.Select(x=>new TagNameSelector(x)));
+        }
 
-            if (searchedTagNames.Any())
+        public IElementSearchStrategy Elements(IEnumerable<ITagSelector> searchedTagNames)
+        {
+            searchedTagNames = searchedTagNames.ToList();
+
+            if (!searchedTagNames.Any())
             {
-                newQuery = _seleniumAdapter.WebDriver.GetElementsByTagNames(searchedTagNames);
+                return new LocationHeuristictSearchStrategy(_seleniumAdapter, _seleniumAdapter.WebDriver.GetAllElements());
             }
-            else
+
+            var newQuery = new List<IWebElement>();
+
+            var tagNameSelectors = searchedTagNames.OfType<TagNameSelector>();
+            if (tagNameSelectors.Any())
             {
-                newQuery = _seleniumAdapter.WebDriver.GetAllElements();
+                newQuery = _seleniumAdapter.WebDriver.GetElementsByTagNames(tagNameSelectors.Select(x=>x.TagName)).ToList();
             }
-            
-            return new LocationHeuristictSearchStrategy(_seleniumAdapter, newQuery);
+
+            var attributeSelectors = searchedTagNames.OfType<AttributeSelector>();
+            if (attributeSelectors.Any())
+            {
+                newQuery.AddRange(_seleniumAdapter.WebDriver.GetElementsByAttributeValues(attributeSelectors.Select(x=>x.Name).ToList(), attributeSelectors.Select(x => x.Value).ToList()));
+            }
+
+            return new LocationHeuristictSearchStrategy(_seleniumAdapter, new ReadOnlyCollection<IWebElement>(newQuery));
         }
 
         public IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild)
@@ -208,6 +256,30 @@ namespace Gears.Interpreter.Library
             return new LocationHeuristictSearchStrategy(_seleniumAdapter, new ReadOnlyCollection<IWebElement>(results.Select(x => x.WebElement).ToList()));
         }
 
+        private IEnumerable<IBufferedElement> OnScreen(IEnumerable<IBufferedElement> bufferedElements)
+        {
+            var chromeHandle = _seleniumAdapter.GetChromeHandle();
+            var browserBox = new UserBindings.RECT();
+            UserBindings.GetWindowRect(chromeHandle, ref browserBox);
+            foreach (var e in bufferedElements)
+            {
+                _seleniumAdapter.PutElementOnScreen(e.WebElement);
+
+                var refreshedPosition = e.WebElement.AsBufferedElement().Rectangle;
+
+                var centerX = refreshedPosition.X + refreshedPosition.Width / 2;
+                var centerY = refreshedPosition.Y + refreshedPosition.Height / 2;
+
+                var p = new Point(centerX, centerY);
+                _seleniumAdapter.BrowserToClient(ref p);
+
+                if (p.X >= 0 && p.X <= browserBox.Right && p.Y >= 0 && p.Y <= browserBox.Bottom)
+                {
+                    yield return e;
+                }
+            }
+        }
+
         private static IEnumerable<IBufferedElement> FilterOtherDirections(SearchDirection direction, IEnumerable<IBufferedElement> bufferedElements,
             IWebElement relative)
         {
@@ -226,8 +298,8 @@ namespace Gears.Interpreter.Library
                     bufferedElements = bufferedElements.Where(e => e.Rectangle.Left > relative.Location.X);
                     break;
                 case SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo:
-                    var list  = bufferedElements.Where(e => e.Rectangle.Left > relative.Location.X).ToList();
-                    list.AddRange(bufferedElements.Where(e => e.Rectangle.Left <= relative.Location.X));
+                    var list  = bufferedElements.Where(e => e.Rectangle.Right > relative.Location.X).ToList();
+                    list.AddRange(bufferedElements.Where(e => e.Rectangle.Right <= relative.Location.X));
                     bufferedElements = list;
                     break;
             }
@@ -273,74 +345,6 @@ namespace Gears.Interpreter.Library
             return _query.Any();
         }
 
-        public IBufferedElement FindElementNextToAnotherElement(string visibleTextOfTheRelativeElement, SearchDirection direction, bool orthogonalOnly)
-        {
-            var returnValue = default(IBufferedElement);
-
-            var searchedTagNames = new[] {"input", "textArea"};
-
-            var relativeElements = _seleniumAdapter.WebDriver.FilterElementsByText(visibleTextOfTheRelativeElement, _seleniumAdapter.WebDriver.GetAllElements(), false);
-            
-            var candidates = _seleniumAdapter.WebDriver.GetElementsByTagNames(searchedTagNames);
-
-            foreach (var relative in relativeElements)
-            {
-                // TODO this will likely have to be done with another strategy
-                if (RelativeHasTagName(searchedTagNames, relative))
-                {
-                    returnValue = new BufferedElement(relative);
-                    break;
-                }
-
-                var domNeighbours = _seleniumAdapter.WebDriver.FilterDomNeighbours(candidates, relative);
-                if (domNeighbours.Any())
-                {
-                    if (domNeighbours.Count() == 1)
-                    {
-                        returnValue = new BufferedElement(domNeighbours.First());
-                        break;
-                    }
-                }
-
-                IEnumerable<IBufferedElement> bufferedElements;
-
-                if (orthogonalOnly)
-                {
-                    var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative);
-                    bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(orthogonalInputs);
-                }
-                else
-                {
-                    bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(candidates);
-                }
-
-                bufferedElements = SortByDistance(bufferedElements, relative.Location.X, relative.Location.Y);
-
-                bufferedElements = PutNeighborsToFront(bufferedElements, domNeighbours);
-
-
-                if (direction == SearchDirection.LeftFromAnotherElement)
-                {
-                    bufferedElements = bufferedElements.Where(e => e.Rectangle.Right < relative.Location.X);
-                }
-
-                if (bufferedElements.Any())
-                {
-                    returnValue = bufferedElements.First();
-                    break;
-                }
-
-                //Show.HighlightElements(bufferedElements.Select(x=>x.WebElement), Selenium);
-            }
-            return returnValue;
-        }
-
-        private static bool RelativeHasTagName(string[] searchedTagNames, IWebElement relative)
-        {
-            return searchedTagNames.Contains(relative.TagName.ToLower());
-        }
-
-
         private IEnumerable<IBufferedElement> PutNeighborsToFront(IEnumerable<IBufferedElement> bufferedElements, ReadOnlyCollection<IWebElement> domNeighbours)
         {
             var neighbors = new List<IBufferedElement>();
@@ -378,5 +382,29 @@ namespace Gears.Interpreter.Library
 
     }
 
-    
+    public interface ITagSelector
+    {
+    }
+
+    class TagNameSelector : ITagSelector
+    {
+        public TagNameSelector(string tagName)
+        {
+            TagName = tagName;
+        }
+
+        public string TagName { get; set; }
+    }
+
+    class AttributeSelector : ITagSelector
+    {
+        public AttributeSelector(string name, string value)
+        {
+            Name = name;
+            Value = value;
+        }
+
+        public string Name { get; set; }
+        public string Value { get; set; }
+    }
 }
