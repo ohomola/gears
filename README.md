@@ -15,8 +15,8 @@ The current early version of Gears application is a standalone binary which does
 
 ## Scenario Example
 
-![Test scenario written in a table editor](https://github.com/ohomola/gears/blob/master/Doc/TestSample.png)
-![Test Debugger console](https://github.com/ohomola/gears/blob/master/Doc/ConsoleSample.png)
+![Test scenario written in a table editor](/Doc/TestSample.png)
+![Test Debugger console](/Doc/ConsoleSample.png)
 
 ## Keyword-driven language specification / API documentation
 
