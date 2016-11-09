@@ -231,7 +231,7 @@
     <Content Include="Library\JavaScripts\Gears.Library.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Scenarios\xunit.bat" />
+    <Content Include="Scenarios\junit.bat" />
     <Content Include="Tests\Pages\Iteration2TestPage.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
