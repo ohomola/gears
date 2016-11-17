@@ -23,24 +23,19 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Data.Serialization.CSV
 {
     internal class CsvSerializer : ISerializer
     {
-        private readonly TextReader _textReader;
-        private readonly TextWriter _textWriter;
+        private readonly string _path;
         private readonly IDataSetMappingStrategy _mapper = new DefaultTableMappingStrategy();
 
-        public CsvSerializer(TextReader reader)
+        public CsvSerializer(String path)
         {
-            _textReader = reader;
-        }
-
-        public CsvSerializer(TextWriter writer)
-        {
-            _textWriter = writer;
+            _path = path;
         }
 
         public IEnumerable<object> Deserialize()
@@ -81,11 +76,15 @@ namespace Gears.Interpreter.Data.Serialization.CSV
             string line;
             var rows = new List<string[]>();
 
-            while ((line = _textReader.ReadLine()) != null)
+            var fileStream = new FileStream(_path, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read);
+            var textReader = new StreamReader(fileStream, Encoding.GetEncoding(1250));
+
+            while ((line = textReader.ReadLine()) != null)
             {
                 rows.Add(line.Split(',').Select(x=>x.Trim()).ToArray());
             }
 
+            textReader.Close();
             return rows;
         }
 
@@ -100,23 +99,19 @@ namespace Gears.Interpreter.Data.Serialization.CSV
 
         private void WriteData(DataTable serializedData)
         {
+            var fileStream = new FileStream(_path, FileMode.Create);
+            var textWriter = new StreamWriter(fileStream, Encoding.GetEncoding(1250));
+
             foreach (DataRow row in serializedData.Rows)
             {
-                _textWriter.WriteLine(string.Join(",", row.ItemArray.Select(o => o.ToString())));
+                textWriter.WriteLine(string.Join(",", row.ItemArray.Select(o => o.ToString())));
             }
+
+            textWriter.Close();
         }
 
         public void Dispose()
         {
-            if(_textWriter != null)
-            {
-                _textWriter.Close();
-            }
-
-            if (_textReader != null)
-            {
-                _textReader.Close();
-            }
         }
     }
 }

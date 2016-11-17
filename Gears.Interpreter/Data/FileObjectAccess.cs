@@ -22,14 +22,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Data.Serialization;
-using Gears.Interpreter.Data.Serialization.CSV;
-using Gears.Interpreter.Data.Serialization.Excel;
-using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Data
 {
@@ -208,7 +204,7 @@ namespace Gears.Interpreter.Data
 
             types = types.Union(GetSubTypes(types)).ToList();
 
-            using (ISerializer adapter = GetSerializer(System.IO.Path.GetExtension(Path)))
+            using (ISerializer adapter = new SerializerFactory().GetSerializerByPath(Path))
             {
                 try
                 {
@@ -241,22 +237,7 @@ namespace Gears.Interpreter.Data
 
             try
             {
-                var fileExtension = System.IO.Path.GetExtension(Path);
-
-                if (IsCSV(fileExtension))
-                {
-                    serializer = new CsvSerializer(new StreamWriter(new FileStream(Path, FileMode.Create), Encoding.GetEncoding(1250)));
-
-                }
-                else if (IsExcel(fileExtension) && IsExcelInstalled())
-                {
-                    serializer = new ExcelSerializer(new InteropExcelGateway(Path), new DefaultTableMappingStrategy());
-                }
-                else
-                {
-                    throw new NotSupportedException($"No serializer supporting {fileExtension}");
-                }
-
+                serializer = new SerializerFactory().GetSerializerByPath(Path);
                 serializer.Serialize(dataObjects);
             }
             finally
@@ -303,37 +284,6 @@ namespace Gears.Interpreter.Data
                 throw new IOException($"Included file '{include.FileName}' in '{this.ToString()}' was not found.");
             }
         }
-
-        private ISerializer GetSerializer(string extension)
-        {
-            if (IsExcel(extension) && IsExcelInstalled())
-            {
-                return  new ExcelSerializer(new InteropExcelGateway(Path), new DefaultTableMappingStrategy());
-            }
-            else if (IsCSV(extension))
-            {
-                var fileStream = new FileStream(Path, FileMode.Open, System.IO.FileAccess.Read, FileShare.Read);
-                return new CsvSerializer(new StreamReader(fileStream));
-            }
-
-            throw new NotSupportedException($"Given file extension {extension} is not supported.");
-        }
-
-        private bool IsExcelInstalled()
-        {
-            return Type.GetTypeFromProgID("Excel.Application") != null;
-        }
-
-        private bool IsExcel(string extension)
-        {
-            return extension.ToLower().Equals(".xls") || extension.ToLower().Equals(".xlsx");
-        }
-
-        private bool IsCSV(string extension)
-        {
-            return extension.ToLower().Equals(".csv");
-        }
-
         protected IEnumerable<Type> GetSubTypes(IEnumerable<Type> knownTypes)
         {
             return knownTypes.SelectMany(x => x.Assembly.GetTypes().Where(x.IsAssignableFrom));

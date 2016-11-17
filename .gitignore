@@ -7,3 +7,5 @@
 /Gears.Interpreter/obj
 /.vs/config/applicationhost.config
 /Gears.Interpreter/bin/Release
+**/.idea/
+*.csproj.DotSettings

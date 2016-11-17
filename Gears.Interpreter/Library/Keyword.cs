@@ -22,15 +22,11 @@ using System;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Gears.Interpreter.Adapters;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Applications.Configuration;
 using Gears.Interpreter.Applications.Debugging;
-using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
-using NUnit.Framework;
 
 namespace Gears.Interpreter.Library
 {
@@ -69,14 +65,22 @@ namespace Gears.Interpreter.Library
 
         public object Expect { get; set; }
 
+        [XmlIgnore]
+        public double Time { get; set; }
+
 
         public object Execute()
         {
+
             var keyword = this;
+
+            DateTime start = DateTime.Now;
 
             StringResolver.Resolve(keyword);
 
             var result = keyword.Run();
+
+            DateTime end = DateTime.Now;
 
             keyword.Result = result;
 
@@ -87,11 +91,13 @@ namespace Gears.Interpreter.Library
                 throw new ApplicationException(
                     $"{keyword} expected \'{keyword.Expect}\' but was \'{keyword.Result}\'");
             }
-            else if (keyword.Expect != null && keyword.Result != null)
+
+            if (keyword.Expect != null && keyword.Result != null)
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
             }
 
+            keyword.Time = (end - start).TotalSeconds;
             return Result;
         }
 

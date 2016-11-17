@@ -19,18 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
-using System.Collections;
-using System.Configuration;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using Gears.Interpreter.Applications.Configuration;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
-using OpenQA.Selenium.Remote;
 
 namespace Gears.Interpreter.Applications
 {
@@ -148,7 +144,7 @@ namespace Gears.Interpreter.Applications
                         Console.Out.WriteColoredLine(ConsoleColor.DarkRed, exception.StackTrace);
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     keyword.Status = KeywordStatus.Error.ToString();
 
@@ -169,6 +165,13 @@ namespace Gears.Interpreter.Applications
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Gray, $"Results were saved to file \'{OutputLogFile}\'.");
                 new FileObjectAccess(OutputLogFile).AddRange(keywords.ToList());
+
+                if (commandLineArguments.Contains("-junitxml"))
+                {
+                    String junitXmlFile = ReplaceFileExtension(OutputLogFile, ".xml");
+                    Console.Out.WriteColoredLine(ConsoleColor.Gray, $"JUnit output was saved to file \'{junitXmlFile}\'.");
+                    new FileObjectAccess(junitXmlFile).AddRange(keywords.ToList());
+                }
             }
 
             if (debugger.Config.IsActive)
@@ -184,6 +187,11 @@ namespace Gears.Interpreter.Applications
             }
 
             return OkStatusCode;
+        }
+
+        private string ReplaceFileExtension(string outputLogFile, string extension)
+        {
+            return $"{Path.GetFileNameWithoutExtension(outputLogFile)}{extension}";
         }
 
         private void HandleReload(IDataContext Data)
