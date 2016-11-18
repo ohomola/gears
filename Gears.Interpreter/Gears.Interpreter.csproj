@@ -140,6 +140,9 @@
     <Compile Include="Adapters\Interoperability\UserInteropAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerCommand.cs" />
     <Compile Include="Applications\Configuration\IAutoRegistered.cs" />
+    <Compile Include="Data\Serialization\Mapping\CodeStubResolver.cs" />
+    <Compile Include="Data\Serialization\Mapping\LazyObject.cs" />
+    <Compile Include="Data\Serialization\Mapping\LazyValueResolver.cs" />
     <Compile Include="Library\Config\DebugMode.cs" />
     <Compile Include="Adapters\SeleniumAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerActionHook.cs" />
@@ -185,7 +188,8 @@
     <Compile Include="Library\IsTrue.cs" />
     <Compile Include="Library\LocationHeuristictSearchStrategy.cs" />
     <Compile Include="Core\LookupFailureException.cs" />
-    <Compile Include="Library\Reports\CsvReport.cs" />
+    <Compile Include="Library\Reports\CsvScenarioReport.cs" />
+    <Compile Include="Library\Reports\JUnitSuiteReport.cs" />
     <Compile Include="Library\RunScenario.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\TagQuery.cs" />
@@ -216,7 +220,7 @@
     <Compile Include="Tests\Pages\Iteration1Tests.cs" />
     <Compile Include="Tests\Pages\Iteration5Tests.cs" />
     <Compile Include="Tests\Pages\Iteration4Tests.cs" />
-    <Compile Include="Library\Reports\JUnitReport.cs" />
+    <Compile Include="Library\Reports\JUnitScenarioReport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

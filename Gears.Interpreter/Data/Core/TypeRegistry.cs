@@ -29,19 +29,35 @@ namespace Gears.Interpreter.Data.Core
         IEnumerable<Type> GetDTOTypes(bool includeAbstract = false);
 
         Type GetFirstDTOType(string typeName);
+
+        void Register(Type t);
     }
 
     public class TypeRegistry : ITypeRegistry
     {
-        public IEnumerable<Type> Types
+        private List<Type> _types = new List<Type>();
+        public List<Type> Types
         {
-            get { return this.GetType().Assembly.GetTypes()
-                    .Where(x => x.Namespace != null && x.Namespace.Contains("Library")); }
+            get
+            {
+                if (!_types.Any())
+                {
+                    _types = this.GetType().Assembly.GetTypes()
+                        .Where(x => x.Namespace != null && x.Namespace.Contains("Library")).ToList();
+                }
+
+                return _types;
+            }
         }
 
         public IEnumerable<Type> GetDTOTypes(bool includeAbstract = false)
         {
             return Types;
+        }
+
+        public void Register(Type t)
+        {
+            Types.Add(t);
         }
 
         public Type GetFirstDTOType(string typeName)

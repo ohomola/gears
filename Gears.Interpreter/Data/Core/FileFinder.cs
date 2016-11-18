@@ -36,7 +36,14 @@ namespace Gears.Interpreter.Data.Core
                 return null;
             }
 
-            return Directory.GetFiles(absoluteRoot, path, SearchOption.AllDirectories);
+            try
+            {
+                return Directory.GetFiles(absoluteRoot, path, SearchOption.AllDirectories);
+            }
+            catch (Exception)
+            {
+                return Enumerable.Empty<string>().ToArray();
+            }
         }
 
         public static string Find(string fileName)

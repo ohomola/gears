@@ -18,11 +18,57 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+
 namespace Gears.Interpreter.Data.Core
 {
     public class Include
     {
+        public Include(string fileName)
+        {
+            FileName = fileName;
+        }
+
         public string FileName { get; set; }
         public string Description { get; set; }
+
+        public IEnumerable<object> RecursiveRead(string parentPath)
+        {
+            if (string.IsNullOrEmpty(FileName))
+            {
+                throw new InvalidOperationException("An Include object was passed to the system without FileName specified");
+            }
+
+            var fullPath = FileFinder.Find(FileName);
+
+            if (File.Exists(fullPath))
+            {
+                return new FileObjectAccess(fullPath).GetAll();
+            }
+
+            var directoryName = System.IO.Path.GetDirectoryName(parentPath);
+            if (directoryName != null)
+            {
+                fullPath = System.IO.Path.Combine(directoryName, FileName);
+                if (File.Exists(fullPath))
+                {
+                    return new FileObjectAccess(fullPath).GetAll();
+                }
+            }
+
+            try
+            {
+                var includedData = new FileObjectAccess(FileFinder.Find(FileName));
+
+                return includedData.GetAll();
+            }
+            catch (Exception)
+            {
+                throw new IOException($"Included file '{FileName}' in '{this.ToString()}' was not found.");
+            }
+        }
     }
 }

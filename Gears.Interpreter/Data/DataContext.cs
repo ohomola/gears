@@ -21,12 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Internal;
 using Gears.Interpreter.Core.Extensions;
+using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Data
 {
     public interface IDataContext : IDataObjectAccess
     {
+        IEnumerable<LazyObject> GetAllLazy<T>();
         List<IDataObjectAccess> DataAccesses { get; set; }
         void Include(IDataObjectAccess dataAccess);
         void Include(string fileName);
@@ -35,11 +38,37 @@ namespace Gears.Interpreter.Data
     public class DataContext : IDataContext
     {
         public static object EntityWasNotFoundNullObject = null;
-        
+
+        public DataContext(params IDataObjectAccess[] dataSources)
+        {
+            DataAccesses = dataSources.ToList();
+        }
 
         public DataContext(IEnumerable<IDataObjectAccess> dataSources)
         {
             DataAccesses = dataSources.ToList();
+        }
+
+        public IEnumerable<LazyObject> GetAllLazy<T>()
+        {
+            var all = GetAll();
+
+            var returnValue = new List<LazyObject>();
+
+            foreach (var obj in all)
+            {
+                var lazyObject = obj as LazyObject;
+                if (lazyObject != null && typeof(T).IsAssignableFrom(lazyObject.Type))
+                {
+                    returnValue.Add(lazyObject);
+                }
+                else if(obj is T)
+                {
+                    returnValue.Add(new LazyObject(obj));
+                }
+            }
+
+            return returnValue;
         }
 
         public List<IDataObjectAccess> DataAccesses { get; set; }
@@ -115,7 +144,9 @@ namespace Gears.Interpreter.Data
 
         public IEnumerable<object> GetAll()
         {
-            throw new NotImplementedException();
+            foreach (IDataObjectAccess da in DataAccesses)
+                foreach (object o in da.GetAll())
+                    yield return o;
         }
 
         public bool Contains(Type t)

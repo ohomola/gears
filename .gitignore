@@ -9,3 +9,4 @@
 /Gears.Interpreter/bin/Release
 **/.idea/
 *.csproj.DotSettings
+*.user

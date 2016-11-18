@@ -39,7 +39,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
     public class DefaultTableMappingStrategy : IDataSetMappingStrategy
     {
-        private readonly IDictionaryToObjectMapper _mapper = new DictionaryToObjectMapper();
+        private readonly IDictionaryToObjectMapper _mapper;
         private readonly ITypeRegistry _typeRegistry;
 
         public const string DiscriminatorColumn = "Discriminator";
@@ -49,6 +49,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             if (ServiceLocator.IsInitialised())
             {
                 _typeRegistry = ServiceLocator.Instance.Resolve<ITypeRegistry>();
+                _mapper = ServiceLocator.Instance.Resolve<IDictionaryToObjectMapper>();
             }
         }
 
@@ -129,7 +130,8 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
         {
             foreach (DataRow row in table.Rows)
             {
-                if (string.IsNullOrEmpty(row[DiscriminatorColumn].ToString()))
+                var typeName = row[DiscriminatorColumn].ToString();
+                if (string.IsNullOrEmpty(typeName))
                 {
                     continue;
                 }
@@ -139,7 +141,12 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
                 try
                 {
                     var dictionary = MapToDictionary(row);
-                    obj = _mapper.CreateObject(_typeRegistry.GetFirstDTOType(row[DiscriminatorColumn].ToString()), dictionary);
+                    var type = _typeRegistry.GetFirstDTOType(typeName);
+                    if (type == null)
+                    {
+                        throw new ArgumentException($"{typeName} is not a registered type.");
+                    }
+                    obj = _mapper.CreateObject(type, dictionary);
                 }
                 catch (Exception ex)
                 {
@@ -150,9 +157,9 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             }
         }
 
-        private IDictionary<string, string> MapToDictionary(DataRow data)
+        private IDictionary<string, object> MapToDictionary(DataRow data)
         {
-            var dictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            var dictionary = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
             foreach (DataColumn column in data.Table.Columns)
             {

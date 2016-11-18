@@ -25,6 +25,7 @@ using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
+using Gears.Interpreter.Data.Serialization.Mapping;
 using Gears.Interpreter.Library;
 using Gears.Interpreter.Library.Config;
 
@@ -32,7 +33,7 @@ namespace Gears.Interpreter.Applications.Debugging
 {
     public interface IConsoleDebugger
     {
-        int Update(int index, IEnumerable<Keyword> keywords);
+        int Update(int index, List<LazyObject> keywords);
         DebugMode Config { get; set; }
         ConsoleDebuggerCommand Command { get; set; }
     }
@@ -56,7 +57,7 @@ namespace Gears.Interpreter.Applications.Debugging
         {
         }
 
-        public int Update(int index, IEnumerable<Keyword> keywords)
+        public int Update(int index, List<LazyObject> keywords)
         {
             index = index + 1;
 
@@ -65,7 +66,7 @@ namespace Gears.Interpreter.Applications.Debugging
             //    return keywords.Count();
             //}
 
-            Keyword selectedKeyword;
+            LazyObject selectedKeyword;
 
             if (!keywords.Any() || index >= keywords.Count())
             {
@@ -102,7 +103,7 @@ namespace Gears.Interpreter.Applications.Debugging
             return Command.NextIndex;
         }
 
-        private void ResetCommand(int index, Keyword currentKeyword)
+        private void ResetCommand(int index, LazyObject currentKeyword)
         {
             Command.Reload = false;
 
@@ -122,7 +123,7 @@ namespace Gears.Interpreter.Applications.Debugging
 
         }
 
-        private void ParseInput(List<ConsoleDebuggerActionHook> commands, int index, IEnumerable<Keyword> keywords)
+        private void ParseInput(List<ConsoleDebuggerActionHook> commands, int index, List<LazyObject> keywords)
         {
             var userInput = Console.ReadLine() ?? "";
 
@@ -149,7 +150,7 @@ namespace Gears.Interpreter.Applications.Debugging
             DontDoAnything(index);
         }
 
-        private List<ConsoleDebuggerActionHook> GetActionHooks(int index, IEnumerable<Keyword> allKeywords)
+        private List<ConsoleDebuggerActionHook> GetActionHooks(int index, List<LazyObject> allKeywords)
         {
             var commands = new List<ConsoleDebuggerActionHook>()
             {
@@ -158,7 +159,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     var arg = ParseArguments(input, 1).First();
                     var click = new Click(arg);
                     ServiceLocator.Instance.Resolve(click);
-                    Command.SelectedKeyword = click;
+                    Command.SelectedKeyword = new LazyObject(click);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("isvisible (.+)", "isvisible X: checks visibility of text", input =>
@@ -166,7 +167,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     var arg = ParseArguments(input, 1).First();
                     var isVisible = new IsVisible(arg) {Expect = true};
                     ServiceLocator.Instance.Resolve(isVisible);
-                    Command.SelectedKeyword = isVisible;
+                    Command.SelectedKeyword = new LazyObject(isVisible);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("fill (.+) (.+)", "fill X Y: use this to fill on element ad-hoc", input =>
@@ -174,7 +175,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     var args = ParseArguments(input, 2);
                     var fill = new Fill(args.First(), args.Last());
                     ServiceLocator.Instance.Resolve(fill);
-                    Command.SelectedKeyword = fill;
+                    Command.SelectedKeyword = new LazyObject(fill);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("show", "show : currently selected keyword will not preform any controller action but instead will only highlight the element it owuld normally interact with.", input =>
@@ -188,7 +189,7 @@ namespace Gears.Interpreter.Applications.Debugging
                         try
                         {
                             ServiceLocator.Instance.Resolve(Command.SelectedKeyword);
-                            Command.SelectedKeyword.Execute();
+                            (Command.SelectedKeyword.Value as Keyword).Execute();
                         }
                         finally
                         {
@@ -206,7 +207,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     var args = ParseArguments(input, 2);
                     var show = new Click(args.Last()) {Technique = Technique.HighlightOnly};
                     ServiceLocator.Instance.Resolve(show);
-                    Command.SelectedKeyword = show;
+                    Command.SelectedKeyword = new LazyObject(show);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("show fill (.+)", "show fill X:  a full-text instruction to display on screen.", input =>
@@ -214,7 +215,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     var args = ParseArguments(input, 2);
                     var show = new Fill(args.Last()) {Technique = Technique.HighlightOnly};
                     ServiceLocator.Instance.Resolve(show);
-                    Command.SelectedKeyword = show;
+                    Command.SelectedKeyword = new LazyObject(show);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("goto (.+)", "goto X: use this to click on element ad-hoc", input =>
@@ -222,7 +223,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     var arg = ParseArguments(input, 1).First();
                     var go = new GoToUrl(arg);
                     ServiceLocator.Instance.Resolve(go);
-                    Command.SelectedKeyword = go;
+                    Command.SelectedKeyword = new LazyObject(go);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("restart", "restart : go back to the beginning of the test", input =>
@@ -234,7 +235,7 @@ namespace Gears.Interpreter.Applications.Debugging
                 {
                     var save = new SaveHtml();
                     ServiceLocator.Instance.Resolve(save);
-                    Command.SelectedKeyword = save;
+                    Command.SelectedKeyword = new LazyObject(save);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
                 new ConsoleDebuggerActionHook("run ([0-9]*)", "run <N>: runs N steps", input =>
@@ -286,7 +287,7 @@ namespace Gears.Interpreter.Applications.Debugging
             Command.RunStep = false;
         }
         
-        private void OutputStatusText(int index, IEnumerable<Keyword> keywords, Keyword selectedKeyword, IEnumerable<ConsoleDebuggerActionHook> commands)
+        private void OutputStatusText(int index, List<LazyObject> keywords, LazyObject selectedKeyword, IEnumerable<ConsoleDebuggerActionHook> commands)
         {
             var horizontalLine = "----------------------------------------";
             Console.Out.WriteColoredLine(ConsoleColor.Gray, horizontalLine);
@@ -315,12 +316,12 @@ namespace Gears.Interpreter.Applications.Debugging
             Console.Out.WriteColoredLine(ConsoleColor.White, "\nEnter command, or press <enter> to continue:");
         }
 
-        private static void WriteSelectedKeyword(int index, Keyword selectedKeyword)
+        private static void WriteSelectedKeyword(int index, LazyObject selectedKeyword)
         {
             Console.Out.WriteColoredLine(ConsoleColor.Cyan, " >" + (index + 1) + ") " + (selectedKeyword?.ToString() ?? " --- end of scenario ---"));
         }
 
-        private static void WriteNumberOfKeywordsBeyond10(int index, IEnumerable<Keyword> keywords)
+        private static void WriteNumberOfKeywordsBeyond10(int index, List<LazyObject> keywords)
         {
             if (keywords.Count() - index > 10)
             {
@@ -328,7 +329,7 @@ namespace Gears.Interpreter.Applications.Debugging
             }
         }
 
-        private static void WriteNext10Keywords(int index, IEnumerable<Keyword> keywords)
+        private static void WriteNext10Keywords(int index, List<LazyObject> keywords)
         {
             for (int i = Math.Min(keywords.Count(), index + 1); i < Math.Min(index + 10, keywords.Count()); i++)
             {
@@ -337,7 +338,7 @@ namespace Gears.Interpreter.Applications.Debugging
             }
         }
 
-        private static void Write10PreviousKeywords(int index, IEnumerable<Keyword> keywords)
+        private static void Write10PreviousKeywords(int index, List<LazyObject> keywords)
         {
             if (index > 10)
             {
@@ -349,9 +350,17 @@ namespace Gears.Interpreter.Applications.Debugging
             }
         }
 
-        private static void WriteKeywordLine(IEnumerable<Keyword> keywords, int i)
+        private static void WriteKeywordLine(List<LazyObject> keywords, int i)
         {
-            var keyword = keywords.ElementAt(i);
+            var lazyKeyword = keywords.ElementAt(i);
+
+            if (!lazyKeyword.IsValueCreated)
+            {
+                Console.Out.WriteColored(ConsoleColor.DarkGray, $"  {(i + 1)}) {lazyKeyword} ");
+                return;
+            }
+
+            var keyword = (Keyword)lazyKeyword.Value;
             Console.Out.WriteColored(ConsoleColor.DarkGray, $"  {(i + 1)}) {keyword} ");
             if (keyword.Status == KeywordStatus.Ok.ToString())
             {

@@ -40,5 +40,10 @@ namespace Gears.Interpreter.Core.Registrations
 
             _isInitialised = true;
         }
+
+        public static void Release()
+        {
+            _isInitialised = false;
+        }
     }
 }

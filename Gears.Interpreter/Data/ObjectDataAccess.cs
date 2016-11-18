@@ -32,7 +32,7 @@ namespace Gears.Interpreter.Data
         public ObjectDataAccess(params object[] obj) 
         {
             _buffer = new DataAccessBuffer();
-            _buffer.AddRange(obj);
+            _buffer.AddRange(obj.ToList());
         }
 
         public ObjectDataAccess(IEnumerable<object> obj) : this(obj.ToArray())

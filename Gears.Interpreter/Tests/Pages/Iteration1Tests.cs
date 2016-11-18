@@ -64,27 +64,12 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldLoadScenarioFileCorrectly()
         {
-            Bootstrapper.RegisterForConfigurationLoad();
+            Bootstrapper.PreRegisterForDataAccessCreation();
             var keywords= new FileObjectAccess(FileFinder.Find("Iteration1.xlsx")).GetAll<Keyword>().ToList();
 
             Assert.IsInstanceOf<GoToUrl>(keywords.ElementAt(0));
             Assert.AreEqual("http://www.SELENIUMhq.org/",(keywords.ElementAt(0) as GoToUrl).Url);
         }
-
-        [Test]
-        public void ShouldResolveRandomWord()
-        {
-            new GoToUrl($"file:///{FileFinder.Find("Iteration1TestPage.html")}")
-            {
-                Selenium = _selenium
-            }.Execute();
-            new Fill("Text Area 1", "filledText{Random.Word()}") { Selenium = _selenium }.Execute();
-
-            var value = _selenium.WebDriver.FindElement(By.Id("test1")).GetAttribute("value");
-            Assert.AreNotEqual(value, "filledText{Random.Word()}");
-            Assert.AreEqual(value.Length, "filledText".Length+3);
-        }
-
 
         [Test]
         public void ShouldFillAllTextAreas()

@@ -31,15 +31,27 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 {
     public interface IDictionaryToObjectMapper
     {
-        object CreateObject(Type type, IDictionary<string, string> data);
+        object CreateObject(Type type, IDictionary<string, object> data);
       
         List<PropertyInfo> GetTypeProperties(Type type);
     }
 
     public class DictionaryToObjectMapper : IDictionaryToObjectMapper
     {
-        public object CreateObject(Type type, IDictionary<string, string> data)
+        private readonly ILazyValueResolver _lazyValueResolver;
+
+        public DictionaryToObjectMapper(ILazyValueResolver lazyValueResolver)
         {
+            _lazyValueResolver = lazyValueResolver;
+        }
+
+        public object CreateObject(Type type, IDictionary<string, object> data)
+        {
+            if (HasToBeLazyEvaulated(data))
+            {
+                return new LazyObject(()=>this.LazyCreateObject(type, data), type);
+            }
+
             try
             {
                 var matchingConstructor = GetMatchingConstructor(type, data);
@@ -60,7 +72,24 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             }
         }
 
-        private List<object> MapValues(IDictionary<string, string> data, ParameterInfo[] parameterInfos)
+        private object LazyCreateObject(Type type, IDictionary<string, object> data)
+        {
+            var newData = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            foreach (var key in data.Keys)
+            {
+                var resolvedValue = _lazyValueResolver.Resolve(data[key]);
+                newData.Add(key, resolvedValue);
+            }
+
+            return CreateObject(type, newData);
+        }
+
+        private bool HasToBeLazyEvaulated(IDictionary<string, object> data)
+        {
+            return data.Values.Any(x => _lazyValueResolver.CanResolve(x));
+        }
+
+        private List<object> MapValues(IDictionary<string, object> data, ParameterInfo[] parameterInfos)
         {
             var ctorParameters = new List<object>();
             foreach (var parameterInfo in parameterInfos)
@@ -76,14 +105,14 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             return type.GetProperties().Where(p => !p.GetCustomAttributes(false).Any(a => a is XmlIgnoreAttribute)).ToList();
         }
 
-        private void PopulateProperties(object @object, IDictionary<string, string> data)
+        private void PopulateProperties(object @object, IDictionary<string, object> data)
         {
             var properties = GetTypeProperties(@object.GetType());
 
             foreach (var propertyInfo in properties)
             {
                 if (data.ContainsKey(propertyInfo.Name)
-                    && !string.IsNullOrEmpty(data[propertyInfo.Name])
+                    && data[propertyInfo.Name]!=null
                     && propertyInfo.CanWrite)
                 {
                     var value = Convert(propertyInfo.PropertyType, data[propertyInfo.Name]);
@@ -92,7 +121,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             }
         }
 
-        private ConstructorInfo GetMatchingConstructor(Type type, IDictionary<string, string> data)
+        private ConstructorInfo GetMatchingConstructor(Type type, IDictionary<string, object> data)
         {
             var contructors = type.GetConstructors().OrderByDescending(c => c.GetParameters().Count());
 
@@ -106,15 +135,20 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
                 }
             }
 
-            throw new ApplicationException($"Cannot read type {type.Name} with given parameters.");
+            throw new ApplicationException($"Cannot read type {type.Name} with given parameters: {string.Join(",",data.Keys)}");
         }
 
-        private object Convert(Type targetType, string value)
+        private object Convert(Type targetType, object value)
         {
+            if (value.GetType() == targetType)
+            {
+                return value;
+            }
+
             try
             {
                 int o;
-                if (targetType == typeof(DateTime) && int.TryParse(value, out o))
+                if (targetType == typeof(DateTime) && int.TryParse(value as string, out o))
                 {
                     var excelDate = DateTime.FromOADate(o);
                     return System.Convert.ChangeType(excelDate, targetType);
@@ -122,7 +156,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             
                 if (targetType.IsEnum)
                 {
-                    return Enum.Parse(targetType, value);
+                    return Enum.Parse(targetType, value.ToString());
                 }
 
                 return System.Convert.ChangeType(value, targetType);
@@ -133,9 +167,9 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             }
         }
         
-        private IDictionary<string, string> RemoveMappedEntries(IDictionary<string, string> data, ParameterInfo[] parameterInfos)
+        private IDictionary<string, object> RemoveMappedEntries(IDictionary<string, object> data, ParameterInfo[] parameterInfos)
         {
-            var newData = new Dictionary<string, string>(data, StringComparer.InvariantCultureIgnoreCase);
+            var newData = new Dictionary<string, object>(data, StringComparer.InvariantCultureIgnoreCase);
 
             foreach (var parameterInfo in parameterInfos)
             {
@@ -145,9 +179,10 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             return newData;
         }
 
-        private bool AllConstructorParamsHaveData(ParameterInfo[] parameters, IDictionary<string, string> data)
+        private bool AllConstructorParamsHaveData(ParameterInfo[] parameters, IDictionary<string, object> data)
         {
-            return parameters.All(parameterInfo => data.ContainsKey(parameterInfo.Name) && !string.IsNullOrEmpty(data[parameterInfo.Name]));
+            return parameters.All(parameterInfo => data.ContainsKey(parameterInfo.Name) && data[parameterInfo.Name] != null);
         }
     }
+
 }

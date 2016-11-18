@@ -173,7 +173,7 @@ namespace Gears.Interpreter.Data
             return "File '"+ System.IO.Path.GetFileName(Path) + "'"
                 + (_buffer.Size > 0 ? " ({0} buffered objects)".FormatWith(_buffer.Size.ToString()):"")
                 + " at '"+this.Path + "'"
-                + (_buffer.Size > 0 ? ": \n\t\t== "+string.Join("\n\t\t== ",_buffer.GetAll()):"");
+                + (_buffer.Size > 0 ? ": \n\t== "+string.Join("\n\t== ",_buffer.GetAll()):"");
         }
         
         public override bool Equals(object obj)
@@ -214,7 +214,7 @@ namespace Gears.Interpreter.Data
                     {
                         if (o is Include)
                         {
-                            result.AddRange(ExpandInclude((Include)o));
+                            result.AddRange(((Include)o).RecursiveRead(Path));
                         }
                         else
                         {
@@ -284,6 +284,7 @@ namespace Gears.Interpreter.Data
                 throw new IOException($"Included file '{include.FileName}' in '{this.ToString()}' was not found.");
             }
         }
+
         protected IEnumerable<Type> GetSubTypes(IEnumerable<Type> knownTypes)
         {
             return knownTypes.SelectMany(x => x.Assembly.GetTypes().Where(x.IsAssignableFrom));

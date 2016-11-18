@@ -33,6 +33,7 @@ using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Data.Serialization.Mapping;
 using OpenQA.Selenium.Chrome;
 
 namespace Gears.Interpreter.Applications
@@ -49,7 +50,12 @@ namespace Gears.Interpreter.Applications
 
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel));
 
+            _container.Register(Component.For<ICodeStubResolver>().ImplementedBy<CodeStubResolver>().LifestyleSingleton());
+            _container.Register(Component.For<ILazyValueResolver>().ImplementedBy<LazyValueResolver>().LifestyleSingleton());
+            _container.Register(Component.For<IDictionaryToObjectMapper>().ImplementedBy<DictionaryToObjectMapper>().LifestyleSingleton());
             _container.Register(Component.For<ITypeRegistry>().ImplementedBy<TypeRegistry>().LifestylePerThread());
+
+            ServiceLocator.Initialise(_container);
 
             var i = 0;
             foreach (var ds in dataSources)
@@ -59,6 +65,7 @@ namespace Gears.Interpreter.Applications
 
             i = 0;
 
+            //TODO: Resolves TypeRegistry - not cool
             foreach (var configObject in dataSources.SelectMany(ds=> ds.GetAll<IAutoRegistered>()))
             {
                 _container.Register(Component.For(configObject.GetType()).Instance(configObject).Named(configObject.ToString() + i++).LifestyleTransient());
@@ -68,7 +75,8 @@ namespace Gears.Interpreter.Applications
             _container.Register(Component.For<ISeleniumAdapter>().Instance(_seleniumAdapter));
 
             _container.Register(Component.For<IConsoleDebugger>().ImplementedBy<ConsoleDebugger>().LifestyleSingleton());
-
+            
+            
             _container.Register(Component.For<IDataContext>().ImplementedBy<DataContext>().LifestyleSingleton());
             _container.Register(Component.For<IOverlay>().ImplementedBy<Overlay>().LifestyleSingleton());
 
@@ -78,11 +86,15 @@ namespace Gears.Interpreter.Applications
             ServiceLocator.Initialise(_container);
         }
 
-        public static void RegisterForConfigurationLoad()
+        public static void PreRegisterForDataAccessCreation()
         {
             _container = new WindsorContainer();
 
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel));
+
+            _container.Register(Component.For<ICodeStubResolver>().ImplementedBy<CodeStubResolver>().LifestyleSingleton());
+            _container.Register(Component.For<ILazyValueResolver>().ImplementedBy<LazyValueResolver>().LifestyleSingleton());
+            _container.Register(Component.For<IDictionaryToObjectMapper>().ImplementedBy<DictionaryToObjectMapper>().LifestyleSingleton());
 
             _container.Register(Component.For<ITypeRegistry>().ImplementedBy<TypeRegistry>().LifestyleSingleton());
 
@@ -92,7 +104,8 @@ namespace Gears.Interpreter.Applications
         public static void Release()
         {
             _seleniumAdapter?.Dispose();
-            _container.Dispose();
+            _container?.Dispose();
+            ServiceLocator.Release();
         }
     }
 }

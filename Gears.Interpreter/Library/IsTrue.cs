@@ -18,7 +18,7 @@
 
         public override string ToString()
         {
-            return Message;
+            return this.GetType().Name +" ("+ Message+")";
         }
     }
 }

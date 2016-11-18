@@ -55,12 +55,29 @@ namespace Gears.Interpreter.Data.Core
 
         public void Add(object data)
         {
-            _list.Add(data);
+            if (data is Include)
+            {
+                _list.AddRange(((Include)data).RecursiveRead(null));
+            }
+            else
+            {
+                _list.Add(data);
+            }
         }
 
         public void AddRange(IEnumerable<object> data)
         {
-            _list.AddRange(data);
+            foreach (var obj in data)
+            {
+                if (obj is Include)
+                {
+                    _list.AddRange(((Include) obj).RecursiveRead(null));
+                }
+                else
+                {
+                    _list.Add(obj);
+                }
+            }
         }
 
         public T Get<T>() where T : class

@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Xml.Serialization;
+using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core.Registrations;
 
@@ -40,14 +41,14 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            Console.Out.Write("\""+Text+ "\"");
+            Console.Out.WriteColoredLine(ConsoleColor.DarkGreen,"\""+Text+ "\"\n");
 
             return null;
         }
 
         public override string ToString()
         {
-            return "  Comment: " + Text;
+            return $"Comment: {Text}";
         }
     }
 }

@@ -7,17 +7,17 @@ using JetBrains.Annotations;
 
 namespace Gears.Interpreter.Library.Reports
 {
-    public class JUnitReport : IAutoRegistered, IApplicationEventHandler
+    public class JUnitScenarioReport : IAutoRegistered, IApplicationEventHandler
     {
         private string _path;
         private int _filesCreated = 0;
 
-        public JUnitReport()
+        public JUnitScenarioReport()
         {
-            _path = ".\\Output\\TestSession_JUnit{0}.xml";
+            _path = ".\\Output\\ScenarioReport_JUnit{0}.xml";
         }
 
-        public JUnitReport([NotNull] string path)
+        public JUnitScenarioReport([NotNull] string path)
         {
             _path = path;
         }
@@ -31,7 +31,7 @@ namespace Gears.Interpreter.Library.Reports
         {
             var path = string.Format(_path, DateTime.Now.ToString("s").Replace(":", "_") + "_"+ ++_filesCreated);
 
-            Console.Out.WriteColoredLine(ConsoleColor.Gray, $"JUnit output was saved to file \'{path}\'.");
+            Console.Out.WriteColoredLine(ConsoleColor.Gray, $"JUnit Scenario Report was saved to file \'{path}\'.");
 
             new FileObjectAccess(path).AddRange(e.Keywords);
         }

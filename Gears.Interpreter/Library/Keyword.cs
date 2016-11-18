@@ -34,6 +34,10 @@ namespace Gears.Interpreter.Library
     {
     }
 
+    public enum KeywordResultSpecialCases
+    {
+        Skipped
+    }
     
 
     public abstract class Keyword : Runnable, IKeyword
@@ -49,8 +53,6 @@ namespace Gears.Interpreter.Library
         [Wire]
         [XmlIgnore]
         public ISeleniumAdapter Selenium { get; set; }
-
-        
 
         [XmlIgnore]
         public string Skip { get; set; }
@@ -71,33 +73,59 @@ namespace Gears.Interpreter.Library
 
         public object Execute()
         {
-
-            var keyword = this;
-
-            DateTime start = DateTime.Now;
-
-            StringResolver.Resolve(keyword);
-
-            var result = keyword.Run();
-
-            DateTime end = DateTime.Now;
-
-            keyword.Result = result;
-
-            //TODO : this will need more thought - result triage is a totally separate concern
-            if (keyword.Expect != null && keyword.Result != null &&
-                keyword.Expect.ToString().ToLower() != keyword.Result.ToString().ToLower())
+            try
             {
-                throw new ApplicationException(
-                    $"{keyword} expected \'{keyword.Expect}\' but was \'{keyword.Result}\'");
+                var keyword = this;
+
+                if (ServiceLocator.IsInitialised())
+                {
+                    ServiceLocator.Instance.Resolve(keyword);
+                }
+
+                keyword.Status = KeywordStatus.Ok.ToString();
+
+                if (!string.IsNullOrEmpty(keyword.Skip))
+                {
+                    keyword.Status = KeywordStatus.Skipped.ToString();
+                    return KeywordResultSpecialCases.Skipped;
+                }
+
+                DateTime start = DateTime.Now;
+
+                var result = keyword.Run();
+
+                DateTime end = DateTime.Now;
+
+                keyword.Result = result;
+
+                //TODO : this will need more thought - result triage is a totally separate concern
+                if (keyword.Expect != null && keyword.Result != null &&
+                    keyword.Expect.ToString().ToLower() != keyword.Result.ToString().ToLower())
+                {
+                    throw new ApplicationException(
+                        $"{keyword} expected \'{keyword.Expect}\' but was \'{keyword.Result}\'");
+                }
+
+                if (keyword.Expect != null && keyword.Result != null)
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
+                }
+
+                keyword.Time = (end - start).TotalSeconds;
+            }
+            catch (ApplicationException ae)
+            {
+                Status = KeywordStatus.Error.ToString();
+                StatusDetail = ae.Message;
+                throw;
+            }
+            catch (Exception exception)
+            {
+                Status = KeywordStatus.Error.ToString();
+                StatusDetail = exception.Message;
+                throw;
             }
 
-            if (keyword.Expect != null && keyword.Result != null)
-            {
-                Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
-            }
-
-            keyword.Time = (end - start).TotalSeconds;
             return Result;
         }
 

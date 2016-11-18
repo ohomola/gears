@@ -48,10 +48,9 @@ namespace Gears.Interpreter
             Console.Out.WriteLine("----------------------------------------");
             Console.ResetColor();
 
-            var applicationLoop = new ApplicationLoop(args);
-
             try
             {
+                var applicationLoop = new ApplicationLoop(args);
                 return applicationLoop.Run();
             }
             catch (Exception e)

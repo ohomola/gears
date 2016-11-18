@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
+using Gears.Interpreter.Data.Serialization.Mapping;
 using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Applications.Debugging
@@ -32,7 +34,7 @@ namespace Gears.Interpreter.Applications.Debugging
         public bool RunStep { get; set; }
         public int NextIndex { get; set; }
         public bool StepThrough { get; set; }
-        public Keyword SelectedKeyword { get; set; }
+        public LazyObject SelectedKeyword { get; set; }
         public bool Break { get; set; }
         public int StopOnIndex { get; set; }
         public bool Reload { get; set; }
