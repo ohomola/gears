@@ -139,8 +139,8 @@
     <Compile Include="Adapters\Interoperability\KernelInteropAdapter.cs" />
     <Compile Include="Adapters\Interoperability\UserInteropAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerCommand.cs" />
-    <Compile Include="Applications\Configuration\IConfig.cs" />
-    <Compile Include="Applications\Debugging\ConsoleDebuggerConfig.cs" />
+    <Compile Include="Applications\Configuration\IAutoRegistered.cs" />
+    <Compile Include="Library\Config\DebugMode.cs" />
     <Compile Include="Adapters\SeleniumAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerActionHook.cs" />
     <Compile Include="Applications\Debugging\ConsoleExtensions.cs" />
@@ -151,6 +151,8 @@
       <DependentUpon>MasterForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Applications\Debugging\Overlay\Overlay.cs" />
+    <Compile Include="Applications\IApplicationEventHandler.cs" />
+    <Compile Include="Applications\ScenarioFinishedEventArgs.cs" />
     <Compile Include="Core\Extensions\Extensions.cs" />
     <Compile Include="Core\Extensions\StringExtensions.cs" />
     <Compile Include="Core\Registrations\ServiceLocator.cs" />
@@ -180,8 +182,11 @@
     <Compile Include="Library\Enums.cs" />
     <Compile Include="Library\IInstructed.cs" />
     <Compile Include="Library\Instruction.cs" />
+    <Compile Include="Library\IsTrue.cs" />
     <Compile Include="Library\LocationHeuristictSearchStrategy.cs" />
     <Compile Include="Core\LookupFailureException.cs" />
+    <Compile Include="Library\Reports\CsvReport.cs" />
+    <Compile Include="Library\RunScenario.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\TagQuery.cs" />
     <Compile Include="Library\SaveHtml.cs" />
@@ -211,6 +216,7 @@
     <Compile Include="Tests\Pages\Iteration1Tests.cs" />
     <Compile Include="Tests\Pages\Iteration5Tests.cs" />
     <Compile Include="Tests\Pages\Iteration4Tests.cs" />
+    <Compile Include="Library\Reports\JUnitReport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -279,9 +285,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\Serialization" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

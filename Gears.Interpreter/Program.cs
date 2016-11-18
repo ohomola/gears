@@ -19,15 +19,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Gears.Interpreter.Applications;
+using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Applications.Debugging.Overlay;
+using Gears.Interpreter.Core.Extensions;
+using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Data;
+using Gears.Interpreter.Data.Core;
 
 namespace Gears.Interpreter
 {
     public class Program
     {
+        public const int CriticalErrorStatusCode = -2;
+        public const int ScenarioFailureStatusCode = -1;
+        public const int OkStatusCode = 0;
+
         private static int Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.Green;
@@ -37,7 +48,24 @@ namespace Gears.Interpreter
             Console.Out.WriteLine("----------------------------------------");
             Console.ResetColor();
 
-            return new ApplicationLoop().Run(args);
+            var applicationLoop = new ApplicationLoop(args);
+
+            try
+            {
+                return applicationLoop.Run();
+            }
+            catch (Exception e)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Red, "Error running application: " + e.GetAllMessages());
+                return CriticalErrorStatusCode;
+            }
         }
+
+        
+    }
+
+    internal class TestCaseDefinition
+    {
+        public string JUnitReportPath { get; set; }
     }
 }

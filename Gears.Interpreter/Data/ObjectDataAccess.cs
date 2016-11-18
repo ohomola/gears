@@ -35,6 +35,10 @@ namespace Gears.Interpreter.Data
             _buffer.AddRange(obj);
         }
 
+        public ObjectDataAccess(IEnumerable<object> obj) : this(obj.ToArray())
+        {
+        }
+        
         public T Get<T>(int id) where T : class
         {
             return _buffer.Get<T>();

@@ -26,29 +26,34 @@ using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Library;
+using Gears.Interpreter.Library.Config;
 
 namespace Gears.Interpreter.Applications.Debugging
 {
     public interface IConsoleDebugger
     {
         int Update(int index, IEnumerable<Keyword> keywords);
-        ConsoleDebuggerConfig Config { get; set; }
+        DebugMode Config { get; set; }
         ConsoleDebuggerCommand Command { get; set; }
     }
 
     public class ConsoleDebugger : IConsoleDebugger
     {
         public ConsoleDebuggerCommand Command { get; set; }
-        public ConsoleDebuggerConfig Config { get; set; }
+        public DebugMode Config { get; set; }
         public IDataContext Data { get; set; }
         public ISeleniumAdapter Selenium { get; set; }
 
-        public ConsoleDebugger(IDataContext data, ConsoleDebuggerConfig config, ISeleniumAdapter selenium)
+        public ConsoleDebugger(IDataContext data, DebugMode config, ISeleniumAdapter selenium)
         {
             Data = data;
             Config = config;
             Selenium = selenium;
             Command = new ConsoleDebuggerCommand(-1);
+        }
+
+        public ConsoleDebugger(IDataContext data, ISeleniumAdapter selenium): this (data, new DebugMode(false), selenium)
+        {
         }
 
         public int Update(int index, IEnumerable<Keyword> keywords)

@@ -27,7 +27,7 @@ namespace Gears.Interpreter.Applications.Configuration
     /// 
     /// All IConfig class instances are registered in IoC container under their type's service on start-up.
     /// </summary>
-    public interface IConfig
+    public interface IAutoRegistered
     {
     }
 }

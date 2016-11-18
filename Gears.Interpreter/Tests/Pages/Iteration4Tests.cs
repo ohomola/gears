@@ -31,8 +31,7 @@ namespace Gears.Interpreter.Tests.Pages
         public void SetUp()
         {
             _selenium =
-                new SeleniumAdapter(new ChromeDriver(Path.GetDirectoryName(FileFinder.Find("chromedriver.exe")),
-                    new ChromeOptions()));
+                new SeleniumAdapter();
         }
 
         //[TearDown]

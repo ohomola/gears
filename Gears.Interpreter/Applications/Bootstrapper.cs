@@ -59,16 +59,12 @@ namespace Gears.Interpreter.Applications
 
             i = 0;
 
-            foreach (var configObject in dataSources.SelectMany(ds=> ds.GetAll<IConfig>()))
+            foreach (var configObject in dataSources.SelectMany(ds=> ds.GetAll<IAutoRegistered>()))
             {
                 _container.Register(Component.For(configObject.GetType()).Instance(configObject).Named(configObject.ToString() + i++).LifestyleTransient());
             }
 
-
-            var path = FileFinder.Find("chromedriver.exe");
-            var selenium = new ChromeDriver(Path.GetDirectoryName(path), new ChromeOptions());
-
-            _seleniumAdapter = new SeleniumAdapter(selenium);
+            _seleniumAdapter = new SeleniumAdapter();
             _container.Register(Component.For<ISeleniumAdapter>().Instance(_seleniumAdapter));
 
             _container.Register(Component.For<IConsoleDebugger>().ImplementedBy<ConsoleDebugger>().LifestyleSingleton());

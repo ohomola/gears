@@ -18,15 +18,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
 using Gears.Interpreter.Applications.Configuration;
 
-namespace Gears.Interpreter.Applications.Debugging
+namespace Gears.Interpreter.Library.Config
 {
-    public class ConsoleDebuggerConfig : IConfig
+    public class DebugMode : IAutoRegistered
     {
-        public ConsoleDebuggerConfig()
+        public DebugMode()
         {
             IsActive = true;
+        }
+
+        public DebugMode(bool isActive)
+        {
+            IsActive = isActive;
         }
 
         public bool IsActive { get; set; }

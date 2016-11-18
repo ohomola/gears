@@ -19,8 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
@@ -32,166 +34,242 @@ namespace Gears.Interpreter.Applications
 {
     public class ApplicationLoop
     {
-        private const int CriticalErrorStatusCode = -2;
-        private const int ScenarioFailureStatusCode = -1;
-        private const int OkStatusCode = 0;
+        public ApplicationLoop(string[] args)
+        {
+            this._commandLineArguments = args;
+            RegisterDependencies(_commandLineArguments);
+        }
+
+        public ApplicationLoop()
+        {
+        }
 
         public string OutputLogFile { get; set; }
-             
-        //todo: --- remove dependency on consoledebugger - make this class shared for debugging app as well as other entry point applications
-        public int Run(string[] commandLineArguments)
+
+        #region Events
+        public event EventHandler<ScenarioFinishedEventArgs> ScenarioFinished;
+
+        protected virtual void OnScenarioFinished(ScenarioFinishedEventArgs e)
         {
-            OutputLogFile = string.Format(Properties.Settings.Default.ScenarioOutputPath, DateTime.Now.ToString("s").Replace(":","_"));
+            ScenarioFinished?.Invoke(this, e);
+        }
 
-            Bootstrapper.RegisterForConfigurationLoad();
+        public event EventHandler<ScenarioFinishedEventArgs> SuiteFinished;
 
-            var accesses = commandLineArguments.Where(x=>!x.StartsWith("-")).Select(x=>new FileObjectAccess(FileFinder.Find(x))).Cast<IDataObjectAccess>().ToList();
+        protected virtual void OnSuiteFinished(ScenarioFinishedEventArgs e)
+        {
+            SuiteFinished?.Invoke(this, e);
+        }
+        #endregion
 
-            accesses.Add(new ObjectDataAccess(new ConsoleDebuggerConfig
+        private string[] _commandLineArguments = new string[0];
+
+        public List<IDataObjectAccess> CreateDataAccesses(string[] args)
+        {
+            var accesses =
+                args.Where(x => !x.StartsWith("-"))
+                    .Select(x => new FileObjectAccess(FileFinder.Find(x)))
+                    .Cast<IDataObjectAccess>()
+                    .ToList();
+
+            var arguments = args.Where(x => x.StartsWith("-"));
+            var parameters = new ObjectDataAccess();
+            foreach (var argument in arguments)
             {
-                IsActive = !commandLineArguments.Contains("-nodebug")
-            }));
+                var dtoTypes = ServiceLocator.Instance.Resolve<ITypeRegistry>().GetDTOTypes();
+                var type =
+                    dtoTypes.FirstOrDefault(registeredType => registeredType.Name.ToLower() == argument.Substring(1).ToLower());
+                var instance = Activator.CreateInstance(type);
+                parameters.Add(instance);
+            }
+            accesses.Add(parameters);
+            return accesses;
+        }
 
-            Bootstrapper.Release();
 
+        //todo: --- remove dependency on consoledebugger - make this class shared for debugging app as well as other entry point applications
+        public int Run()
+        {
             try
             {
-                Bootstrapper.RegisterForRuntime(accesses);
-            }
-            catch (Exception e)
-            {
-                Console.Out.WriteColoredLine(ConsoleColor.Red, "Error starting application: "+ e.GetAllMessages());
-                return CriticalErrorStatusCode;
-            }
+                OutputLogFile = string.Format(Properties.Settings.Default.ScenarioOutputPath,
+                    DateTime.Now.ToString("s").Replace(":", "_"));
 
-            var data = ServiceLocator.Instance.Resolve<IDataContext>();
+                var data = ServiceLocator.Instance.Resolve<IDataContext>();
 
-            var debugger = ServiceLocator.Instance.Resolve<IConsoleDebugger>();
+                var debugger = ServiceLocator.Instance.Resolve<IConsoleDebugger>();
 
-            if (data.GetAll<CorruptObject>().Any())
-            {
-                Console.Out.WriteColoredLine(ConsoleColor.Red, "Corrupt data loaded: ");
-                var details = "\n\t" + string.Join(",\n\t", data.GetAll<CorruptObject>().Select(x => x.Exception.Message.ToString()));
-                Console.Out.WriteColoredLine(ConsoleColor.DarkRed,  details);
-            }
-
-            var keywords = data.GetAll<Keyword>().ToList();
-
-            for (var index = debugger.Update(-1, keywords.ToList()); 
-                index < keywords.Count();
-                index = debugger.Update(index, keywords.ToList()))
-            {
-
-                if (debugger.Command.RunStep && debugger.Command.SelectedKeyword != null)
+                foreach (var handler in data.GetAll<IApplicationEventHandler>())
                 {
-                    Console.WriteLine("Running " + debugger.Command.SelectedKeyword.ToString() + "...");
+                    handler.Register(this);
                 }
 
-                var keyword = debugger.Command.SelectedKeyword;
-
-                if (debugger.Command.Break)
+                if (data.GetAll<CorruptObject>().Any())
                 {
-                    break;
+                    Console.Out.WriteColoredLine(ConsoleColor.Red, "Corrupt data loaded: ");
+                    var details = "\n\t" +
+                                  string.Join(",\n\t",
+                                      data.GetAll<CorruptObject>().Select(x => x.Exception.Message.ToString()));
+                    Console.Out.WriteColoredLine(ConsoleColor.DarkRed, details);
                 }
 
-                if (debugger.Command.Reload)
+                var keywords = data.GetAll<Keyword>().ToList();
+
+                ValidateKeywords(keywords);
+                var isRunningSuite = keywords.Any(x => x is RunScenario);
+
+                for (var index = debugger.Update(-1, keywords.ToList());
+                    index < keywords.Count();
+                    index = debugger.Update(index, keywords.ToList()))
                 {
-                    HandleReload(data);
 
-                    keywords = data.GetAll<Keyword>().ToList();
-
-                    if (index >= keywords.ToList().Count)
+                    if (debugger.Command.RunStep && debugger.Command.SelectedKeyword != null)
                     {
-                        index = -1;
+                        Console.WriteLine("Running " + debugger.Command.SelectedKeyword.ToString() + "...");
                     }
-                    continue;
-                }
 
-                if (!debugger.Command.RunStep)
-                {
-                    continue;
-                }
+                    var keyword = debugger.Command.SelectedKeyword;
 
-                try
-                {
-                    keyword.Status = KeywordStatus.Ok.ToString();
-
-                    ServiceLocator.Instance.Resolve(keyword);
-
-                    if (!string.IsNullOrEmpty(keyword.Skip))
+                    if (debugger.Command.Break)
                     {
-                        keyword.Status = KeywordStatus.Skipped.ToString();
-                        Console.WriteLine("Skipping " + keyword);
+                        break;
+                    }
+
+                    if (debugger.Command.Reload)
+                    {
+                        HandleReload(data);
+
+                        keywords = data.GetAll<Keyword>().ToList();
+
+                        if (index >= keywords.ToList().Count)
+                        {
+                            index = -1;
+                        }
+                        continue;
+                    }
+
+                    if (!debugger.Command.RunStep)
+                    {
+                        continue;
                     }
 
                     try
                     {
-                        keyword.Execute();
+                        if (isRunningSuite)
+                        {
+                            RegisterDependencies(_commandLineArguments);
+                        }
+
+                        keyword.Status = KeywordStatus.Ok.ToString();
+
+                        ServiceLocator.Instance.Resolve(keyword);
+
+                        if (!string.IsNullOrEmpty(keyword.Skip))
+                        {
+                            keyword.Status = KeywordStatus.Skipped.ToString();
+                            Console.WriteLine("Skipping " + keyword);
+                        }
+
+                        try
+                        {
+                            keyword.Execute();
+                        }
+                        catch (ApplicationException ae)
+                        {
+                            keyword.Status = KeywordStatus.Error.ToString();
+                            keyword.StatusDetail = ae.Message;
+                            Console.Out.WriteColoredLine(ConsoleColor.Yellow, "Step Failed");
+                            Console.Out.WriteColoredLine(ConsoleColor.Yellow, ae.Message);
+                        }
+                        catch (Exception exception)
+                        {
+                            keyword.Status = KeywordStatus.Error.ToString();
+                            keyword.StatusDetail = exception.Message;
+                            Console.Out.WriteColoredLine(ConsoleColor.Red, "Unexpected error");
+                            Console.Out.WriteColoredLine(ConsoleColor.Red, exception.Message);
+                            Console.Out.WriteColoredLine(ConsoleColor.DarkRed, exception.StackTrace);
+                        }
+                        finally
+                        {
+                            if (isRunningSuite)
+                            {
+                                OnScenarioFinished(new ScenarioFinishedEventArgs((keyword as RunScenario).Keywords));
+                            }
+                        }
                     }
-                    catch (ApplicationException ae)
+                    catch (Exception)
                     {
                         keyword.Status = KeywordStatus.Error.ToString();
-                        keyword.StatusDetail = ae.Message;
-                        Console.Out.WriteColoredLine(ConsoleColor.Yellow, "Step Failed");
-                        Console.Out.WriteColoredLine(ConsoleColor.Yellow, ae.Message);
-                    }
-                    catch (Exception exception)
-                    {
-                        keyword.Status = KeywordStatus.Error.ToString();
-                        keyword.StatusDetail = exception.Message;
-                        Console.Out.WriteColoredLine(ConsoleColor.Red, "Unexpected error");
-                        Console.Out.WriteColoredLine(ConsoleColor.Red, exception.Message);
-                        Console.Out.WriteColoredLine(ConsoleColor.DarkRed, exception.StackTrace);
+
+                        if (debugger.Config.IsActive)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine("Unexpected error encountered.");
+                            Console.ResetColor();
+                            debugger.Command.StepThrough = true;
+                        }
                     }
                 }
-                catch (Exception)
+
+                Console.WriteLine("\n\t - Keyword scenario ended -\n");
+
+                //TODO : the result should be processed by triage, success/failure evaluation must not be done by reports
+                if (!isRunningSuite)
                 {
-                    keyword.Status = KeywordStatus.Error.ToString();
-
-                    if (debugger.Config.IsActive)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine("Unexpected error encountered.");
-                        Console.ResetColor();
-                        debugger.Command.StepThrough = true;
-                    }
+                    OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
                 }
-            }
-
-            Console.WriteLine("\n\t - Keyword scenario ended -\n");
-
-
-            if (OutputLogFile != null)
-            {
-                Console.Out.WriteColoredLine(ConsoleColor.Gray, $"Results were saved to file \'{OutputLogFile}\'.");
-                new FileObjectAccess(OutputLogFile).AddRange(keywords.ToList());
-
-                if (commandLineArguments.Contains("-junitxml"))
+                else
                 {
-                    String junitXmlFile = ReplaceFileExtension(OutputLogFile, ".xml");
-                    Console.Out.WriteColoredLine(ConsoleColor.Gray, $"JUnit output was saved to file \'{junitXmlFile}\'.");
-                    new FileObjectAccess(junitXmlFile).AddRange(keywords.ToList());
+                    OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
                 }
-            }
 
-            if (debugger.Config.IsActive)
-            {
-                Console.Out.WriteColoredLine(ConsoleColor.Green, "Closing application now.");
+                if (debugger.Config.IsActive)
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Green, "Closing application now.");
+                }
+
+                Bootstrapper.Release();
+
+                if (keywords.Any(x => x.Status == KeywordStatus.Error.ToString()))
+                {
+                    return Program.ScenarioFailureStatusCode;
+                }
+
+                return Program.OkStatusCode;
             }
+            catch (Exception e)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Red, e.Message);
+                return Program.CriticalErrorStatusCode;
+            }
+            finally
+            {
+                Bootstrapper.Release();
+            }
+        }
+
+        private void RegisterDependencies(string[] args)
+        {
+            Bootstrapper.Release();
+
+            Bootstrapper.RegisterForConfigurationLoad();
+
+            var accesses = CreateDataAccesses(args);
 
             Bootstrapper.Release();
 
-            if (keywords.Any(x => x.Status == KeywordStatus.Error.ToString()))
-            {
-                return ScenarioFailureStatusCode;
-            }
-
-            return OkStatusCode;
+            Bootstrapper.RegisterForRuntime(accesses);
         }
 
-        private string ReplaceFileExtension(string outputLogFile, string extension)
+        private void ValidateKeywords(List<Keyword> keywords)
         {
-            return $"{Path.GetFileNameWithoutExtension(outputLogFile)}{extension}";
+            if (keywords.OfType<RunScenario>().Any())
+            {
+                if (!keywords.All(x => x is RunScenario))
+                {
+                    throw new ApplicationException("Scenario cannot contain RunScenario steps as well as basic Keywords.");
+                }
+            }
         }
 
         private void HandleReload(IDataContext Data)
@@ -207,8 +285,7 @@ namespace Gears.Interpreter.Applications
                 Console.ResetColor();
             }
         }
-
-        
-
     }
+
+    
 }

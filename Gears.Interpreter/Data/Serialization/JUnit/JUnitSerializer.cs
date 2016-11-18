@@ -28,7 +28,7 @@ namespace Gears.Interpreter.Data.Serialization.JUnit
             testsuite suite = MapToTestSuite(dataObjects);
 
             XmlSerializer serializer = new XmlSerializer(typeof(testsuite));
-
+            Directory.CreateDirectory(Path.GetDirectoryName(_path));
             var fileStream = new FileStream(_path, FileMode.Create);
             var textWriter = new StreamWriter(fileStream, Encoding.GetEncoding(1250));
             serializer.Serialize(textWriter, suite);

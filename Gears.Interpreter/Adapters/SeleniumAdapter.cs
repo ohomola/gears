@@ -22,16 +22,19 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 
 namespace Gears.Interpreter.Adapters
 {
     public interface ISeleniumAdapter: IDisposable
     {
-        IWebDriver WebDriver { get; set; }
+        IWebDriver WebDriver { get; }
         IntPtr GetChromeHandle();
         Point PutElementOnScreen(IWebElement element);
         void BrowserToClient(ref Point p);
@@ -40,19 +43,31 @@ namespace Gears.Interpreter.Adapters
     public class SeleniumAdapter : ISeleniumAdapter, IDisposable
     {
         private IntPtr _handle;
-        public IWebDriver WebDriver { get; set; }
+        private IWebDriver _webDriver;
 
-        public SeleniumAdapter(IWebDriver webDriver)
+        public IWebDriver WebDriver
         {
-            WebDriver = webDriver;
+            get
+            {
+                if (_webDriver == null)
+                {
+                    var path = FileFinder.Find("chromedriver.exe");
+                    _webDriver = new ChromeDriver(Path.GetDirectoryName(path), new ChromeOptions());
+                }
+                return _webDriver;
+            }
         }
+
 
         public void Dispose()
         {
             try
             {
-                WebDriver.Close();
-                WebDriver.Quit();
+                if (_webDriver != null)
+                {
+                    _webDriver.Close();
+                    _webDriver.Quit();
+                }
             }
             catch (Exception)
             {
