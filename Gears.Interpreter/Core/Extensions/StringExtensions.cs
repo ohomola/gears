@@ -22,6 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Core.Extensions
 {
@@ -51,6 +53,19 @@ namespace Gears.Interpreter.Core.Extensions
                     return num + "th";
             }
 
+        }
+    }
+
+    public static class ObjectExtensions
+    {
+        public static T AsLazyEvaluated<T>(this T obj) where T : class
+        {
+            if (ServiceLocator.IsInitialised())
+            {
+                return ServiceLocator.Instance.Resolve<ILazyExpressionResolver>().ToProxy(typeof(T), obj) as T;
+            }
+
+            throw new InvalidOperationException("Cannot create lazy evaluated object without registered Lazy Value Resolver");
         }
     }
 

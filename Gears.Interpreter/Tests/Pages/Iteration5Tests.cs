@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
+using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
@@ -24,16 +25,17 @@ namespace Gears.Interpreter.Tests.Pages
     {
         private const string Scenario1CsvContent = "Discriminator,Text\nComment,Blah\n";
         private const string Scenario2CsvContent = "Discriminator,Text\nComment,Bleh\n";
+        private const string Scenario3CsvContent =
+                @"Discriminator,Text
+                Comment,{return ""Hello World"";}
+                ";
 
         #region Setup & teardown
         private FileInfo[] _actualOutputFiles;
         private DirectoryInfo _outputFolder;
         private int _returnCode;
         private DirectoryInfo _inputFolder;
-        private const string Scenario3CsvContent=
-                @"Discriminator,Text
-                Comment,{return ""Hello World"";}
-                ";
+        
 
 
         [SetUp]
@@ -58,7 +60,7 @@ namespace Gears.Interpreter.Tests.Pages
         {
             var dataAccesses = parameters.Select(x => new ObjectDataAccess(x));
 
-            Bootstrapper.RegisterForRuntime(dataAccesses);
+            Bootstrapper.Register(dataAccesses.ToList());
 
             var applicationLoop = new ApplicationLoop(
                 ServiceLocator.Instance.Resolve<IDataContext>(),
@@ -107,7 +109,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRunBucket1()
         {
-            Bootstrapper.PreRegisterForDataAccessCreation();
+            Bootstrapper.Register();
 
             TestBase(
                 new JUnitScenarioReport(),
@@ -172,10 +174,9 @@ namespace Gears.Interpreter.Tests.Pages
 
         #region Lazy evaluation
 
-        private class Tree
+        public class Tree
         {
-            public string FruitName { get; set; }
-
+            public virtual string FruitName { get; set; }
         }
 
         [Test]
@@ -186,24 +187,21 @@ namespace Gears.Interpreter.Tests.Pages
             var path = _inputFolder + "\\Scenario3.csv";
             File.WriteAllText(path, content);
 
-            Bootstrapper.PreRegisterForDataAccessCreation();
+            Bootstrapper.Register();
             ServiceLocator.Instance.Resolve<ITypeRegistry>().Register(typeof(Tree));
-            var tree = new FileObjectAccess(path).Get<LazyObject>().Value as Tree;
-
+            var tree = new FileObjectAccess(path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).Get<Tree>();
+            Assert.IsNotNull(tree);
+            Assert.IsTrue(tree.GetType().Name.ToLower().Contains("proxy"));
+            Assert.IsNotNull(codeStub, tree.FruitName);
             Assert.AreNotEqual(codeStub, tree.FruitName);
         }
 
-        private class Car
+        public class Car
         {
-            public Car(Engine engine)
-            {
-                Engine = engine;
-            }
-
-            public Engine Engine { get; set; }
+            public virtual Engine Engine { get; set; }
         }
 
-        private class Apple
+        public class Apple
         {
             public string Engine { get; set; }
         }
@@ -211,6 +209,43 @@ namespace Gears.Interpreter.Tests.Pages
         public class Engine
         {
             public int Power { get; set; }
+        }
+
+        public class NonVirtualCar
+        {
+            public Engine Engine { get; set; }
+        }
+
+        public class NonVirtualApple
+        {
+            public string Engine { get; set; }
+        }
+
+        [Test]
+        public void ShouldLoadLazyObjects3()
+        {
+            var content =
+                @"Discriminator,Engine
+                NonVirtualCar,{return new Gears.Interpreter.Tests.Pages.Iteration5Tests.Engine(){Power=5};}
+                NonVirtualApple,ApplesDontHaveEngines
+                ";
+
+            var path = _inputFolder + "\\Scenario4.csv";
+            File.WriteAllText(path, content);
+
+            Bootstrapper.Register();
+            ServiceLocator.Instance.Resolve<ITypeRegistry>().Register(typeof(NonVirtualCar));
+            ServiceLocator.Instance.Resolve<ITypeRegistry>().Register(typeof(NonVirtualApple));
+
+            var apple = new FileObjectAccess(path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).GetAll().Last();
+            Assert.IsInstanceOf<NonVirtualApple>(apple, apple.ToString());
+            Assert.IsFalse(apple.GetType().Name.ToLower().Contains("proxy"));
+            Assert.AreEqual("ApplesDontHaveEngines", (apple as NonVirtualApple).Engine);
+
+            var obj = new FileObjectAccess(path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).GetAll().First();
+            Assert.IsInstanceOf<CorruptObject>(obj, obj.ToString());
+            var car = obj as CorruptObject;
+            Assert.IsTrue(car.Exception.Message.Contains("virtual"));
         }
 
         [Test]
@@ -225,30 +260,29 @@ namespace Gears.Interpreter.Tests.Pages
             var path = _inputFolder + "\\Scenario4.csv";
             File.WriteAllText(path, content);
 
-            Bootstrapper.PreRegisterForDataAccessCreation();
+            Bootstrapper.Register();
             ServiceLocator.Instance.Resolve<ITypeRegistry>().Register(typeof(Car));
             ServiceLocator.Instance.Resolve<ITypeRegistry>().Register(typeof(Apple));
 
-            var obj = new FileObjectAccess(path).GetAll().First();
+            var obj = new FileObjectAccess(path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).GetAll().First();
             Assert.IsNotInstanceOf<CorruptObject>(obj, obj.ToString());
-            Assert.IsInstanceOf<LazyObject>(obj);
-            var car = (obj as LazyObject).Value as Car;
+            Assert.IsInstanceOf<Car>(obj);
+            var car = obj as Car;
+            Assert.IsNotNull(car.Engine);
             Assert.AreEqual(5, car.Engine.Power);
 
-            var dataContext = new DataContext(new FileObjectAccess(path));
-            var cars = dataContext.GetAllLazy<Car>();
-            var apples = dataContext.GetAllLazy<Apple>();
-            var lazies = dataContext.GetAll<LazyObject>();
+            var dataContext = new DataContext(new FileObjectAccess(path, ServiceLocator.Instance.Resolve<ITypeRegistry>()));
+            var cars = dataContext.GetAll<Car>();
+            var apples = dataContext.GetAll<Apple>();
 
             Assert.AreEqual(1, cars.Count());
             Assert.AreEqual(1, apples.Count());
-            Assert.AreEqual(1, lazies.Count());
         }
 
         [Test]
         public void ShouldRunScenarioWithLazyObjects()
         {
-            Bootstrapper.PreRegisterForDataAccessCreation();
+            Bootstrapper.Register();
             TestBase(
                 new CsvScenarioReport(),
                 new RunScenario(_inputFolder + "\\Scenario3.csv")
@@ -262,7 +296,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRunScenarioWithLazyObjects2()
         {
-            Bootstrapper.PreRegisterForDataAccessCreation();
+            Bootstrapper.Register();
             TestBase(
                 new CsvScenarioReport(),
                 new Include(_inputFolder + "\\Scenario3.csv")
@@ -273,5 +307,31 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.IsTrue(text.Contains("Hello World"), "Should contain Hello World");
         } 
         #endregion
+
+        [Test]
+        public void ShouldRecallRememberedValues1()
+        {
+            Bootstrapper.Register(new List<IDataObjectAccess>());
+            var comment = new Comment("[myVariable1] [myVariable2]").AsLazyEvaluated();
+            TestBase(
+                new Remember("myVariable1", "{return \"Hello\";}").AsLazyEvaluated(),
+                new Remember("myVariable2", "{return \"World\";}").AsLazyEvaluated(),
+                comment
+                );
+            Assert.AreEqual("Hello World", comment.Text);
+        }
+
+        [Test]
+        public void ShouldRecallRememberedValues2()
+        {
+            Bootstrapper.Register(new List<IDataObjectAccess>());
+            var comment = new Comment("{return \"[myVariable1]\".ToUpper() + \" \" + \"[myVariable2]\".ToLower();}").AsLazyEvaluated();
+            TestBase(
+                new Remember("myVariable1", "{return \"Hello\";}").AsLazyEvaluated(),
+                new Remember("myVariable2", "{return \"World\";}").AsLazyEvaluated(),
+                comment
+                );
+            Assert.AreEqual("HELLO world", comment.Text);
+        }
     }
 }

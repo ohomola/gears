@@ -2,7 +2,9 @@
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Configuration;
 using Gears.Interpreter.Applications.Debugging;
+using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
+using Gears.Interpreter.Data.Core;
 using JetBrains.Annotations;
 
 namespace Gears.Interpreter.Library.Reports
@@ -33,7 +35,7 @@ namespace Gears.Interpreter.Library.Reports
 
             Console.Out.WriteColoredLine(ConsoleColor.Gray, $"JUnit Suite Report  was saved to file \'{path}\'.");
 
-            new FileObjectAccess(path).AddRange(e.Keywords);
+            new FileObjectAccess(path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).AddRange(e.Keywords);
         }
     }
 }

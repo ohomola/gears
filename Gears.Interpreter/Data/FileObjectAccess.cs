@@ -38,21 +38,6 @@ namespace Gears.Interpreter.Data
 
         public string Path { get; set; }
         
-        public FileObjectAccess(string path)
-        {
-            Path = path;
-            _buffer = new DataAccessBuffer();
-
-            if (ServiceLocator.IsInitialised())
-            {
-                TypeRegistry = ServiceLocator.Instance.Resolve<ITypeRegistry>();
-            }
-            else
-            {
-                throw new ApplicationException("Type Registry is not registered, cannot create FileObjectAccess via service-locator constructor.");
-            }
-        }
-
         public FileObjectAccess(string path, ITypeRegistry typeRegistry)
         {
             Path = path;
@@ -246,42 +231,6 @@ namespace Gears.Interpreter.Data
                 {
                     (serializer as IDisposable).Dispose();
                 }
-            }
-        }
-
-        private IEnumerable<object> ExpandInclude(Include include)
-        {
-            if (string.IsNullOrEmpty(include.FileName))
-            {
-                throw new InvalidOperationException("An Include object was passed to the system without FileName specified");
-            }
-
-            var fullPath = FileFinder.Find(include.FileName);
-
-            if (File.Exists(fullPath))
-            {
-                return new FileObjectAccess(fullPath).GetAll();
-            }
-
-            var directoryName = System.IO.Path.GetDirectoryName(Path);
-            if (directoryName != null)
-            {
-                fullPath = System.IO.Path.Combine(directoryName, include.FileName);
-                if (File.Exists(fullPath))
-                {
-                    return new FileObjectAccess(fullPath).GetAll();
-                }
-            }
-
-            try
-            {
-                var includedData = new FileObjectAccess(FileFinder.Find(include.FileName));
-
-                return includedData.GetAll();
-            }
-            catch (Exception)
-            {
-                throw new IOException($"Included file '{include.FileName}' in '{this.ToString()}' was not found.");
             }
         }
 

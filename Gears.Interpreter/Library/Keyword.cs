@@ -19,14 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using Castle.DynamicProxy;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Library
 {
@@ -56,8 +60,6 @@ namespace Gears.Interpreter.Library
 
         [XmlIgnore]
         public string Skip { get; set; }
-
-        public string Description => ToString();
 
         public string Status { get; set; }
         
@@ -129,7 +131,21 @@ namespace Gears.Interpreter.Library
             return Result;
         }
 
-    
+        public bool IsLazy()
+        {
+            return this.GetType().Name.Contains("Proxy");
+        }
+
+        public bool IsLazyHydrated()
+        {
+            return IsLazy() && IsHydrated;
+        }
+
+        public virtual bool IsHydrated { get; set; }
+
+        public virtual void Hydrate()
+        {
+        }
     }
 
     public enum KeywordStatus

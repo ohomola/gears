@@ -26,6 +26,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
+using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
@@ -59,13 +60,14 @@ namespace Gears.Interpreter.Tests.Pages
         public void TearDown()
         {
             _selenium.Dispose();
+            Bootstrapper.Release();
         }
 
         [Test]
         public void ShouldLoadScenarioFileCorrectly()
         {
-            Bootstrapper.PreRegisterForDataAccessCreation();
-            var keywords= new FileObjectAccess(FileFinder.Find("Iteration1.xlsx")).GetAll<Keyword>().ToList();
+            Bootstrapper.Register();
+            var keywords= new FileObjectAccess(FileFinder.Find("Iteration1.xlsx"), ServiceLocator.Instance.Resolve<ITypeRegistry>()).GetAll<Keyword>().ToList();
 
             Assert.IsInstanceOf<GoToUrl>(keywords.ElementAt(0));
             Assert.AreEqual("http://www.SELENIUMhq.org/",(keywords.ElementAt(0) as GoToUrl).Url);

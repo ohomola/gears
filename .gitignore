@@ -10,3 +10,4 @@
 **/.idea/
 *.csproj.DotSettings
 *.user
+*.TMP

@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Gears.Interpreter.Core.Registrations;
 
 namespace Gears.Interpreter.Data.Core
 {
@@ -46,7 +47,7 @@ namespace Gears.Interpreter.Data.Core
 
             if (File.Exists(fullPath))
             {
-                return new FileObjectAccess(fullPath).GetAll();
+                return new FileObjectAccess(fullPath, ServiceLocator.Instance.Resolve<ITypeRegistry>()).GetAll();
             }
 
             var directoryName = System.IO.Path.GetDirectoryName(parentPath);
@@ -55,13 +56,13 @@ namespace Gears.Interpreter.Data.Core
                 fullPath = System.IO.Path.Combine(directoryName, FileName);
                 if (File.Exists(fullPath))
                 {
-                    return new FileObjectAccess(fullPath).GetAll();
+                    return new FileObjectAccess(fullPath, ServiceLocator.Instance.Resolve<ITypeRegistry>()).GetAll();
                 }
             }
 
             try
             {
-                var includedData = new FileObjectAccess(FileFinder.Find(FileName));
+                var includedData = new FileObjectAccess(FileFinder.Find(FileName), ServiceLocator.Instance.Resolve<ITypeRegistry>());
 
                 return includedData.GetAll();
             }

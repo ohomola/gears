@@ -34,7 +34,7 @@ namespace Gears.Interpreter.Applications.Debugging
         public bool RunStep { get; set; }
         public int NextIndex { get; set; }
         public bool StepThrough { get; set; }
-        public LazyObject SelectedKeyword { get; set; }
+        public Keyword SelectedKeyword { get; set; }
         public bool Break { get; set; }
         public int StopOnIndex { get; set; }
         public bool Reload { get; set; }

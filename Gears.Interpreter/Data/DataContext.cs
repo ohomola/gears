@@ -23,13 +23,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Castle.Core.Internal;
 using Gears.Interpreter.Core.Extensions;
+using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Data
 {
     public interface IDataContext : IDataObjectAccess
     {
-        IEnumerable<LazyObject> GetAllLazy<T>();
         List<IDataObjectAccess> DataAccesses { get; set; }
         void Include(IDataObjectAccess dataAccess);
         void Include(string fileName);
@@ -39,6 +40,10 @@ namespace Gears.Interpreter.Data
     {
         public static object EntityWasNotFoundNullObject = null;
 
+        public DataContext(): this(new List<IDataObjectAccess>())
+        {
+        }
+
         public DataContext(params IDataObjectAccess[] dataSources)
         {
             DataAccesses = dataSources.ToList();
@@ -47,28 +52,6 @@ namespace Gears.Interpreter.Data
         public DataContext(IEnumerable<IDataObjectAccess> dataSources)
         {
             DataAccesses = dataSources.ToList();
-        }
-
-        public IEnumerable<LazyObject> GetAllLazy<T>()
-        {
-            var all = GetAll();
-
-            var returnValue = new List<LazyObject>();
-
-            foreach (var obj in all)
-            {
-                var lazyObject = obj as LazyObject;
-                if (lazyObject != null && typeof(T).IsAssignableFrom(lazyObject.Type))
-                {
-                    returnValue.Add(lazyObject);
-                }
-                else if(obj is T)
-                {
-                    returnValue.Add(new LazyObject(obj));
-                }
-            }
-
-            return returnValue;
         }
 
         public List<IDataObjectAccess> DataAccesses { get; set; }
@@ -86,7 +69,7 @@ namespace Gears.Interpreter.Data
 
         public void Include(string fileName)
         {
-            Include(new FileObjectAccess(fileName));
+            Include(new FileObjectAccess(fileName, ServiceLocator.Instance.Resolve<ITypeRegistry>()));
         }
 
         public T Get<T>() where T : class

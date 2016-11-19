@@ -12,17 +12,17 @@ namespace Gears.Interpreter.Library
     {
         private readonly string _fileName;
 
-        private readonly List<LazyObject> _keywords;
+        private readonly List<Keyword> _keywords;
 
         public RunScenario(params Keyword[] keywords)
         {
-            _keywords = keywords.Select(x=>new LazyObject(x)).ToList();
+            _keywords = keywords.ToList();
         }
 
         public RunScenario(string fileName)
         {
             _fileName = fileName;
-            _keywords = new List<LazyObject>();
+            _keywords = new List<Keyword>();
 
             if (!ServiceLocator.IsInitialised() || !ServiceLocator.Instance.Kernel.HasComponent(typeof(ITypeRegistry)))
             {
@@ -31,12 +31,12 @@ namespace Gears.Interpreter.Library
 
             if (_fileName != null)
             {
-                _keywords.AddRange(new DataContext(new FileObjectAccess(FileFinder.Find(_fileName))).GetAllLazy<Keyword>());
+                _keywords.AddRange(new DataContext(new FileObjectAccess(FileFinder.Find(_fileName), ServiceLocator.Instance.Resolve<ITypeRegistry>())).GetAll<Keyword>());
             }
         }
 
         public List<Keyword> Keywords {
-            get { return _keywords.Select(x => x.Value as Keyword).ToList(); }
+            get { return _keywords.Select(x => x).ToList(); }
         }
 
         public override object Run()
@@ -48,12 +48,7 @@ namespace Gears.Interpreter.Library
 
             foreach (var keyword in _keywords)
             {
-                var corruptObject = keyword.Value as CorruptObject;
-                if (corruptObject != null)
-                {
-                    throw new ApplicationException(corruptObject.Exception.Message);
-                }
-                var result = (keyword.Value as Keyword).Execute();
+                var result = (keyword).Execute();
 
                 if (result != null && result.Equals(KeywordResultSpecialCases.Skipped))
                 {

@@ -13,6 +13,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
     public interface ICodeStubResolver
     {
         object Resolve(string originalValue);
+        bool CanResolve(object o);
     }
 
     public class CodeStubResolver : ICodeStubResolver
@@ -24,7 +25,19 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
             return CallGetValueMethod(codeStub);
         }
-        
+
+        public bool CanResolve(object obj)
+        {
+            var s = (obj as string);
+
+            if (s == null)
+            {
+                return false;
+            }
+
+            return (s.Contains("{") && s.Contains("}"));
+        }
+
         private Assembly CreateCodeStub(string codeExpression)
         {
             var codeStub = @"

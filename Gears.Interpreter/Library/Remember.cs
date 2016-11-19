@@ -18,41 +18,44 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Xml.Serialization;
-using Gears.Interpreter.Applications.Debugging;
-using Gears.Interpreter.Applications.Debugging.Overlay;
-using Gears.Interpreter.Core.Registrations;
-
 namespace Gears.Interpreter.Library
 {
-    public class Comment : Keyword
+    public class Remember : Keyword
     {
-        public virtual string Text { get; set; }
+        public string Variable { get; set; }
+        public string What { get; set; }
 
-        [Wire]
-        [XmlIgnore]
-        public IOverlay Overlay { get; set; }
-
-        public Comment(string text)
+        public Remember()
         {
-            Text = text;
         }
 
-        public Comment()
+        public Remember(string variable, string what)
         {
+            Variable = variable;
+            What = what;
         }
 
         public override object Run()
         {
-            Console.Out.WriteColoredLine(ConsoleColor.DarkGreen,"\""+Text+ "\"\n");
-
+            Data.Add(new RememberedText(Variable, What));
             return null;
         }
 
         public override string ToString()
         {
-            return $"Comment: {Text}";
+            return $"Remember {What} as variable called '{Variable}'";
+        }
+    }
+
+    public class RememberedText
+    {
+        public string Variable { get; set; }
+        public string What { get; set; }
+
+        public RememberedText(string variable, string what)
+        {
+            Variable = variable;
+            What = what;
         }
     }
 }

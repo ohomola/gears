@@ -57,7 +57,7 @@ namespace Gears.Interpreter.Data.Serialization.JUnit
         {
             testcase testCase = new testcase();
 
-            testCase.name = keyword.Description;
+            testCase.name = keyword.ToString();
 
             if (KeywordStatus.Error.ToString().Equals(keyword.Status))
             {

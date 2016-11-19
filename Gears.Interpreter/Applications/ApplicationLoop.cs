@@ -23,6 +23,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Castle.MicroKernel;
+using Castle.Windsor;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
@@ -73,11 +75,11 @@ namespace Gears.Interpreter.Applications
         private readonly IDataContext _data;
         private readonly IConsoleDebugger _debugger;
 
-        public List<IDataObjectAccess> CreateDataAccesses(string[] args)
+        public List<IDataObjectAccess> CreateDataAccesses(string[] args, WindsorContainer container)
         {
             var accesses =
                 args.Where(x => !x.StartsWith("-"))
-                    .Select(x => new FileObjectAccess(FileFinder.Find(x)))
+                    .Select(x => container.Resolve<FileObjectAccess>(new { path = FileFinder.Find(x)}))
                     .Cast<IDataObjectAccess>()
                     .ToList();
 
@@ -122,10 +124,10 @@ namespace Gears.Interpreter.Applications
                     }
                 }
                 
-                var keywords = _data.GetAllLazy<Keyword>().ToList();
+                var keywords = _data.GetAll<Keyword>().ToList();
 
                 ValidateKeywords(keywords);
-                var isRunningSuite = keywords.Any(x => x.Type == typeof(RunScenario));
+                var isRunningSuite = keywords.Any(x => x is RunScenario);
 
                 for (var index = _debugger.Update(-1, keywords.ToList());
                     index < keywords.Count();
@@ -147,7 +149,7 @@ namespace Gears.Interpreter.Applications
                     {
                         HandleReload(_data);
 
-                        keywords = _data.GetAllLazy<Keyword>().ToList();
+                        keywords = _data.GetAll<Keyword>().ToList();
 
                         if (index >= keywords.ToList().Count)
                         {
@@ -170,13 +172,8 @@ namespace Gears.Interpreter.Applications
                         {
                             RegisterDependencies(_commandLineArguments);
                         }
-
-                        var corruptObject = keyword.Value as CorruptObject;
-                        if (corruptObject != null)
-                        {
-                            throw new ApplicationException(corruptObject.Exception.Message);
-                        }
-                        var result = (keyword.Value as Keyword).Execute();
+                        
+                        var result = (keyword).Execute();
 
                         if (result!= null && result.Equals(KeywordResultSpecialCases.Skipped))
                         {
@@ -198,7 +195,7 @@ namespace Gears.Interpreter.Applications
                     {
                         if (isRunningSuite)
                         {
-                            OnScenarioFinished(new ScenarioFinishedEventArgs((keyword.Value as RunScenario).Keywords.ToList()));
+                            OnScenarioFinished(new ScenarioFinishedEventArgs((keyword as RunScenario).Keywords.ToList()));
                         }
                     }
                 }
@@ -206,12 +203,12 @@ namespace Gears.Interpreter.Applications
                 //TODO : the result should be processed by triage, success/failure evaluation must not be done by reports
                 if (!isRunningSuite)
                 {
-                    OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.Select(x=>x.Value as Keyword).ToList()));
+                    OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
                     Console.WriteLine("\n\t - Keyword scenario ended -\n");
                 }
                 else
                 {
-                    OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.Select(x => x.Value as Keyword).ToList()));
+                    OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
                     Console.WriteLine("\n\t - Keyword scenario ended -\n");
                 }
 
@@ -222,7 +219,7 @@ namespace Gears.Interpreter.Applications
 
                 Bootstrapper.Release();
 
-                if (keywords.Any(x => ((Keyword)x.Value).Status == KeywordStatus.Error.ToString()))
+                if (keywords.Any(x => (x).Status == KeywordStatus.Error.ToString()))
                 {
                     return Program.ScenarioFailureStatusCode;
                 }
@@ -242,25 +239,22 @@ namespace Gears.Interpreter.Applications
 
         private void RegisterDependencies(string[] args)
         {
+            //Bootstrapper.Release();
+
+            //Bootstrapper.Register();
+
+            //var accesses = CreateDataAccesses(args);
+
             Bootstrapper.Release();
 
-            Bootstrapper.PreRegisterForDataAccessCreation();
-
-            var accesses = CreateDataAccesses(args);
-
-            Bootstrapper.Release();
-
-            Bootstrapper.RegisterForRuntime(accesses);
+            Bootstrapper.Register(args);
         }
 
-        private void ValidateKeywords(List<LazyObject> keywords)
+        private void ValidateKeywords(List<Keyword> keywords)
         {
-            if (keywords.Any(x=>x.Type == typeof(RunScenario)))
+            if (keywords.Any(x=>x is RunScenario) && !keywords.All(x => x is RunScenario))
             {
-                if (keywords.Any(x => x.Type != typeof(RunScenario)))
-                {
-                    throw new ApplicationException("Scenario cannot contain RunScenario steps as well as basic Keywords.");
-                }
+                throw new ApplicationException("Scenario cannot contain RunScenario steps as well as basic Keywords.");
             }
         }
 

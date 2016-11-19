@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -40,63 +41,60 @@ namespace Gears.Interpreter.Applications
 {
     public class Bootstrapper
     {
-
         private static WindsorContainer _container;
         private static SeleniumAdapter _seleniumAdapter;
 
-        public static void RegisterForRuntime(IEnumerable<IDataObjectAccess> dataSources)
+        public static void Register(IEnumerable<IDataObjectAccess> accesses)
+        {
+            Register();
+            var i = 0;
+            foreach (var ds in accesses)
+            {
+                _container.Register(Component.For<IDataObjectAccess>().Instance(ds).Named(ds.ToString() + i++).LifestyleSingleton());
+            }
+        }
+
+        public static void Register(string[] args)
+        {
+            Register();
+
+            var i = 0;
+            foreach (var argument in args.Where(x => !x.StartsWith("-")))
+            {
+                i++;
+                _container.Register(
+                    Component.For<IDataObjectAccess>()
+                    .ImplementedBy<FileObjectAccess>()
+                    .DependsOn(Dependency.OnValue("path", argument))
+                    .Named(argument + i++)
+                    .LifestyleTransient());
+            }
+
+            var switchArguments = args.Where(x => x.StartsWith("-")).ToArray();
+            _container.Register(Component.For<ISwitchesAsObjectAccessProvider>().ImplementedBy<SwitchesAsObjectAccessProvider>().LifestyleSingleton());
+            _container.Register(Component.For<IDataObjectAccess>().Named("SwitchesDataAccess").UsingFactory((ISwitchesAsObjectAccessProvider f)=>f.Create(switchArguments)));
+        }
+
+        public static void Register()
         {
             _container = new WindsorContainer();
 
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel));
 
             _container.Register(Component.For<ICodeStubResolver>().ImplementedBy<CodeStubResolver>().LifestyleSingleton());
-            _container.Register(Component.For<ILazyValueResolver>().ImplementedBy<LazyValueResolver>().LifestyleSingleton());
+            _container.Register(Component.For<IRememberedDataResolver>().ImplementedBy<RememberedDataResolver>().LifestyleSingleton());
+            _container.Register(Component.For<ILazyExpressionResolver>().ImplementedBy<LazyExpressionResolver>().LifestyleSingleton());
             _container.Register(Component.For<IDictionaryToObjectMapper>().ImplementedBy<DictionaryToObjectMapper>().LifestyleSingleton());
-            _container.Register(Component.For<ITypeRegistry>().ImplementedBy<TypeRegistry>().LifestylePerThread());
 
-            ServiceLocator.Initialise(_container);
-
-            var i = 0;
-            foreach (var ds in dataSources)
-            {
-                _container.Register(Component.For<IDataObjectAccess>().Instance(ds).Named(ds.ToString()+ i++).LifestyleSingleton());
-            }
-
-            i = 0;
-
-            //TODO: Resolves TypeRegistry - not cool
-            foreach (var configObject in dataSources.SelectMany(ds=> ds.GetAll<IAutoRegistered>()))
-            {
-                _container.Register(Component.For(configObject.GetType()).Instance(configObject).Named(configObject.ToString() + i++).LifestyleTransient());
-            }
+            _container.Register(Component.For<ITypeRegistry>().ImplementedBy<TypeRegistry>().LifestyleSingleton());
+            _container.Register(Component.For<IDataContext>().ImplementedBy<DataContext>().LifestyleSingleton());
 
             _seleniumAdapter = new SeleniumAdapter();
             _container.Register(Component.For<ISeleniumAdapter>().Instance(_seleniumAdapter));
 
             _container.Register(Component.For<IConsoleDebugger>().ImplementedBy<ConsoleDebugger>().LifestyleSingleton());
-            
-            
-            _container.Register(Component.For<IDataContext>().ImplementedBy<DataContext>().LifestyleSingleton());
+
             _container.Register(Component.For<IOverlay>().ImplementedBy<Overlay>().LifestyleSingleton());
-
-            //_container.Resolve<IOverlay>().Graphics.Clear(Color.FromArgb(0,0,0,0));
-            //_container.Resolve<IOverlay>().Graphics.FillRectangle(new SolidBrush(Color.FromArgb(24, 255, 0, 0)), 100,100,200,200);
-
-            ServiceLocator.Initialise(_container);
-        }
-
-        public static void PreRegisterForDataAccessCreation()
-        {
-            _container = new WindsorContainer();
-
-            _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel));
-
-            _container.Register(Component.For<ICodeStubResolver>().ImplementedBy<CodeStubResolver>().LifestyleSingleton());
-            _container.Register(Component.For<ILazyValueResolver>().ImplementedBy<LazyValueResolver>().LifestyleSingleton());
-            _container.Register(Component.For<IDictionaryToObjectMapper>().ImplementedBy<DictionaryToObjectMapper>().LifestyleSingleton());
-
-            _container.Register(Component.For<ITypeRegistry>().ImplementedBy<TypeRegistry>().LifestyleSingleton());
 
             ServiceLocator.Initialise(_container);
         }

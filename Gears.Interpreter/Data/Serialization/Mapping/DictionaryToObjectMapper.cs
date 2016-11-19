@@ -25,7 +25,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
+using Castle.DynamicProxy;
 using Gears.Interpreter.Data.Core;
+using JetBrains.Annotations;
 
 namespace Gears.Interpreter.Data.Serialization.Mapping
 {
@@ -38,18 +40,21 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
     public class DictionaryToObjectMapper : IDictionaryToObjectMapper
     {
-        private readonly ILazyValueResolver _lazyValueResolver;
+        private readonly ILazyExpressionResolver _lazyExpressionResolver;
 
-        public DictionaryToObjectMapper(ILazyValueResolver lazyValueResolver)
+        public DictionaryToObjectMapper(ILazyExpressionResolver lazyExpressionResolver)
         {
-            _lazyValueResolver = lazyValueResolver;
+            _lazyExpressionResolver = lazyExpressionResolver;
         }
 
         public object CreateObject(Type type, IDictionary<string, object> data)
         {
+            IDictionary<string, object> lazyValues = null;
+
             if (HasToBeLazyEvaulated(data))
             {
-                return new LazyObject(()=>this.LazyCreateObject(type, data), type);
+                RemoveLazyValues(data, out lazyValues, out data);
+                AssertTypeCanBeProxied(type, lazyValues);
             }
 
             try
@@ -64,6 +69,12 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
                 PopulateProperties(objectInstance, properyData);
 
+                if (lazyValues != null)
+                {
+                    objectInstance = _lazyExpressionResolver.ToProxy(type, objectInstance, lazyValues);
+                }
+
+
                 return objectInstance;
             }
             catch (Exception ex)
@@ -72,12 +83,44 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             }
         }
 
+        
+
+        private void AssertTypeCanBeProxied(Type type, IDictionary<string, object> lazyValues)
+        {
+            var properties = type.GetProperties();
+            foreach (var propertyInfo in properties)
+            {
+                if (!propertyInfo.GetMethod.IsVirtual && lazyValues.ContainsKey(propertyInfo.Name.ToLower()))
+                {
+                    throw new ArgumentException($"Property {propertyInfo.Name} of {type.Name} cannot be lazy-evaluated because it is not declared virtual.");
+                }
+            }
+        }
+
+        private void RemoveLazyValues(IDictionary<string, object> data, out IDictionary<string, object> lazyValues,  out IDictionary<string, object> nonLazyValues)
+        {
+            lazyValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            nonLazyValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+
+            foreach (var key in data.Keys)
+            {
+                if (_lazyExpressionResolver.CanResolve(data[key]))
+                {
+                    lazyValues.Add(key, data[key]);
+                }
+                //else
+                //{
+                    nonLazyValues.Add(key, data[key]);
+                //}
+            }
+        }
+
         private object LazyCreateObject(Type type, IDictionary<string, object> data)
         {
             var newData = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
             foreach (var key in data.Keys)
             {
-                var resolvedValue = _lazyValueResolver.Resolve(data[key]);
+                var resolvedValue = _lazyExpressionResolver.Resolve(data[key]);
                 newData.Add(key, resolvedValue);
             }
 
@@ -86,7 +129,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
         private bool HasToBeLazyEvaulated(IDictionary<string, object> data)
         {
-            return data.Values.Any(x => _lazyValueResolver.CanResolve(x));
+            return data.Values.Any(x => _lazyExpressionResolver.CanResolve(x));
         }
 
         private List<object> MapValues(IDictionary<string, object> data, ParameterInfo[] parameterInfos)
@@ -163,6 +206,12 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             }
             catch (Exception e)
             {
+                // Expression values don't have to match
+                if (_lazyExpressionResolver.CanResolve(value))
+                {
+                    return null;
+                }
+
                 throw new Exception($"Cannot convert value '{value}' to destination type '{targetType.Name}'", e);
             }
         }
