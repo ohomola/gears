@@ -19,23 +19,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 
+using System;
+
 namespace Gears.Interpreter.Library
 {
     public class Generate
     {
-        public static string Word()
+        public static string Word(int length = 3, string alphabet = "abcdefghijklmnopqrst")
         {
             var random = new System.Random();
 
             string result = null;
-            var alphabet = "abcdefghijklmnopqrst";
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < length; i++)
             {
                 result = result + alphabet[random.Next(alphabet.Length)];
             }
 
             return result;
+        }
+
+        public static int Number(int maxInclusive)
+        {
+            return Number(0, maxInclusive);
+        }
+
+        public static int Number(int minInclusive, int maxInclusive)
+        {
+            return new Random().Next(maxInclusive - minInclusive)+minInclusive;
         }
     }
 }

@@ -21,13 +21,13 @@ namespace Gears.Interpreter.Tests.Pages
 
         private const string Scenario3CsvContent =
             @"Discriminator,Text
-                Comment,{return ""Hello World"";}
+                Comment,{""Hello World""}
                 ";
 
         private const string Scenario4CsvContent =
                 @"Discriminator,Variable,What,Text
                 Comment,,,[randomVal]
-                Remember,randomVal,{return Generate.Word();},
+                Remember,randomVal,{Generate.Word()},
                 Comment,,,[randomVal]
                 ";
 
@@ -202,7 +202,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldLoadLazyObjects()
         {
-            var codeStub = "{return Generate.Word();}";
+            var codeStub = "{Generate.Word()}";
             var content = $"Discriminator,FruitName\nTree,{codeStub}\n";
             var path = _inputFolder + "\\Scenario3.csv";
             File.WriteAllText(path, content);
@@ -246,7 +246,7 @@ namespace Gears.Interpreter.Tests.Pages
         {
             var content =
                 @"Discriminator,Engine
-                NonVirtualCar,{return new Gears.Interpreter.Tests.Pages.Iteration5Tests.Engine(){Power=5};}
+                NonVirtualCar,{new Gears.Interpreter.Tests.Pages.Iteration5Tests.Engine(){Power=5}}
                 NonVirtualApple,ApplesDontHaveEngines
                 ";
 
@@ -273,7 +273,7 @@ namespace Gears.Interpreter.Tests.Pages
         {
             var content =
                 @"Discriminator,Engine
-                Car,{return new Gears.Interpreter.Tests.Pages.Iteration5Tests.Engine(){Power=5};}
+                Car,{new Gears.Interpreter.Tests.Pages.Iteration5Tests.Engine(){Power=5}}
                 Apple,None
                 ";
 
@@ -331,8 +331,8 @@ namespace Gears.Interpreter.Tests.Pages
         {
             var comment = new Comment("[myVariable1] [myVariable2]");
             RunApplicationLoop(
-                new Remember("myVariable1", "{return \"Hello\";}"),
-                new Remember("myVariable2", "{return \"World\";}"),
+                new Remember("myVariable1", "{\"Hello\"}"),
+                new Remember("myVariable2", "{\"World\"}"),
                 comment
                 );
             Assert.AreEqual("Hello World", comment.Text);
@@ -341,10 +341,10 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRecallRememberedValues2()
         {
-            var comment = new Comment("{return \"[myVariable1]\".ToUpper() + \" \" + \"[myVariable2]\".ToLower();}");
+            var comment = new Comment("{\"[myVariable1]\".ToUpper() + \" \" + \"[myVariable2]\".ToLower()}");
             RunApplicationLoop(
-                new Remember("myVariable1", "{return \"Hello\";}"),
-                new Remember("myVariable2", "{return \"World\";}"),
+                new Remember("myVariable1", "{\"Hello\"}"),
+                new Remember("myVariable2", "{\"World\"}"),
                 comment
                 );
             Assert.AreEqual("HELLO world", comment.Text);
@@ -353,13 +353,13 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRecallRememberedValues3()
         {
-            var click = new Click("1st button [var1][var2] from left") {Skip=true.ToString()};
+            var click = new Click("1st button [var1] [var2] from left") {Skip=true.ToString()};
             RunApplicationLoop(
-                new Remember("var1", "{return \"Hello\";}"),
-                new Remember("var2", "{return \"World\";}"),
+                new Remember("var1", "{\"Hello\"}"),
+                new Remember("var2", "{\"World\"}"),
                 click
                 );
-            Assert.AreEqual("HelloWorld", click.VisibleTextOfTheButton);
+            Assert.AreEqual("Hello World", click.VisibleTextOfTheButton);
         }
 
         public class TestHandler : IApplicationEventHandler
@@ -399,6 +399,18 @@ namespace Gears.Interpreter.Tests.Pages
             }
 
             public string ExpectedUrl { get; set; }
+        }
+
+        [Test]
+        public void ShouldRecallRememberedValues4()
+        {
+            var today= DateTime.Today.ToString("dd MM yyyy");
+            var comment = new Comment("[today]");
+            RunApplicationLoop(
+                new Remember("today", "{DateTime.Today.ToString(\"dd MM yyyy\")}"),
+                comment
+                );
+            Assert.AreEqual(today, comment.Text);
         }
     }
 }

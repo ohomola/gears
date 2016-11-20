@@ -18,7 +18,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
 
         public object Resolve(string originalValue)
         {
-            var codeStub = CreateCodeStub(originalValue);
+            var codeStub = CreateCodeStub(originalValue.Substring(1,originalValue.Length-2));
 
             return CallGetValueMethod(codeStub);
         }
@@ -51,8 +51,9 @@ namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
                         {
                             public object GetValue()
                             {
-                                try{
-                                    {CodeExpression}
+                                try
+                                {
+                                    return {CodeExpression};
                                 }
                                 catch(Exception e)
                                 {
