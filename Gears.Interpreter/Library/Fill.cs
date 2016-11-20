@@ -23,6 +23,7 @@ using System;
 using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Core;
 
 namespace Gears.Interpreter.Library
 {

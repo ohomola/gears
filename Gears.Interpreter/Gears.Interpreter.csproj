@@ -140,11 +140,12 @@
     <Compile Include="Adapters\Interoperability\UserInteropAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerCommand.cs" />
     <Compile Include="Applications\Configuration\IAutoRegistered.cs" />
-    <Compile Include="Applications\SwitchesAsObjectAccessProvider.cs" />
-    <Compile Include="Data\Serialization\Mapping\CodeStubResolver.cs" />
-    <Compile Include="Data\Serialization\Mapping\LazyExpressionResolver.cs" />
+    <Compile Include="Applications\Registrations\DependencyReloader.cs" />
+    <Compile Include="Applications\Registrations\ObjectAccessFactory.cs" />
+    <Compile Include="Data\Serialization\Mapping\LazyResolving\CodeStubResolver.cs" />
+    <Compile Include="Data\Serialization\Mapping\LazyResolving\LazyExpressionResolver.cs" />
     <Compile Include="Data\Serialization\Mapping\DataObjectInterceptor.cs" />
-    <Compile Include="Data\Serialization\Mapping\RememberedDataResolver.cs" />
+    <Compile Include="Data\Serialization\Mapping\LazyResolving\RememberedDataResolver.cs" />
     <Compile Include="Library\Config\DebugMode.cs" />
     <Compile Include="Adapters\SeleniumAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerActionHook.cs" />
@@ -208,7 +209,7 @@
     <Compile Include="Library\WebDriverExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Applications\Bootstrapper.cs" />
+    <Compile Include="Applications\Registrations\Bootstrapper.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebugger.cs" />
     <Compile Include="Library\Keyword.cs" />
     <Compile Include="Applications\ApplicationLoop.cs" />

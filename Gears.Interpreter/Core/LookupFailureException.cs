@@ -1,6 +1,7 @@
 ﻿using System;
+using Gears.Interpreter.Library;
 
-namespace Gears.Interpreter.Library
+namespace Gears.Interpreter.Core
 {
     public class LookupFailureException : ApplicationException
     {

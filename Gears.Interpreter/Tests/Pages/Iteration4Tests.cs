@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 
 namespace Gears.Interpreter.Tests.Pages
 {
@@ -127,7 +120,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldParseInstructionCorrectly9()
         {
-            var instruction = new Instruction("4. login button from left");
+            var instruction = new Instruction("4. button login from left");
             Assert.AreEqual(3, instruction.Order);
             Assert.AreEqual("login", instruction.SubjectName);
             Assert.AreEqual(SubjectType.Button, instruction.SubjectType);
@@ -146,7 +139,19 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual(string.Empty, instruction.Locale);
             Assert.AreEqual("flowers", instruction.With);
         }
-        
+
+        [Test]
+        public void ShouldParseInstructionCorrectly11()
+        {
+            var instruction = new Instruction("1st button 'blah' from bottom with flowers");
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual("blah", instruction.SubjectName);
+            Assert.AreEqual(SubjectType.Button, instruction.SubjectType);
+            Assert.AreEqual(SearchDirection.UpFromBottomEdge, instruction.Direction);
+            Assert.AreEqual(string.Empty, instruction.Locale);
+            Assert.AreEqual("flowers", instruction.With);
+        }
+
 
         [Test]
         public void ShoulClickOnExpectedButtons1()

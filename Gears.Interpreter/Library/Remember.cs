@@ -22,8 +22,8 @@ namespace Gears.Interpreter.Library
 {
     public class Remember : Keyword
     {
-        public string Variable { get; set; }
-        public string What { get; set; }
+        public virtual string Variable { get; set; }
+        public virtual string What { get; set; }
 
         public Remember()
         {
@@ -49,13 +49,22 @@ namespace Gears.Interpreter.Library
 
     public class RememberedText
     {
-        public string Variable { get; set; }
-        public string What { get; set; }
+        public virtual string Variable { get; set; }
+        public virtual string What { get; set; }
 
         public RememberedText(string variable, string what)
         {
             Variable = variable;
             What = what;
+        }
+
+        public RememberedText()
+        {
+        }
+
+        public override string ToString()
+        {
+            return $"Memory text [{Variable}] = '{What}'";
         }
     }
 }

@@ -18,11 +18,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
-using System;
-using System.Linq;
+
 using System.Text.RegularExpressions;
 using Gears.Interpreter.Core.Extensions;
-using Microsoft.Office.Interop.Excel;
 
 namespace Gears.Interpreter.Library
 {

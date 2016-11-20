@@ -19,11 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Serialization.Mapping;
+using Gears.Interpreter.Data.Serialization.Mapping.LazyResolving;
 
 namespace Gears.Interpreter.Core.Extensions
 {
@@ -62,7 +60,7 @@ namespace Gears.Interpreter.Core.Extensions
         {
             if (ServiceLocator.IsInitialised())
             {
-                return ServiceLocator.Instance.Resolve<ILazyExpressionResolver>().ToProxy(typeof(T), obj) as T;
+                return ServiceLocator.Instance.Resolve<ILazyExpressionResolver>().ToProxy(obj.GetType(), obj) as T;
             }
 
             throw new InvalidOperationException("Cannot create lazy evaluated object without registered Lazy Value Resolver");

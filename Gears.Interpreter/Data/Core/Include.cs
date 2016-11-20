@@ -33,8 +33,12 @@ namespace Gears.Interpreter.Data.Core
             FileName = fileName;
         }
 
-        public string FileName { get; set; }
-        public string Description { get; set; }
+        public Include()
+        {
+        }
+
+        public virtual string FileName { get; set; }
+        public virtual string Description { get; set; }
 
         public IEnumerable<object> RecursiveRead(string parentPath)
         {

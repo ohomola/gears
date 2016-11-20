@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Extensions;
 
 namespace Gears.Interpreter.Library
@@ -41,7 +42,7 @@ namespace Gears.Interpreter.Library
         public int Order { get; set; }
         public SubjectType SearchedType { get; set; }
         public List<ITagSelector> SearchedTagNames { get; set; }
-        public string VisibleTextOfTheButton { get; set; }
+        public virtual string VisibleTextOfTheButton { get; set; }
         public SearchDirection Direction { get; set; }
         public string NeighbourToLookFrom { get; set; }
         //TODO parse from instruction
@@ -60,6 +61,10 @@ namespace Gears.Interpreter.Library
         }
 
         #endregion
+
+        public Click()
+        {
+        }
 
         public Click(string what)
         {

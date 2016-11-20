@@ -20,14 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml.Serialization;
-using Castle.DynamicProxy;
 using Gears.Interpreter.Data.Core;
-using JetBrains.Annotations;
+using Gears.Interpreter.Data.Serialization.Mapping.LazyResolving;
 
 namespace Gears.Interpreter.Data.Serialization.Mapping
 {
@@ -73,8 +70,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
                 {
                     objectInstance = _lazyExpressionResolver.ToProxy(type, objectInstance, lazyValues);
                 }
-
-
+                
                 return objectInstance;
             }
             catch (Exception ex)
@@ -113,18 +109,6 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
                     nonLazyValues.Add(key, data[key]);
                 //}
             }
-        }
-
-        private object LazyCreateObject(Type type, IDictionary<string, object> data)
-        {
-            var newData = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
-            foreach (var key in data.Keys)
-            {
-                var resolvedValue = _lazyExpressionResolver.Resolve(data[key]);
-                newData.Add(key, resolvedValue);
-            }
-
-            return CreateObject(type, newData);
         }
 
         private bool HasToBeLazyEvaulated(IDictionary<string, object> data)

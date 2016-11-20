@@ -20,41 +20,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-using Castle.MicroKernel;
-using Castle.Windsor;
 using Gears.Interpreter.Applications.Debugging;
-using Gears.Interpreter.Core.Extensions;
-using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Applications.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
-using Gears.Interpreter.Data.Serialization.Mapping;
 using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Applications
 {
-    public class ApplicationLoop
+    public interface IApplicationLoop
     {
-        public ApplicationLoop(string[] args)
-        {
-            this._commandLineArguments = args;
-            RegisterDependencies(_commandLineArguments);
-            _data = ServiceLocator.Instance.Resolve<IDataContext>();
-            _debugger = ServiceLocator.Instance.Resolve<IConsoleDebugger>();
-        }
+        int Run();
+    }
 
-        public ApplicationLoop(IDataContext data, IConsoleDebugger debugger)
+    public class ApplicationLoop : IApplicationLoop
+    {
+        private readonly IDependencyReloader _reloader;
+        private readonly IDataContext _data;
+        private readonly IConsoleDebugger _debugger;
+
+        public ApplicationLoop(IDependencyReloader reloader, IDataContext data, IConsoleDebugger debugger)
         {
+            _reloader = reloader;
             _data = data;
             _debugger = debugger;
         }
 
-
         #region Events
-
-
 
         public event EventHandler<ScenarioFinishedEventArgs> ScenarioFinished;
 
@@ -71,188 +64,157 @@ namespace Gears.Interpreter.Applications
         }
         #endregion
 
-        private string[] _commandLineArguments = new string[0];
-        private readonly IDataContext _data;
-        private readonly IConsoleDebugger _debugger;
-
-        public List<IDataObjectAccess> CreateDataAccesses(string[] args, WindsorContainer container)
+        public int Run()
         {
-            var accesses =
-                args.Where(x => !x.StartsWith("-"))
-                    .Select(x => container.Resolve<FileObjectAccess>(new { path = FileFinder.Find(x)}))
-                    .Cast<IDataObjectAccess>()
-                    .ToList();
+            // Initialization
+            RegisterEventHandlers(_data.GetAll<IApplicationEventHandler>());
 
-            var arguments = args.Where(x => x.StartsWith("-"));
-            var parameters = new ObjectDataAccess();
-            foreach (var argument in arguments)
+            WriteErrorsForCorruptObjects(_data);
+                
+            var keywords = _data.GetAll<Keyword>().ToList();
+
+            var isRunningSuite = keywords.Any(x => x is RunScenario);
+            ThrowIfRunScenariosAreMixedWithStandardKeywords(isRunningSuite, keywords);
+
+            for (var index = _debugger.Update(-1, keywords.ToList());
+                index < keywords.Count();
+                index = _debugger.Update(index, keywords.ToList()))
             {
-                var dtoTypes = ServiceLocator.Instance.Resolve<ITypeRegistry>().GetDTOTypes();
-                var type =
-                    dtoTypes.FirstOrDefault(registeredType => registeredType.Name.ToLower() == argument.Substring(1).ToLower());
+                // Workflow
+                var shouldContinue =false;
+                var shouldBreak = false;
 
-                if (type == null)
+                ChangeLoopFlowByCommand(_debugger.Command, ref shouldBreak, ref keywords, ref index, ref shouldContinue, _data);
+
+                if (shouldContinue)
+                    continue;
+                if (shouldBreak)
+                    break;
+
+                // Execution
+                try
                 {
-                    throw new ArgumentException($"Argument {argument} is not recognized.");
+                    if (isRunningSuite)
+                        _reloader.Reload();
+
+                    ExecuteKeyword(_debugger.Command.SelectedKeyword);
                 }
-                var instance = Activator.CreateInstance(type);
-                parameters.Add(instance);
+                finally
+                {
+                    if (isRunningSuite)
+                        OnScenarioFinished(new ScenarioFinishedEventArgs(((RunScenario)_debugger.Command.SelectedKeyword).Keywords.ToList()));
+                }
             }
-            accesses.Add(parameters);
-            return accesses;
+
+            // Results
+            //TODO : the result should be processed by triage, success/failure evaluation must not be done by reports
+            WriteResults(isRunningSuite, keywords);
+
+            if (keywords.Any(x => (x).Status == KeywordStatus.Error.ToString()))
+            {
+                return Program.ScenarioFailureStatusCode;
+            }
+
+            return Program.OkStatusCode;
         }
 
+        private void WriteResults(bool isRunningSuite, List<Keyword> keywords)
+        {
+            if (!isRunningSuite)
+            {
+                OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
+                Console.WriteLine("\n\t - Keyword scenario ended -\n");
+            }
+            else
+            {
+                OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
+                Console.WriteLine("\n\t - Keyword scenario ended -\n");
+            }
 
-        //todo: --- remove dependency on consoledebugger - make this class shared for debugging app as well as other entry point applications
-        public int Run()
+            if (_debugger.Config.IsActive)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Green, "Closing application now.");
+            }
+        }
+
+        private void ExecuteKeyword(Keyword keyword)
         {
             try
             {
-                // Initialization
+                var result = keyword.Execute();
 
-                foreach (var handler in _data.GetAll<IApplicationEventHandler>())
+                if (result != null && result.Equals(KeywordResultSpecialCases.Skipped))
                 {
-                    handler.Register(this);
+                    Console.WriteLine("Skipping " + keyword);
                 }
-
-                foreach (var dataObjectAccess in _data.DataAccesses)
-                {
-                    if (dataObjectAccess.GetAll<CorruptObject>().Any())
-                    {
-                        Console.Out.WriteColoredLine(ConsoleColor.Red, $"Corrupt data found in input source:");
-                        Console.Out.WriteColoredLine(ConsoleColor.DarkRed, $"{dataObjectAccess}");
-                    }
-                }
-                
-                var keywords = _data.GetAll<Keyword>().ToList();
-
-                ValidateKeywords(keywords);
-                var isRunningSuite = keywords.Any(x => x is RunScenario);
-
-                for (var index = _debugger.Update(-1, keywords.ToList());
-                    index < keywords.Count();
-                    index = _debugger.Update(index, keywords.ToList()))
-                {
-
-                    // Workflow
-                    if (_debugger.Command.RunStep && _debugger.Command.SelectedKeyword != null)
-                    {
-                        Console.WriteLine("Running " + _debugger.Command.SelectedKeyword.ToString() + "...");
-                    }
-                    
-                    if (_debugger.Command.Break)
-                    {
-                        break;
-                    }
-
-                    if (_debugger.Command.Reload)
-                    {
-                        HandleReload(_data);
-
-                        keywords = _data.GetAll<Keyword>().ToList();
-
-                        if (index >= keywords.ToList().Count)
-                        {
-                            index = -1;
-                        }
-                        continue;
-                    }
-
-                    if (!_debugger.Command.RunStep)
-                    {
-                        continue;
-                    }
-                    
-                    // Execution
-                    var keyword = _debugger.Command.SelectedKeyword;
-
-                    try
-                    {
-                        if (isRunningSuite)
-                        {
-                            RegisterDependencies(_commandLineArguments);
-                        }
-                        
-                        var result = (keyword).Execute();
-
-                        if (result!= null && result.Equals(KeywordResultSpecialCases.Skipped))
-                        {
-                            Console.WriteLine("Skipping " + keyword);
-                        }
-                    }
-                    catch (ApplicationException ae)
-                    {
-                        Console.Out.WriteColoredLine(ConsoleColor.Yellow, "Step Failed");
-                        Console.Out.WriteColoredLine(ConsoleColor.Yellow, ae.Message);
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.Out.WriteColoredLine(ConsoleColor.Red, "Unexpected error");
-                        Console.Out.WriteColoredLine(ConsoleColor.Red, exception.Message);
-                        Console.Out.WriteColoredLine(ConsoleColor.DarkRed, exception.StackTrace);
-                    }
-                    finally
-                    {
-                        if (isRunningSuite)
-                        {
-                            OnScenarioFinished(new ScenarioFinishedEventArgs((keyword as RunScenario).Keywords.ToList()));
-                        }
-                    }
-                }
-
-                //TODO : the result should be processed by triage, success/failure evaluation must not be done by reports
-                if (!isRunningSuite)
-                {
-                    OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
-                    Console.WriteLine("\n\t - Keyword scenario ended -\n");
-                }
-                else
-                {
-                    OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
-                    Console.WriteLine("\n\t - Keyword scenario ended -\n");
-                }
-
-                if (_debugger.Config.IsActive)
-                {
-                    Console.Out.WriteColoredLine(ConsoleColor.Green, "Closing application now.");
-                }
-
-                Bootstrapper.Release();
-
-                if (keywords.Any(x => (x).Status == KeywordStatus.Error.ToString()))
-                {
-                    return Program.ScenarioFailureStatusCode;
-                }
-
-                return Program.OkStatusCode;
             }
-            catch (Exception e)
+            catch (ApplicationException ae)
             {
-                Console.Out.WriteColoredLine(ConsoleColor.Red, e.Message);
-                return Program.CriticalErrorStatusCode;
+                Console.Out.WriteColoredLine(ConsoleColor.Yellow, "Step Failed");
+                Console.Out.WriteColoredLine(ConsoleColor.Yellow, ae.Message);
             }
-            finally
+            catch (Exception exception)
             {
-                Bootstrapper.Release();
+                Console.Out.WriteColoredLine(ConsoleColor.Red, "Unexpected error");
+                Console.Out.WriteColoredLine(ConsoleColor.Red, exception.Message);
+                Console.Out.WriteColoredLine(ConsoleColor.DarkRed, exception.StackTrace);
             }
         }
 
-        private void RegisterDependencies(string[] args)
+        private void ChangeLoopFlowByCommand(ConsoleDebuggerCommand command, ref bool shouldBreak, ref List<Keyword> keywords, ref int index, ref bool shouldContinue, IDataContext dataContext)
         {
-            //Bootstrapper.Release();
+            if (command.RunStep && command.SelectedKeyword != null)
+            {
+                Console.WriteLine("Running " + command.SelectedKeyword.ToString() + "...");
+            }
 
-            //Bootstrapper.Register();
+            if (command.Break)
+            {
+                shouldBreak = true;
+            }
 
-            //var accesses = CreateDataAccesses(args);
+            if (command.Reload)
+            {
+                HandleReload(dataContext);
 
-            Bootstrapper.Release();
+                keywords = dataContext.GetAll<Keyword>().ToList();
 
-            Bootstrapper.Register(args);
+                if (index >= keywords.ToList().Count)
+                {
+                    index = -1;
+                }
+                shouldContinue = true;
+            }
+
+            if (!command.RunStep)
+            {
+                shouldContinue = true;
+            }
         }
 
-        private void ValidateKeywords(List<Keyword> keywords)
+        private void WriteErrorsForCorruptObjects(IDataContext dataContext)
         {
-            if (keywords.Any(x=>x is RunScenario) && !keywords.All(x => x is RunScenario))
+            foreach (var dataObjectAccess in dataContext.DataAccesses)
+            {
+                if (dataObjectAccess.GetAll<CorruptObject>().Any())
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Red, $"Corrupt data found in input source:");
+                    Console.Out.WriteColoredLine(ConsoleColor.DarkRed, $"{dataObjectAccess}");
+                }
+            }
+        }
+
+        private void RegisterEventHandlers(IEnumerable<IApplicationEventHandler> applicationEventHandlers)
+        {
+            foreach (var handler in applicationEventHandlers)
+            {
+                handler.Register(this);
+            }
+        }
+
+        private void ThrowIfRunScenariosAreMixedWithStandardKeywords(bool isRunningSuite, List<Keyword> keywords)
+        {
+            if (isRunningSuite && !keywords.All(x => x is RunScenario))
             {
                 throw new ApplicationException("Scenario cannot contain RunScenario steps as well as basic Keywords.");
             }
@@ -260,18 +222,18 @@ namespace Gears.Interpreter.Applications
 
         private void HandleReload(IDataContext Data)
         {
-            if (Data.GetAll<CorruptObject>().Any())
+            if (!Data.GetAll<CorruptObject>().Any())
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                foreach (var invalidObject in Data.GetAll<CorruptObject>())
-                {
-                    Console.Out.WriteLine();
-                    Console.Out.WriteLine("Invalid object loaded: " + invalidObject.Exception.Message);
-                }
-                Console.ResetColor();
+                return;
             }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            foreach (var invalidObject in Data.GetAll<CorruptObject>())
+            {
+                Console.Out.WriteLine();
+                Console.Out.WriteLine("Invalid object loaded: " + invalidObject.Exception.Message);
+            }
+            Console.ResetColor();
         }
     }
-
-    
 }

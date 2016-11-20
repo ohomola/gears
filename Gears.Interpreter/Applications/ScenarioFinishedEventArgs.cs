@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Gears.Interpreter.Data.Serialization.Mapping;
 using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Applications

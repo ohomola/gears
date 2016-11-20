@@ -25,7 +25,6 @@ using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Serialization.Mapping;
 using Gears.Interpreter.Library;
 using Gears.Interpreter.Library.Config;
 

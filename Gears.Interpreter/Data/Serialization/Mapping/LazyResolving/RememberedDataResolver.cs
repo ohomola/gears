@@ -1,8 +1,9 @@
 using System.Linq;
 using System.Text.RegularExpressions;
+using Gears.Interpreter.Applications.Registrations;
 using Gears.Interpreter.Library;
 
-namespace Gears.Interpreter.Data.Serialization.Mapping
+namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
 {
     public interface IRememberedDataResolver
     {
@@ -12,9 +13,9 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
     public class RememberedDataResolver : IRememberedDataResolver
     {
-        private IDataContext _dataContext;
+        private readonly ILateBoundDataContext _dataContext;
 
-        public RememberedDataResolver(IDataContext dataContext)
+        public RememberedDataResolver(ILateBoundDataContext dataContext)
         {
             _dataContext = dataContext;
         }
@@ -44,7 +45,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
             var variable = variableSubstring.Substring(1, variableSubstring.Length - 2);
 
-            var rememberedTexts = _dataContext.GetAll<RememberedText>().ToList();
+            var rememberedTexts = _dataContext.Value.GetAll<RememberedText>().ToList();
             var data =rememberedTexts.FirstOrDefault(x => x.Variable.ToLower() == variable.ToLower());
 
             if (data != null)

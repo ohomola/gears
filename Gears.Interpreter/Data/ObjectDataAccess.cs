@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Data.Core;
 
 namespace Gears.Interpreter.Data
@@ -32,7 +33,7 @@ namespace Gears.Interpreter.Data
         public ObjectDataAccess(params object[] obj) 
         {
             _buffer = new DataAccessBuffer();
-            _buffer.AddRange(obj.ToList());
+            AddRange(obj.ToList());
         }
 
         public ObjectDataAccess(IEnumerable<object> obj) : this(obj.ToArray())
@@ -66,7 +67,7 @@ namespace Gears.Interpreter.Data
 
         public void Add<T>(T obj) where T : class
         {
-            _buffer.Add(obj);
+            _buffer.Add(obj.AsLazyEvaluated());
         }
 
         public IEnumerable<T> GetAll<T>() where T : class

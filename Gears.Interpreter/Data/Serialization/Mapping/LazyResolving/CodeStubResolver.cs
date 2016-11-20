@@ -1,14 +1,11 @@
 using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.CSharp;
 
-namespace Gears.Interpreter.Data.Serialization.Mapping
+namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
 {
     public interface ICodeStubResolver
     {

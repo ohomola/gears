@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Serialization;
-using Castle.MicroKernel.ModelBuilder.Descriptors;
 using Gears.Interpreter.Applications.Debugging.Overlay;
+using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using OpenQA.Selenium;
 

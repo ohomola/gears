@@ -22,10 +22,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Castle.DynamicProxy;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Data.Serialization;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace Gears.Interpreter.Data
 {
@@ -91,6 +93,11 @@ namespace Gears.Interpreter.Data
 
         public void Add<T>(T obj) where T : class
         {
+            AddRange(new [] {obj});
+        }
+
+        public void AddRange(IEnumerable<object> objects)
+        {
             if (File.Exists(Path))
             {
                 LazyLoadBuffer().Wipe();
@@ -103,10 +110,25 @@ namespace Gears.Interpreter.Data
 
             var existingContent = ReadAllObjects().ToList();
 
-            var newContent = new object[] { obj }.ToList();
+            var newContent = objects.Select(UnwrapProxy).ToList();
             newContent.AddRange(existingContent);
-
             WriteObjects(newContent);
+        }
+
+        internal static TType UnwrapProxy<TType>(TType proxy)
+        {
+            if (!ProxyUtil.IsProxy(proxy))
+                return proxy;
+
+            try
+            {
+                dynamic dynamicProxy = proxy;
+                return dynamicProxy.__target;
+            }
+            catch (RuntimeBinderException)
+            {
+                return proxy;
+            }
         }
 
         public IEnumerable<T> GetAll<T>() where T : class
@@ -134,25 +156,6 @@ namespace Gears.Interpreter.Data
             return true;
         }
         
-        public void AddRange(IEnumerable<object> objects)
-        {
-            if (File.Exists(Path))
-            {
-                LazyLoadBuffer().Wipe();
-            }
-
-            if (!File.Exists(Path))
-            {
-                WriteObjects(Enumerable.Empty<object>());
-            }
-
-            var existingContent = ReadAllObjects().ToList();
-
-            var newContent = objects.ToList();
-            newContent.AddRange(existingContent);
-            WriteObjects(newContent);
-        }
-
         public override string ToString()
         {
             return "File '"+ System.IO.Path.GetFileName(Path) + "'"

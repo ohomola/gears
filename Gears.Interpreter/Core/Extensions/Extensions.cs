@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace Gears.Interpreter.Core.Extensions
 {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Gears.Interpreter.Library
+﻿namespace Gears.Interpreter.Library
 {
     public interface IInstructed
     {

@@ -21,11 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
-using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Data
 {

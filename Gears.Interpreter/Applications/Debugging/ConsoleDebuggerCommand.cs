@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 
-using Gears.Interpreter.Data.Serialization.Mapping;
 using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Applications.Debugging

@@ -20,22 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Xml.Serialization;
 using Gears.Interpreter.Adapters;
-using Gears.Interpreter.Adapters.Interoperability;
-using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Applications.Debugging.Overlay;
-using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Data.Core;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Support.Extensions;
 
 namespace Gears.Interpreter.Library
 {

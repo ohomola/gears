@@ -19,17 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
-using Gears.Interpreter.Applications.Debugging.Overlay;
+using Gears.Interpreter.Applications.Registrations;
 using Gears.Interpreter.Core.Extensions;
-using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Core;
 
 namespace Gears.Interpreter
 {
@@ -50,17 +43,23 @@ namespace Gears.Interpreter
 
             try
             {
-                var applicationLoop = new ApplicationLoop(args);
+                Bootstrapper.Register(args);
+
+                var applicationLoop = Bootstrapper.Resolve();
+
                 return applicationLoop.Run();
             }
             catch (Exception e)
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Red, "Error running application: " + e.GetAllMessages());
+
                 return CriticalErrorStatusCode;
             }
+            finally
+            {
+                Bootstrapper.Release();
+            }
         }
-
-        
     }
 
     internal class TestCaseDefinition

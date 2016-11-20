@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Xml.Serialization;
-using Gears.Interpreter.Core.Registrations;
 
 namespace Gears.Interpreter.Core
 {
@@ -36,14 +35,14 @@ namespace Gears.Interpreter.Core
         {
             Guid = Guid.NewGuid();
 
-            if (ServiceLocator.IsInitialised())
-            {
-                ServiceLocator.Instance.Resolve(this);
-            }
+            //if (ServiceLocator.IsInitialised())
+            //{
+            //    ServiceLocator.Instance.Resolve(this);
+            //}
         }
 
         [XmlIgnore]
-        public Guid Guid { get; set; }
+        public virtual Guid Guid { get; set; }
         
         public abstract object Run();
 

@@ -29,6 +29,7 @@ namespace Gears.Interpreter.Core.Registrations
     {
         public static T Resolve<T>(this WindsorContainer container, T existingInstance)
         {
+            //var propertyInfos = existingInstance.GetType().GetProperties();
             var propertyInfos = existingInstance.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             var fieldInfos = existingInstance.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 

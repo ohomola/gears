@@ -19,18 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml.Serialization;
-using Castle.DynamicProxy;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
-using Gears.Interpreter.Data.Serialization.Mapping;
 
 namespace Gears.Interpreter.Library
 {
@@ -48,32 +43,32 @@ namespace Gears.Interpreter.Library
     {
         [XmlIgnore]
         [Wire]
-        public ITypeRegistry TypeRegistry { get; set; }
+        public virtual ITypeRegistry TypeRegistry { get; set; }
 
         [Wire]
         [XmlIgnore]
-        protected IDataContext Data { get; set; }
+        protected virtual IDataContext Data { get; set; }
 
         [Wire]
         [XmlIgnore]
-        public ISeleniumAdapter Selenium { get; set; }
+        public virtual ISeleniumAdapter Selenium { get; set; }
 
         [XmlIgnore]
-        public string Skip { get; set; }
+        public virtual string Skip { get; set; }
 
-        public string Status { get; set; }
+        public virtual string Status { get; set; }
         
-        public string StatusDetail { get; set; }
+        public virtual string StatusDetail { get; set; }
 
-        public object Result { get; set; }
+        public virtual object Result { get; set; }
 
-        public object Expect { get; set; }
+        public virtual object Expect { get; set; }
 
         [XmlIgnore]
-        public double Time { get; set; }
+        public virtual double Time { get; set; }
 
 
-        public object Execute()
+        public virtual object Execute()
         {
             try
             {

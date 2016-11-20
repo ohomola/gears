@@ -2,18 +2,22 @@
 {
     public class IsTrue : Keyword
     {
-        private readonly bool _predicate;
+        public bool Predicate { get; }
 
         public IsTrue(bool predicate)
         {
-            this._predicate = predicate;
+            this.Predicate = predicate;
+        }
+
+        public IsTrue()
+        {
         }
 
         public string Message { get; set; }
 
         public override object Run()
         {
-            return _predicate;
+            return Predicate;
         }
 
         public override string ToString()

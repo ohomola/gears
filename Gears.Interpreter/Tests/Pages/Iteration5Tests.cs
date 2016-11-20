@@ -2,22 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
-using Gears.Interpreter.Core.Extensions;
+using Gears.Interpreter.Applications.Registrations;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
-using Gears.Interpreter.Data.Serialization.Mapping;
 using Gears.Interpreter.Library;
 using Gears.Interpreter.Library.Reports;
 using NUnit.Framework;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 
 namespace Gears.Interpreter.Tests.Pages
 {
@@ -25,9 +18,26 @@ namespace Gears.Interpreter.Tests.Pages
     {
         private const string Scenario1CsvContent = "Discriminator,Text\nComment,Blah\n";
         private const string Scenario2CsvContent = "Discriminator,Text\nComment,Bleh\n";
+
         private const string Scenario3CsvContent =
-                @"Discriminator,Text
+            @"Discriminator,Text
                 Comment,{return ""Hello World"";}
+                ";
+
+        private const string Scenario4CsvContent =
+                @"Discriminator,Variable,What,Text
+                Comment,,,[randomVal]
+                Remember,randomVal,{return Generate.Word();},
+                Comment,,,[randomVal]
+                ";
+
+        private const string Scenario5CsvContent =
+                @"Discriminator,Url
+                GoToUrl,http://www.google.com
+                ";
+        private const string Scenario6CsvContent =
+                @"Discriminator,Url
+                GoToUrl,http://www.microsoft.com
                 ";
 
         #region Setup & teardown
@@ -47,6 +57,9 @@ namespace Gears.Interpreter.Tests.Pages
             File.WriteAllText(_inputFolder + "\\Scenario1.csv",Scenario1CsvContent);
             File.WriteAllText(_inputFolder + "\\Scenario2.csv", Scenario2CsvContent);
             File.WriteAllText(_inputFolder + "\\Scenario3.csv", Scenario3CsvContent);
+            File.WriteAllText(_inputFolder + "\\Scenario4.csv", Scenario4CsvContent);
+            File.WriteAllText(_inputFolder + "\\Scenario5.csv", Scenario5CsvContent);
+            File.WriteAllText(_inputFolder + "\\Scenario6.csv", Scenario6CsvContent);
         }
 
         [TearDown]
@@ -56,34 +69,36 @@ namespace Gears.Interpreter.Tests.Pages
         }
         #endregion
 
-        private void TestBase(params object[] parameters)
+        private void RunApplicationLoop(params object[] parameters)
         {
-            var dataAccesses = parameters.Select(x => new ObjectDataAccess(x));
+            Bootstrapper.Register(parameters);
 
-            Bootstrapper.Register(dataAccesses.ToList());
+            var applicationLoop = Bootstrapper.Resolve();
 
-            var applicationLoop = new ApplicationLoop(
-                ServiceLocator.Instance.Resolve<IDataContext>(),
-                ServiceLocator.Instance.Resolve<IConsoleDebugger>());
+            try
+            {
+                _returnCode = applicationLoop.Run();
+            }
+            finally
+            {
+                _actualOutputFiles = _outputFolder.GetFiles();
+                Bootstrapper.Release();
+            }
 
-            _returnCode = applicationLoop.Run();
-
-            _actualOutputFiles = _outputFolder.GetFiles();
-
-            Bootstrapper.Release();
+            
         }
 
         [Test]
         public void ShouldCreateExpectedXmlReports1()
         {
-            TestBase(new JUnitScenarioReport(_outputFolder+"\\test.xml"));
+            RunApplicationLoop(new JUnitScenarioReport(_outputFolder+"\\test.xml"));
             Assert.AreEqual(1, _actualOutputFiles.Length);
         }
 
         [Test]
         public void ShouldCreateExpectedXmlReports2()
         {
-            TestBase(
+            RunApplicationLoop(
                 new JUnitScenarioReport(), 
                 new CsvScenarioReport());
             Assert.AreEqual(2, _actualOutputFiles.Length);
@@ -92,7 +107,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldCreateExpectedXmlReports3()
         {
-            TestBase(
+            RunApplicationLoop(
                 new JUnitScenarioReport(), 
                 new Comment("Blah"),
                 new Comment("TTT"),
@@ -109,17 +124,16 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRunBucket1()
         {
-            Bootstrapper.Register();
-
-            TestBase(
+            RunApplicationLoop(
                 new JUnitScenarioReport(),
                 new RunScenario(_inputFolder + "\\Scenario1.csv"),
                 new RunScenario(_inputFolder + "\\Scenario2.csv")
                 );
             Assert.AreEqual(Program.OkStatusCode, _returnCode);
             Assert.AreEqual(2, _actualOutputFiles.Length);
-            Assert.IsTrue(File.ReadAllText(_actualOutputFiles.First().FullName).Contains("Comment: Blah"), "Should contain first keyword");
-            Assert.IsFalse(File.ReadAllText(_actualOutputFiles.First().FullName).Contains("<skipped />"), "Must not contain 'skipped'");
+            var firstFileContent = File.ReadAllText(_actualOutputFiles.First().FullName);
+            Assert.IsTrue(firstFileContent.Contains("Comment: Blah"), "Should contain first keyword");
+            Assert.IsFalse(firstFileContent.Contains("<skipped />"), "Must not contain 'skipped'");
 
             Assert.IsTrue(File.ReadAllText(_actualOutputFiles.Last().FullName).Contains("Comment: Bleh"), "Should contain second keyword");
             Assert.IsFalse(File.ReadAllText(_actualOutputFiles.Last().FullName).Contains("<skipped />"), "Must not contain 'skipped'");
@@ -128,20 +142,26 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRunBucket2()
         {
-            TestBase(
-                new JUnitScenarioReport(),
-                new Comment("Blah"),
-                new RunScenario(new Comment("Blah")),
-                new RunScenario(new Comment("Bleh"))
-                );
-            Assert.AreEqual(Program.CriticalErrorStatusCode, _returnCode);
+            try
+            {
+                RunApplicationLoop(
+                        new JUnitScenarioReport(),
+                        new Comment("Blah"),
+                        new RunScenario(new Comment("Blah")),
+                        new RunScenario(new Comment("Bleh"))
+                        );
+                Assert.Fail("Application did not throw expected exception");
+            }
+            catch (Exception)
+            {
+            }
             Assert.AreEqual(0, _actualOutputFiles.Length);
         }
 
         [Test]
         public void ShouldRunBucket3()
         {
-            TestBase(
+            RunApplicationLoop(
                 new JUnitScenarioReport(),
                 new RunScenario(new Comment("Scenario1"), new IsTrue(true) { Expect = false, Message = "FailureMessage" }),
                 new RunScenario(new Comment("Scenario2"))
@@ -159,7 +179,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRunBucketWithSuiteReport()
         {
-            TestBase(
+            RunApplicationLoop(
                 new JUnitSuiteReport(),
                 new RunScenario(new Comment("Scenario1"), new IsTrue(true) { Expect = false, Message = "FailureMessage" }),
                 new RunScenario(new Comment("Scenario2"))
@@ -282,8 +302,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRunScenarioWithLazyObjects()
         {
-            Bootstrapper.Register();
-            TestBase(
+            RunApplicationLoop(
                 new CsvScenarioReport(),
                 new RunScenario(_inputFolder + "\\Scenario3.csv")
                 );
@@ -296,8 +315,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRunScenarioWithLazyObjects2()
         {
-            Bootstrapper.Register();
-            TestBase(
+            RunApplicationLoop(
                 new CsvScenarioReport(),
                 new Include(_inputFolder + "\\Scenario3.csv")
                 );
@@ -311,11 +329,10 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRecallRememberedValues1()
         {
-            Bootstrapper.Register(new List<IDataObjectAccess>());
-            var comment = new Comment("[myVariable1] [myVariable2]").AsLazyEvaluated();
-            TestBase(
-                new Remember("myVariable1", "{return \"Hello\";}").AsLazyEvaluated(),
-                new Remember("myVariable2", "{return \"World\";}").AsLazyEvaluated(),
+            var comment = new Comment("[myVariable1] [myVariable2]");
+            RunApplicationLoop(
+                new Remember("myVariable1", "{return \"Hello\";}"),
+                new Remember("myVariable2", "{return \"World\";}"),
                 comment
                 );
             Assert.AreEqual("Hello World", comment.Text);
@@ -324,14 +341,64 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRecallRememberedValues2()
         {
-            Bootstrapper.Register(new List<IDataObjectAccess>());
-            var comment = new Comment("{return \"[myVariable1]\".ToUpper() + \" \" + \"[myVariable2]\".ToLower();}").AsLazyEvaluated();
-            TestBase(
-                new Remember("myVariable1", "{return \"Hello\";}").AsLazyEvaluated(),
-                new Remember("myVariable2", "{return \"World\";}").AsLazyEvaluated(),
+            var comment = new Comment("{return \"[myVariable1]\".ToUpper() + \" \" + \"[myVariable2]\".ToLower();}");
+            RunApplicationLoop(
+                new Remember("myVariable1", "{return \"Hello\";}"),
+                new Remember("myVariable2", "{return \"World\";}"),
                 comment
                 );
             Assert.AreEqual("HELLO world", comment.Text);
+        }
+
+        [Test]
+        public void ShouldRecallRememberedValues3()
+        {
+            var click = new Click("1st button [var1][var2] from left") {Skip=true.ToString()};
+            RunApplicationLoop(
+                new Remember("var1", "{return \"Hello\";}"),
+                new Remember("var2", "{return \"World\";}"),
+                click
+                );
+            Assert.AreEqual("HelloWorld", click.VisibleTextOfTheButton);
+        }
+
+        public class TestHandler : IApplicationEventHandler
+        {
+            public List<Keyword> Keywords { get; set; } = new List<Keyword>();
+            public virtual void Register(ApplicationLoop applicationLoop)
+            {
+                applicationLoop.ScenarioFinished += SaveKeywords;
+            }
+
+            protected virtual void SaveKeywords(object sender, ScenarioFinishedEventArgs e)
+            {
+                Keywords.AddRange(e.Keywords);
+            }
+        }
+
+        [Test]
+        public void ShouldRunScenario()
+        {
+            var testHandler = new TestHandler();
+            RunApplicationLoop(
+                testHandler,
+                new RunScenario(_inputFolder + "\\Scenario4.csv"),
+                new RunScenario(_inputFolder + "\\Scenario4.csv")
+                );
+            Assert.AreEqual("[randomVal]", ((Comment)testHandler.Keywords[0]).Text);
+            Assert.AreNotEqual("[randomVal]", ((Comment)testHandler.Keywords[2]).Text);
+            Assert.AreEqual("[randomVal]", ((Comment)testHandler.Keywords[3]).Text);
+            Assert.AreNotEqual("[randomVal]", ((Comment)testHandler.Keywords[5]).Text);
+        }
+
+        public class IsUrl : Keyword
+        {
+            public override object Run()
+            {
+                return ExpectedUrl == Selenium.WebDriver.Url;
+            }
+
+            public string ExpectedUrl { get; set; }
         }
     }
 }

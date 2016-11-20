@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Castle.DynamicProxy;
-using Gears.Interpreter.Tests.Pages;
 
-namespace Gears.Interpreter.Data.Serialization.Mapping
+namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
 {
     public interface ILazyExpressionResolver
     {
@@ -57,6 +56,10 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             {
                 if (this.CanResolve(propertyInfo.GetValue(objectInstance)))
                 {
+                    if (!propertyInfo.GetMethod.IsVirtual)
+                    {
+                        throw new ArgumentException($"Cannot use expression here. Property {propertyInfo.Name} of {type.Name} is not virtual.");
+                    }
                     lazyValues.Add(propertyInfo.Name, propertyInfo.GetValue(objectInstance));
                 }
             }

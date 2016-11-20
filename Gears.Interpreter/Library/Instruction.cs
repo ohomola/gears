@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Gears.Interpreter.Core.Extensions;
 
@@ -7,7 +6,7 @@ namespace Gears.Interpreter.Library
 {
     public class Instruction
     {
-        private static string QuotedWord = "(\\s+'[^']+'\\s+)";
+        private static string QuotedWord = "(\\s?'[^']+'\\s?)";
         private static string NotPrecedingAnyControlWord = "(?!((with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
         private static string AnythingExceptQuote = "[^']";
         private static string UnquotedWord = $"(({NotPrecedingAnyControlWord}{AnythingExceptQuote})*)";
@@ -34,6 +33,7 @@ namespace Gears.Interpreter.Library
             what = " " + what + " ";
             var regex = new Regex("^"+
                     Optional(CapturingGroup("Order", NumberStrippingOffNthTextSuffix))+
+                    Optional(CapturingGroup("SubjectTagName", $"\\s?{NotPrecedingAnyControlWord}(button)|(link)|(input)|(textfield)|(textarea)\\s?")) +
                     CapturingGroup("Subject") +
                     Optional(
                         CapturingGroup("Direction",
@@ -52,7 +52,7 @@ namespace Gears.Interpreter.Library
                             ))) +
                     Optional(CapturingGroup("Locale")) +
                     Optional(ControlWord("with") + CapturingGroup("Text") )
-                    +"$");
+                    +"$", RegexOptions.IgnoreCase);
 
             var result = regex.Match(what);
 
@@ -68,12 +68,12 @@ namespace Gears.Interpreter.Library
                 Locale = GetCapturedValue(result, "Locale");
                 With = GetCapturedValue(result, "Text");
 
-                var subject = GetCapturedValue(result, "Subject");
-                SubjectName = CutoffTagNamesAndSubjectName(subject, TagNames);
+                SubjectName = GetCapturedValue(result, "Subject");
+                this.SubjectType= MapToSubjectTypeAndAddTagnamesRange(GetCapturedValue(result, "SubjectTagName"), TagNames);
             }
         }
 
-        private string CutoffTagNamesAndSubjectName(string subject, List<ITagSelector> selectors)
+        private SubjectType MapToSubjectTypeAndAddTagnamesRange(string subject, List<ITagSelector> selectors)
         {
             subject = subject.ToLower();
 
@@ -81,27 +81,29 @@ namespace Gears.Interpreter.Library
             {
                 selectors.Add(new TagNameSelector("button"));
                 selectors.Add(new AttributeSelector("type", "button"));
-                this.SubjectType = SubjectType.Button;
+                return SubjectType.Button;
             }
             else if (subject.Contains("link"))
             {
                 selectors.Add(new TagNameSelector("a"));
-                this.SubjectType = SubjectType.Link;
+                return SubjectType.Link;
             }
             else if(subject.Contains("input") || subject.Contains("textfield") || subject.Contains("textarea"))
             {
                 selectors.Add(new TagNameSelector("input"));
                 selectors.Add(new TagNameSelector("textArea"));
-                this.SubjectType = SubjectType.Input;
+                return SubjectType.Input;
             }
 
-            return subject
-                .Replace("button", "")
-                .Replace("link", "")
-                .Replace("input", "")
-                .Replace("textarea", "")
-                .Replace("textfield", "")
-                .Trim();
+            return SubjectType.Any;
+
+            //return subject
+            //    .Replace("button", "")
+            //    .Replace("link", "")
+            //    .Replace("input", "")
+            //    .Replace("textarea", "")
+            //    .Replace("textfield", "")
+            //    .Trim();
         }
 
         private SearchDirection ParseDirection(string direction)

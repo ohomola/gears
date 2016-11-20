@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Castle.DynamicProxy;
+using Gears.Interpreter.Data.Serialization.Mapping.LazyResolving;
 using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Data.Serialization.Mapping
@@ -28,7 +28,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
         private void InterceptExecute(IInvocation invocation)
         {
-            if (!invocation.Method.Name.Contains("Run")&& invocation.Method.Name!="Hydrate")
+            if (!invocation.Method.Name.Contains("Execute")&& invocation.Method.Name!="Hydrate")
             {
                 return;
             }
