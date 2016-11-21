@@ -1,1 +1,1 @@
-..\Gears.Interpreter.exe Test1.xlsx
+..\Gears.Interpreter.exe Test1.xlsx -debugmode -CsvScenarioReport -JUnitScenarioReport

@@ -68,7 +68,7 @@ namespace Gears.Interpreter.Applications.Registrations
                 _container.Register(
                     Component.For<IDataObjectAccess>()
                     .ImplementedBy<FileObjectAccess>()
-                    .DependsOn(Dependency.OnValue("path", argument))
+                    .DependsOn(Dependency.OnValue("path", FileFinder.Find(argument)))
                     .Named(argument + i++)
                     .LifestyleTransient());
             }

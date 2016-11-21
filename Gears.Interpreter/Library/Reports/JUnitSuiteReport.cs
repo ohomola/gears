@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Configuration;
 using Gears.Interpreter.Applications.Debugging;
@@ -32,6 +33,8 @@ namespace Gears.Interpreter.Library.Reports
         private void CreateNewFile(object sender, ScenarioFinishedEventArgs e)
         {
             var path = string.Format(_path, DateTime.Now.ToString("s").Replace(":", "_") + "_"+ ++_filesCreated);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(_path));
 
             Console.Out.WriteColoredLine(ConsoleColor.Gray, $"JUnit Suite Report  was saved to file \'{path}\'.");
 

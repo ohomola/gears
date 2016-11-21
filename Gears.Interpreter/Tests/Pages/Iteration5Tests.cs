@@ -187,9 +187,7 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual(Program.ScenarioFailureStatusCode, _returnCode);
             Assert.AreEqual(1, _actualOutputFiles.Length);
             var fileContent = File.ReadAllText(_actualOutputFiles.First().FullName);
-            Assert.IsTrue(fileContent.Contains("Comment: Scenario1"));
-            Assert.IsTrue(fileContent.Contains("FailureMessage"));
-            Assert.IsTrue(fileContent.Contains("Comment: Scenario2"));
+            Assert.IsTrue(fileContent.Contains("Run Scenario"));
         }
 
         #region Lazy evaluation
@@ -411,6 +409,26 @@ namespace Gears.Interpreter.Tests.Pages
                 comment
                 );
             Assert.AreEqual(today, comment.Text);
+        }
+
+        [Test]
+        public void ShouldBeAbleToClickWithoutErrors()
+        {
+            var folder = Directory.CreateDirectory("./Input");
+            File.WriteAllText(folder + "\\Scenario1.csv",
+                "Discriminator, Url, What, Expect\n" +
+                "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n" +
+                "Click,,1st button from right,");
+
+            Bootstrapper.Register(new[] { folder + "/Scenario1.csv" });
+
+            var code = Bootstrapper.Resolve().Run();
+
+            Assert.AreEqual(Program.OkStatusCode, code);
+
+            Bootstrapper.Release();
+
+            Directory.Delete("./Input", true);
         }
     }
 }

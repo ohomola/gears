@@ -27,7 +27,7 @@ namespace Gears.Interpreter.Library
 {
     public class GoToUrl : Keyword
     {
-        public string Url { get; }
+        public virtual string Url { get; set;  }
 
         [Wire]
         [XmlIgnore]
@@ -36,6 +36,10 @@ namespace Gears.Interpreter.Library
         public GoToUrl(string url)
         {
             Url = url;
+        }
+
+        public GoToUrl()
+        {
         }
 
         public static string CombineUrl(string baseUrl, string relativeUrl)

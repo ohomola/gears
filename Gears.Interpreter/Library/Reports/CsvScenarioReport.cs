@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Configuration;
 using Gears.Interpreter.Applications.Debugging;
@@ -32,6 +33,8 @@ namespace Gears.Interpreter.Library.Reports
         private void WriteLog(object sender, ScenarioFinishedEventArgs e)
         {
             var path = string.Format(_path, DateTime.Now.ToString("s").Replace(":", "_") + _filesCreated++);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(_path));
 
             Console.Out.WriteColoredLine(ConsoleColor.Gray, $"CSV Scenario Report  was saved to file \'{path}\'.");
 

@@ -138,14 +138,26 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
             foreach (var propertyInfo in properties)
             {
-                if (data.ContainsKey(propertyInfo.Name)
-                    && data[propertyInfo.Name]!=null
-                    && propertyInfo.CanWrite)
+                if (CanSetProperty(data, propertyInfo))
                 {
                     var value = Convert(propertyInfo.PropertyType, data[propertyInfo.Name]);
                     propertyInfo.SetValue(@object, value, null);
                 }
             }
+        }
+
+        private static bool CanSetProperty(IDictionary<string, object> data, PropertyInfo propertyInfo)
+        {
+            if (!data.ContainsKey(propertyInfo.Name))
+                return false;
+
+            if (data[propertyInfo.Name] == null)
+                return false;
+
+            if (data[propertyInfo.Name] as string == string.Empty)
+                return false;
+
+            return propertyInfo.CanWrite;
         }
 
         private ConstructorInfo GetMatchingConstructor(Type type, IDictionary<string, object> data)

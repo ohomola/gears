@@ -235,6 +235,12 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Scenarios\Suite1.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scenarios\Suite1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scenarios\Test1.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -267,7 +273,9 @@
     <Content Include="Tests\Pages\Iteration3TestPage.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Scenarios\junit.bat" />
+    <Content Include="Scenarios\junit.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tests\Pages\Iteration2TestPage.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

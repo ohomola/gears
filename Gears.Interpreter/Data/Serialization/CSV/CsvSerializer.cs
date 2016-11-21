@@ -99,7 +99,6 @@ namespace Gears.Interpreter.Data.Serialization.CSV
 
         private void WriteData(DataTable serializedData)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(_path));
             var fileStream = new FileStream(_path, FileMode.Create);
             var textWriter = new StreamWriter(fileStream, Encoding.GetEncoding(1250));
 

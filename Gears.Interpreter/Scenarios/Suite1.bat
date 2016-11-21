@@ -1,0 +1,1 @@
+..\Gears.Interpreter.exe Suite1.csv -DebugMode -JUnitSuiteReport

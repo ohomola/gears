@@ -44,6 +44,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
                     using System.Dynamic;
                     using System.Linq;
                     using Gears.Interpreter.Library;
+                    using Gears.Interpreter.Data.Core;
   
                     namespace Gears.Interpreter.Data.Serialization.Mapping
                     {
