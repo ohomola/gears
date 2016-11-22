@@ -146,6 +146,11 @@ namespace Gears.Interpreter.Data
             return LazyLoadBuffer().GetAll();
         }
 
+        public void RemoveAll<T>()
+        {
+            throw new NotImplementedException();
+        }
+
         public bool CanAdd<T>() where T : class
         {
             return true;

@@ -9,13 +9,17 @@ namespace Gears.Interpreter.Library
 {
     public class Clear : Keyword
     {
-        public string LabelText { get; set; }
-        public SearchDirection Direction { get; set; }
-        public int Order { get; set; }
+        public virtual string LabelText { get; set; }
+        public virtual SearchDirection Direction { get; set; }
+        public virtual int Order { get; set; }
 
         [Wire]
         [XmlIgnore]
         public IOverlay Overlay { get; set; }
+
+        public Clear()
+        {
+        }
 
         public Clear(string what)
         {

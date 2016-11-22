@@ -39,16 +39,16 @@ namespace Gears.Interpreter.Library
     {
         #region Semantics
 
-        public int Order { get; set; }
-        public SubjectType SearchedType { get; set; }
-        public List<ITagSelector> SearchedTagNames { get; set; }
+        public virtual int Order { get; set; }
+        public virtual SubjectType SearchedType { get; set; }
+        public virtual List<ITagSelector> SearchedTagNames { get; set; }
         public virtual string VisibleTextOfTheButton { get; set; }
-        public SearchDirection Direction { get; set; }
-        public string NeighbourToLookFrom { get; set; }
+        public virtual SearchDirection Direction { get; set; }
+        public virtual string NeighbourToLookFrom { get; set; }
         //TODO parse from instruction
-        public bool LookForOrthogonalNeighboursOnly { get; set; }
+        public virtual bool LookForOrthogonalNeighboursOnly { get; set; }
         //TODO parse from instruction
-        public Technique Technique { get; set; }
+        public virtual Technique Technique { get; set; }
         
         public void MapSyntaxToSemantics(Instruction instruction)
         {

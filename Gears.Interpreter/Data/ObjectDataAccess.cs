@@ -88,7 +88,12 @@ namespace Gears.Interpreter.Data
         {
             return _buffer.GetAll();
         }
-        
+
+        public void RemoveAll<T>()
+        {
+            _buffer.RemoveAll<T>();
+        }
+
         public void AddRange(IEnumerable<object> objects)
         {
             foreach (var o in objects)

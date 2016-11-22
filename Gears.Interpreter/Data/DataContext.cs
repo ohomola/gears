@@ -103,7 +103,7 @@ namespace Gears.Interpreter.Data
                 DataAccesses.Add(new ObjectDataAccess());
             }
 
-            var dataAccess = DataAccesses.First();
+            var dataAccess = DataAccesses.OfType<ObjectDataAccess>().First();
             dataAccess.Add(obj);
         }
 
@@ -128,6 +128,14 @@ namespace Gears.Interpreter.Data
             foreach (IDataObjectAccess da in DataAccesses)
                 foreach (object o in da.GetAll())
                     yield return o;
+        }
+
+        public void RemoveAll<T>()
+        {
+            foreach (var oda in DataAccesses.OfType<ObjectDataAccess>())
+            {
+                oda.RemoveAll<T>();
+            }
         }
 
         public bool Contains(Type t)

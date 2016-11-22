@@ -25,17 +25,26 @@ namespace Gears.Interpreter.Library
 {
     public class Wait : Keyword
     {
+        public Wait()
+        {
+        }
+
         public Wait(int what)
         {
             What = what;
         }
 
-        public int What { get; set; }
+        public virtual int What { get; set; }
 
         public override object Run()
         {
             Thread.Sleep(What);
             return null;
+        }
+
+        public override string ToString()
+        {
+            return $"Wait {What} miliseconds";
         }
     }
 }

@@ -18,6 +18,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
+using System.Linq;
+
 namespace Gears.Interpreter.Library
 {
     public class Remember : Keyword
@@ -37,7 +40,16 @@ namespace Gears.Interpreter.Library
 
         public override object Run()
         {
-            Data.Add(new RememberedText(Variable, What));
+            var existingMemory = Data.GetAll<RememberedText>().FirstOrDefault(x => x.Variable.ToLower() == Variable.ToLower());
+            if (existingMemory != null)
+            {
+                existingMemory.What = What;
+            }
+            else
+            {
+                Data.Add(new RememberedText(Variable, What));
+            }
+
             return null;
         }
 

@@ -277,6 +277,11 @@ namespace Gears.Interpreter.Applications.Debugging
                     }
                     Command.Reload = true;
                     DontDoAnything(index);
+                }),
+                new ConsoleDebuggerActionHook("forget", "forget : deletes all remembered text values", input =>
+                {
+                    Data.RemoveAll<RememberedText>();
+                    DontDoAnything(index);
                 })
             };
             return commands;
@@ -302,6 +307,14 @@ namespace Gears.Interpreter.Applications.Debugging
             }
 
             Console.Out.WriteColoredLine(ConsoleColor.Gray, horizontalLine);
+
+            if (Data.Contains<RememberedText>())
+            {
+                foreach (var rememberedText in Data.GetAll<RememberedText>())
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, rememberedText.ToString());
+                }
+            }
 
             Console.WriteLine("Scenario with "+keywords.Count()+" steps.");
             Console.WriteLine("Selected step is:\t");

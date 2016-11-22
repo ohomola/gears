@@ -31,16 +31,20 @@ namespace Gears.Interpreter.Library
 {
     public class IsVisible : Keyword
     {
-        private Instruction spec;
-        public List<ITagSelector> TagNames { get; set; }
+        private  Instruction spec;
+        public virtual List<ITagSelector> TagNames { get; set; }
 
-        public string SubjectName { get; set; }
+        public virtual string SubjectName { get; set; }
 
-        public string Locale { get; set; }
+        public virtual string Locale { get; set; }
 
-        public SearchDirection Direction { get; set; }
+        public virtual SearchDirection Direction { get; set; }
 
-        public int Order { get; set; }
+        public virtual int Order { get; set; }
+
+        public IsVisible()
+        {
+        }
 
         public IsVisible(string what)
         {

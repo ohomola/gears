@@ -124,5 +124,10 @@ namespace Gears.Interpreter.Data.Core
         {
             return string.Join(",\n", _list);
         }
+
+        public void RemoveAll<T>()
+        {
+            _list.RemoveAll(x => x is T);
+        }
     }
 }

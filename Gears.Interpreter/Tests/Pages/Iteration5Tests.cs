@@ -406,6 +406,7 @@ namespace Gears.Interpreter.Tests.Pages
             var comment = new Comment("[today]");
             RunApplicationLoop(
                 new Remember("today", "{DateTime.Today.ToString(\"dd MM yyyy\")}"),
+                new Remember("today", "{DateTime.Today.ToString(\"dd MM yyyy\")}"),
                 comment
                 );
             Assert.AreEqual(today, comment.Text);

@@ -30,15 +30,15 @@ namespace Gears.Interpreter.Library
     public class Fill : Keyword, IHasTechnique, IInstructed
     {
         #region Semantics
-        public int Order { get; set; }
+        public virtual int Order { get; set; }
 
-        public string Text { get; set; }
+        public virtual string Text { get; set; }
 
-        public string LabelText { get; set; }
+        public virtual string LabelText { get; set; }
 
-        public SearchDirection Direction { get; set; }
+        public virtual SearchDirection Direction { get; set; }
 
-        public Technique Technique { get; set; }
+        public virtual Technique Technique { get; set; }
 
         public void MapSyntaxToSemantics(Instruction instruction)
         {
@@ -56,6 +56,10 @@ namespace Gears.Interpreter.Library
             Order = instruction.Order;
         }  
         #endregion
+
+        public Fill()
+        {
+        }
 
         public Fill(string what)
         {
@@ -133,7 +137,7 @@ namespace Gears.Interpreter.Library
         }
 
         [Obsolete("Backward compatibility")]
-        public bool Javascript
+        public virtual bool Javascript
         {
             get { return Technique == Technique.Javascript; }
             set { Technique = value == true ? Technique.Javascript : Technique.MouseAndKeyboard; }
