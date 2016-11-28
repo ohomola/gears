@@ -37,6 +37,12 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             {
                 var newValue = _lazyExpressionResolver.Resolve(_lazyValues[key]);
                 var propertyInfo = invocation.TargetType.GetProperty(key);
+
+                if (propertyInfo == null)
+                {
+                    throw new ArgumentException($"{invocation.TargetType} does not have {key} property.");
+                }
+
                 var propertyInfoSetMethod = propertyInfo.SetMethod;
                 if (propertyInfo.SetMethod == null)
                 {

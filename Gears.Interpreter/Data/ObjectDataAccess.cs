@@ -26,6 +26,86 @@ using Gears.Interpreter.Data.Core;
 
 namespace Gears.Interpreter.Data
 {
+    public class SharedObjectDataAccess : IDataObjectAccess
+    {
+        public static Lazy<SharedObjectDataAccess> Instance { get; set; } = new Lazy<SharedObjectDataAccess>();
+
+        private readonly DataAccessBuffer _buffer;
+
+        public SharedObjectDataAccess()
+        {
+            _buffer = new DataAccessBuffer();
+        }
+
+        public T Get<T>(int id) where T : class
+        {
+            return _buffer.Get<T>();
+        }
+
+        public T Get<T>() where T : class
+        {
+            return (T)Get(typeof(T));
+        }
+
+        public object Get(Type t)
+        {
+            return _buffer.Get(t);
+        }
+
+        public bool Contains<T>() where T : class
+        {
+            return Contains(typeof(T));
+        }
+
+        public bool Contains(Type t)
+        {
+            return _buffer.Has(t);
+        }
+
+        public void Add<T>(T obj) where T : class
+        {
+            _buffer.Add(obj.AsLazyEvaluated());
+        }
+
+        public IEnumerable<T> GetAll<T>() where T : class
+        {
+            return GetAll(typeof(T)).Cast<T>();
+        }
+
+        public IEnumerable<object> GetAll(Type t)
+        {
+            if (!_buffer.Has(t))
+            {
+                return new List<object>();
+            }
+            return _buffer.GetAll(t);
+        }
+
+        public IEnumerable<object> GetAll()
+        {
+            return _buffer.GetAll();
+        }
+
+        public void RemoveAll<T>()
+        {
+            _buffer.RemoveAll<T>();
+        }
+
+        public void AddRange(IEnumerable<object> objects)
+        {
+            foreach (var o in objects)
+            {
+                Add(o);
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"Buffered data ({(_buffer.Size)} objects) {(_buffer.Size > 0 ? ": \n\t\t   " + string.Join("\n\t\t== ", _buffer.GetAll().Select(x => x.ToString())) : "")}";
+        }
+
+    }
+
     public class ObjectDataAccess : IDataObjectAccess
     {
         private readonly DataAccessBuffer _buffer;

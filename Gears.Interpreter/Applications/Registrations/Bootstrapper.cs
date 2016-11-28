@@ -86,6 +86,8 @@ namespace Gears.Interpreter.Applications.Registrations
 
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel));
 
+            _container.Register(Component.For<IDataObjectAccess>().Named("SharedObjectDataAccess").Instance(SharedObjectDataAccess.Instance.Value).LifestyleSingleton());
+
             _container.Register(Component.For<ICodeStubResolver>().ImplementedBy<CodeStubResolver>().LifestyleSingleton());
             _container.Register(Component.For<IRememberedDataResolver>().ImplementedBy<RememberedDataResolver>().LifestyleSingleton());
             _container.Register(Component.For<ILazyExpressionResolver>().ImplementedBy<LazyExpressionResolver>().LifestyleSingleton());

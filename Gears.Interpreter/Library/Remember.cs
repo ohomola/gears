@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
 using System.Linq;
+using Gears.Interpreter.Data;
 
 namespace Gears.Interpreter.Library
 {
@@ -47,7 +48,7 @@ namespace Gears.Interpreter.Library
             }
             else
             {
-                Data.Add(new RememberedText(Variable, What));
+                Data.DataAccesses.OfType<SharedObjectDataAccess>().First().Add(new RememberedText(Variable, What));
             }
 
             return null;

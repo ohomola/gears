@@ -66,6 +66,8 @@ namespace Gears.Interpreter.Applications
 
         public int Run()
         {
+            SharedObjectDataAccess.Instance = new Lazy<SharedObjectDataAccess>();
+
             // Initialization
             RegisterEventHandlers(_data.GetAll<IApplicationEventHandler>());
 
@@ -103,12 +105,15 @@ namespace Gears.Interpreter.Applications
                 {
                     if (isRunningSuite)
                         OnScenarioFinished(new ScenarioFinishedEventArgs(((RunScenario)_debugger.Command.SelectedKeyword).Keywords.ToList()));
+                    
                 }
             }
 
             // Results
             //TODO : the result should be processed by triage, success/failure evaluation must not be done by reports
             WriteResults(isRunningSuite, keywords);
+
+            SharedObjectDataAccess.Instance = new Lazy<SharedObjectDataAccess>();
 
             if (keywords.Any(x => (x).Status == KeywordStatus.Error.ToString()))
             {

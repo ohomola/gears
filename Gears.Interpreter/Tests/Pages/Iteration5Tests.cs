@@ -39,6 +39,10 @@ namespace Gears.Interpreter.Tests.Pages
                 @"Discriminator,Url
                 GoToUrl,http://www.microsoft.com
                 ";
+        private const string Scenario7CsvContent =
+                @"Discriminator,Text
+                Comment,[randomVal]
+                ";
 
         #region Setup & teardown
         private FileInfo[] _actualOutputFiles;
@@ -60,6 +64,7 @@ namespace Gears.Interpreter.Tests.Pages
             File.WriteAllText(_inputFolder + "\\Scenario4.csv", Scenario4CsvContent);
             File.WriteAllText(_inputFolder + "\\Scenario5.csv", Scenario5CsvContent);
             File.WriteAllText(_inputFolder + "\\Scenario6.csv", Scenario6CsvContent);
+            File.WriteAllText(_inputFolder + "\\Scenario7.csv", Scenario7CsvContent);
         }
 
         [TearDown]
@@ -385,7 +390,7 @@ namespace Gears.Interpreter.Tests.Pages
                 );
             Assert.AreEqual("[randomVal]", ((Comment)testHandler.Keywords[0]).Text);
             Assert.AreNotEqual("[randomVal]", ((Comment)testHandler.Keywords[2]).Text);
-            Assert.AreEqual("[randomVal]", ((Comment)testHandler.Keywords[3]).Text);
+            Assert.AreNotEqual("[randomVal]", ((Comment)testHandler.Keywords[3]).Text);
             Assert.AreNotEqual("[randomVal]", ((Comment)testHandler.Keywords[5]).Text);
         }
 
@@ -430,6 +435,22 @@ namespace Gears.Interpreter.Tests.Pages
             Bootstrapper.Release();
 
             Directory.Delete("./Input", true);
+        }
+
+        [Test]
+        public void ShouldRememberAcrossScenarios()
+        {
+            var testHandler = new TestHandler();
+            RunApplicationLoop(
+                testHandler,
+                new RunScenario(_inputFolder + "\\Scenario4.csv"),
+                new RunScenario(_inputFolder + "\\Scenario7.csv")
+                );
+            Assert.AreEqual("[randomVal]", ((Comment)testHandler.Keywords[0]).Text);
+            Assert.AreNotEqual("[randomVal]", ((Comment)testHandler.Keywords[2]).Text);
+            Assert.IsNotNull(((Comment)testHandler.Keywords[3]).Text);
+            Assert.AreNotEqual("[randomVal]", ((Comment)testHandler.Keywords[3]).Text);
+            Assert.AreEqual(3, ((Comment)testHandler.Keywords[3]).Text.Length);
         }
     }
 }
