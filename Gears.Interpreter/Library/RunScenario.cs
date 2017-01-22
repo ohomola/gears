@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
@@ -11,13 +13,14 @@ namespace Gears.Interpreter.Library
     {
         public virtual string FileName { get; set; }
 
-        public virtual List<Keyword> Keywords { get; set; } = new List<Keyword>();
+        [DoNotWire]
+        public virtual List<IKeyword> Keywords { get; set; } = new List<IKeyword>();
 
         public RunScenario()
         {
         }
 
-        public RunScenario(params Keyword[] keywords)
+        public RunScenario(params IKeyword[] keywords)
         {
             Keywords = keywords.ToList();
         }
@@ -42,7 +45,7 @@ namespace Gears.Interpreter.Library
             }
         }
 
-        public override object Run()
+        public override object DoRun()
         {
             LoadKeywords();
 
@@ -51,16 +54,23 @@ namespace Gears.Interpreter.Library
                 throw new ArgumentException("RunScenario cannot call underlying RunScenario keywords.");
             }
 
-            foreach (var keyword in Keywords)
+            try
             {
-                var result = (keyword).Execute();
-
-                if (result != null && result.Equals(KeywordResultSpecialCases.Skipped))
+                foreach (var keyword in Keywords)
                 {
-                    Console.WriteLine("Skipping " + keyword);
+                    var result = (keyword).Execute();
+
+                    if (result != null && result.Equals(KeywordResultSpecialCases.Skipped))
+                    {
+                        Console.WriteLine("Skipping " + keyword);
+                    }
                 }
             }
-
+            finally
+            {
+                Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Keywords.ToList()));
+            }
+            
             return null;
         }
 

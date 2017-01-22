@@ -19,18 +19,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using Gears.Interpreter.Adapters;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
     public interface IKeyword
     {
+        bool Matches(string textInstruction);
+        IKeyword FromString(string textInstruction);
+        object Execute();
+        string Status { get; set; }
+        object Expect { get; set; }
+        string GetUserDescription();
     }
 
     public enum KeywordResultSpecialCases
@@ -39,8 +49,13 @@ namespace Gears.Interpreter.Library
     }
     
 
-    public abstract class Keyword : Runnable, IKeyword
+    public abstract class Keyword : IKeyword
     {
+        protected Keyword()
+        {
+            Guid = Guid.NewGuid();
+        }
+
         [XmlIgnore]
         [Wire]
         public virtual ITypeRegistry TypeRegistry { get; set; }
@@ -53,11 +68,23 @@ namespace Gears.Interpreter.Library
         [XmlIgnore]
         public virtual ISeleniumAdapter Selenium { get; set; }
 
+        [Wire]
+        [XmlIgnore]
+        public virtual IInterpreter Interpreter { get; set; }
+
         [XmlIgnore]
         public virtual string Skip { get; set; }
 
-        public virtual string Status { get; set; }
-        
+        public virtual string Status { get; set; } = KeywordStatus.NotExecuted.ToString();
+
+
+        public string GetUserDescription()
+        {
+            var attribute = this.GetType().GetCustomAttributes(true).FirstOrDefault(x => x is UserDescriptionAttribute) as UserDescriptionAttribute;
+
+            return attribute?.Description;
+        }
+
         public virtual string StatusDetail { get; set; }
 
         public virtual object Result { get; set; }
@@ -67,6 +94,29 @@ namespace Gears.Interpreter.Library
         [XmlIgnore]
         public virtual double Time { get; set; }
 
+        public virtual bool Matches(string textInstruction)
+        {
+            return textInstruction.ToLower().Trim().StartsWith(this.GetType().Name.ToLower());
+        }
+
+        public virtual IKeyword FromString(string textInstruction)
+        {
+            //return (IKeyword) Activator.CreateInstance(TypeRegistry.GetDTOTypes().First(x=> textInstruction.StartsWith(x.Name.ToLower())));
+            var type = TypeRegistry.GetDTOTypes().First(x => textInstruction.StartsWith(x.Name.ToLower()));
+            return (IKeyword) ServiceLocator.Instance.Resolve(type);
+        }
+
+        public abstract object DoRun();
+
+        public static bool IsLogged(IKeyword keyword)
+        {
+            if (keyword.GetType().GetCustomAttributes(true).Any(x => x is NotLoggedAttribute))
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         public virtual object Execute()
         {
@@ -89,7 +139,7 @@ namespace Gears.Interpreter.Library
 
                 DateTime start = DateTime.Now;
 
-                var result = keyword.Run();
+                var result = keyword.DoRun();
 
                 DateTime end = DateTime.Now;
 
@@ -105,7 +155,8 @@ namespace Gears.Interpreter.Library
 
                 if (keyword.Expect != null && keyword.Result != null)
                 {
-                    Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
+                    keyword.Result = new SuccessAnswer(keyword.Result);
+                    //Console.Out.WriteColoredLine(ConsoleColor.Green, $"Result was {keyword.Result} as expected.");
                 }
 
                 keyword.Time = (end - start).TotalSeconds;
@@ -138,11 +189,36 @@ namespace Gears.Interpreter.Library
 
         public virtual bool IsHydrated { get; set; }
 
+        [XmlIgnore]
+        public virtual Guid Guid { get; }
+
         public virtual void Hydrate()
         {
         }
-    }
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Keyword) obj);
+        }
+
+        protected bool Equals(Keyword other)
+        {
+            return Guid.Equals(other.Guid);
+        }
+
+        public override int GetHashCode()
+        {
+            return Guid.GetHashCode();
+        }
+
+        protected static string ExtractSingleParameterFromTextInstruction(string textInstruction)
+        {
+            return string.Join(" ", textInstruction.Split(' ').Skip(1));
+        }
+    }
     public enum KeywordStatus
     {
         NotExecuted,

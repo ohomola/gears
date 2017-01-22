@@ -143,10 +143,10 @@ namespace Gears.Interpreter.Tests.Pages
                 Selenium = _selenium
             }.Execute();
 
-            var webElement = ((IBufferedElement)new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute()).WebElement;
-            Assert.AreEqual("test1", webElement?.GetAttribute("value"));
-            var element = ((IBufferedElement)new Fill("Hint Text", "test2") { Selenium = _selenium }.Execute()).WebElement;
-            Assert.AreEqual("test2", element?.GetAttribute("value"));
+            var response = new Fill("MultiLine and FloatingLabel", "test1") {Selenium = _selenium}.Execute();
+            Assert.IsInstanceOf<SuccessAnswer>(response);
+            response = new Fill("Hint Text", "test2") { Selenium = _selenium }.Execute();
+            Assert.IsInstanceOf<SuccessAnswer>(response);
         }
 
 
@@ -177,7 +177,7 @@ namespace Gears.Interpreter.Tests.Pages
                 Selenium = _selenium
             }.Execute();
 
-            //new Show("buttons from right") { Selenium = _selenium}.Execute();
+            //new Highlighter("buttons from right") { Selenium = _selenium}.Execute();
 
             new Click("1st button from right") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium }.Execute();
             Assert.AreEqual("pressed", _selenium.WebDriver.FindElement(By.Id("b4")).GetAttribute("innerText"));

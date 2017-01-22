@@ -19,7 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 
+using System;
 using System.Linq;
+using Castle.Facilities.TypedFactory;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
@@ -31,6 +33,7 @@ using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Data.Serialization.Mapping;
 using Gears.Interpreter.Data.Serialization.Mapping.LazyResolving;
+using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Applications.Registrations
 {
@@ -79,12 +82,17 @@ namespace Gears.Interpreter.Applications.Registrations
             _container.Register(Component.For<IDataObjectAccess>().Named("SwitchesDataAccess").UsingFactory((IObjectAccessFactory f)=>f.CreateFromArguments(switchArguments)));
         }
 
-        public static void Register()
+        private static void Register()
         {
             Release();
             _container = new WindsorContainer();
 
+            
             _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel));
+
+            _container.Register(Classes.FromAssemblyContaining<IKeyword>()
+                .BasedOn<Keyword>().WithServiceSelf().WithServiceAllInterfaces());
+
 
             _container.Register(Component.For<IDataObjectAccess>().Named("SharedObjectDataAccess").Instance(SharedObjectDataAccess.Instance.Value).LifestyleSingleton());
 
@@ -101,10 +109,15 @@ namespace Gears.Interpreter.Applications.Registrations
 
             _container.Register(Component.For<IConsoleDebugger>().ImplementedBy<ConsoleDebugger>().LifestyleSingleton());
 
+            _container.Register(Component.For<ILanguage>().ImplementedBy<Language>().LifestyleSingleton());
+
             _container.Register(Component.For<IOverlay>().ImplementedBy<Overlay>().LifestyleSingleton());
             _container.Register(Component.For<ILateBoundDataContext>().ImplementedBy<LateBoundDataContext>().LifestyleSingleton());
 
             _container.Register(Component.For<IApplicationLoop>().ImplementedBy<ApplicationLoop>().LifestyleTransient());
+            _container.Register(Component.For<IInterpreter>().ImplementedBy<Interpreter>().LifestyleSingleton());
+
+            _container.Kernel.AddFacility<TypedFactoryFacility>();
             ServiceLocator.Initialise(_container);
         }
 
@@ -113,10 +126,21 @@ namespace Gears.Interpreter.Applications.Registrations
             return _container.Resolve<IApplicationLoop>();
         }
 
+        public static IInterpreter ResolveInterpreter()
+        {
+            if (_container == null)
+            {
+                throw new InvalidOperationException("Bootstrapper is not registered");
+            }
+
+            return _container.Resolve<IInterpreter>();
+        }
+
         public static void Release()
         {
             _seleniumAdapterInstance?.Dispose();
             _container?.Dispose();
+            _container = null;
             ServiceLocator.Release();
         }
     }

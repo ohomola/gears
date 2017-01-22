@@ -10,6 +10,7 @@ using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 using Gears.Interpreter.Library.Reports;
+using Gears.Interpreter.Library.Workflow;
 using NUnit.Framework;
 
 namespace Gears.Interpreter.Tests.Pages
@@ -78,11 +79,21 @@ namespace Gears.Interpreter.Tests.Pages
         {
             Bootstrapper.Register(parameters);
 
-            var applicationLoop = Bootstrapper.Resolve();
+            var interpreter = Bootstrapper.ResolveInterpreter();
+            
 
+            
             try
             {
-                _returnCode = applicationLoop.Run();
+                _returnCode = (interpreter.RunOnYourOwn() as ResultAnswer).Code;
+                //while (interpreter.IsAlive)
+                //{
+                //    var answer = interpreter.Please(string.Empty);
+                //    if (answer is ResultAnswer)
+                //    {
+                //        _returnCode = ((ResultAnswer) answer).Code;
+                //    }
+                //}
             }
             finally
             {
@@ -107,6 +118,26 @@ namespace Gears.Interpreter.Tests.Pages
                 new JUnitScenarioReport(), 
                 new CsvScenarioReport());
             Assert.AreEqual(2, _actualOutputFiles.Length);
+        }
+
+
+        [Test]
+        public void ShouldCreateExpectedXmlReports4()
+        {
+            RunApplicationLoop(
+                new Comment("Blah"),
+                new JUnitScenarioReport(),
+                new CsvScenarioReport());
+            Assert.AreEqual(2, _actualOutputFiles.Length);
+        }
+
+        [Test]
+        public void ShouldCreateExpectedXmlReports5()
+        {
+            RunApplicationLoop(
+                new Comment("Blah"),
+                new JUnitScenarioReport());
+            Assert.AreEqual(1, _actualOutputFiles.Length);
         }
 
         [Test]
@@ -157,6 +188,10 @@ namespace Gears.Interpreter.Tests.Pages
                         );
                 Assert.Fail("Application did not throw expected exception");
             }
+            catch (AssertionException)
+            {
+                throw;
+            }
             catch (Exception)
             {
             }
@@ -166,16 +201,22 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRunBucket3()
         {
+            var commentWhichShouldNotExecute = new Comment("Scenario1PartNotExecuted");
             RunApplicationLoop(
                 new JUnitScenarioReport(),
-                new RunScenario(new Comment("Scenario1"), new IsTrue(true) { Expect = false, Message = "FailureMessage" }),
-                new RunScenario(new Comment("Scenario2"))
+                new RunScenario(
+                    new Comment("Scenario1"), 
+                    new IsTrue(true) { Expect = false, Message = "FailureMessage" },
+                    commentWhichShouldNotExecute),
+                new RunScenario(
+                    new Comment("Scenario2"))
                 );
             Assert.AreEqual(Program.ScenarioFailureStatusCode, _returnCode);
             Assert.AreEqual(2, _actualOutputFiles.Length);
             var firstFileContent = File.ReadAllText(_actualOutputFiles.First().FullName);
             Assert.IsTrue(firstFileContent.Contains("Comment: Scenario1"));
             Assert.IsTrue(firstFileContent.Contains("FailureMessage"));
+            Assert.AreEqual(KeywordStatus.NotExecuted.ToString(),commentWhichShouldNotExecute.Status);
             var secondFileContent = File.ReadAllText(_actualOutputFiles.Last().FullName);
             Assert.IsTrue(secondFileContent.Contains("Comment: Scenario2"));
             Assert.IsFalse(secondFileContent.Contains("FailureMessage"));
@@ -367,8 +408,8 @@ namespace Gears.Interpreter.Tests.Pages
 
         public class TestHandler : IApplicationEventHandler
         {
-            public List<Keyword> Keywords { get; set; } = new List<Keyword>();
-            public virtual void Register(ApplicationLoop applicationLoop)
+            public List<IKeyword> Keywords { get; set; } = new List<IKeyword>();
+            public virtual void Register(IInterpreter applicationLoop)
             {
                 applicationLoop.ScenarioFinished += SaveKeywords;
             }
@@ -396,7 +437,7 @@ namespace Gears.Interpreter.Tests.Pages
 
         public class IsUrl : Keyword
         {
-            public override object Run()
+            public override object DoRun()
             {
                 return ExpectedUrl == Selenium.WebDriver.Url;
             }
@@ -428,11 +469,14 @@ namespace Gears.Interpreter.Tests.Pages
 
             Bootstrapper.Register(new[] { folder + "/Scenario1.csv" });
 
-            var code = Bootstrapper.Resolve().Run();
-
-            Assert.AreEqual(Program.OkStatusCode, code);
+            var interpreter = Bootstrapper.ResolveInterpreter();
+            interpreter.Please(nameof(Start));
+            var code = interpreter.RunOnYourOwn();
 
             Bootstrapper.Release();
+
+            Assert.IsInstanceOf<ResultAnswer>(code);
+            Assert.AreEqual(Program.OkStatusCode, ((ResultAnswer )code).Code);
 
             Directory.Delete("./Input", true);
         }

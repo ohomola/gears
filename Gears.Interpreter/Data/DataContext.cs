@@ -32,6 +32,7 @@ namespace Gears.Interpreter.Data
         List<IDataObjectAccess> DataAccesses { get; set; }
         void Include(IDataObjectAccess dataAccess);
         void Include(string fileName);
+        void Exclude(IDataObjectAccess dataAccess);
     }
 
     public class DataContext : IDataContext
@@ -58,8 +59,7 @@ namespace Gears.Interpreter.Data
         {
             if (DataAccesses.Contains(dataAccess))
             {
-                Console.Out.WriteLine($"Already included data: \n{dataAccess}\nat{new System.Diagnostics.StackTrace()}");
-                return;
+                throw new ArgumentException($"Already included data: \n{dataAccess}\nat{new System.Diagnostics.StackTrace()}");
             }
 
             DataAccesses.Add(dataAccess);
@@ -68,6 +68,16 @@ namespace Gears.Interpreter.Data
         public void Include(string fileName)
         {
             Include(new FileObjectAccess(fileName, ServiceLocator.Instance.Resolve<ITypeRegistry>()));
+        }
+
+        public void Exclude(IDataObjectAccess dataAccess)
+        {
+            if (!DataAccesses.Contains(dataAccess))
+            {
+                throw new ArgumentException($"Cannot exclude. File is not included: \n{dataAccess}\nat{new System.Diagnostics.StackTrace()}");
+            }
+
+            DataAccesses.Remove(dataAccess);
         }
 
         public T Get<T>() where T : class

@@ -23,15 +23,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Applications.Registrations;
+using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Applications
 {
+    
+
     public interface IApplicationLoop
     {
-        int Run();
+        IApplicationLoop Start();
+
+        List<Keyword> Keywords { get; set; }
     }
 
     public class ApplicationLoop : IApplicationLoop
@@ -39,6 +44,20 @@ namespace Gears.Interpreter.Applications
         private readonly IDependencyReloader _reloader;
         private readonly IDataContext _data;
         private readonly IConsoleDebugger _debugger;
+        private int _index = -1;
+        private const string LastScenarioTempFilePath = "GearsLastScenarioTemp";
+
+        
+
+        public List<Keyword> Keywords { get; set; } = new List<Keyword>();
+
+        public List<Keyword> ExecutionHistory { get; set; } = new List<Keyword>();
+        public bool IsAlive { get; set; }
+
+        private bool IsRunningSuite
+        {
+            get { return Keywords.Any(x => x is RunScenario); }
+        }
 
         public ApplicationLoop(IDependencyReloader reloader, IDataContext data, IConsoleDebugger debugger)
         {
@@ -64,7 +83,48 @@ namespace Gears.Interpreter.Applications
         }
         #endregion
 
-        public int Run()
+        public IAnswer RunOnYourOwn()
+        {
+            while (IsAlive)
+            {
+                Please(()=>string.Empty);
+            }
+
+            return new InformativeAnswer(0);
+        }
+
+        public IAnswer Please(string command)
+        {
+            return Please(() => command);
+        }
+
+        public IAnswer Please(Func<string> input)
+        {
+            _index = _debugger.Update(_index, Keywords.ToList(), input, this);
+
+            // Workflow
+            var shouldContinue = false;
+            var shouldBreak = false;
+
+            ChangeLoopFlowByCommand(_debugger.Command, ref shouldBreak, ref shouldContinue, _data);
+
+            if (shouldBreak)
+            {
+                _index = int.MaxValue;
+                var exitCode = Exit();
+                return new InformativeAnswer(exitCode);
+            }
+
+            if (!shouldContinue)
+            {
+                return null; // Do(_debugger.Command.SelectedKeyword);
+            }
+
+            return null;
+        }
+
+
+        public IApplicationLoop Start()
         {
             SharedObjectDataAccess.Instance = new Lazy<SharedObjectDataAccess>();
 
@@ -72,67 +132,49 @@ namespace Gears.Interpreter.Applications
             RegisterEventHandlers(_data.GetAll<IApplicationEventHandler>());
 
             WriteErrorsForCorruptObjects(_data);
-                
-            var keywords = _data.GetAll<Keyword>().ToList();
 
-            var isRunningSuite = keywords.Any(x => x is RunScenario);
-            ThrowIfRunScenariosAreMixedWithStandardKeywords(isRunningSuite, keywords);
+            Keywords = _data.GetAll<Keyword>().ToList();
 
-            for (var index = _debugger.Update(-1, keywords.ToList());
-                index < keywords.Count();
-                index = _debugger.Update(index, keywords.ToList()))
-            {
-                // Workflow
-                var shouldContinue =false;
-                var shouldBreak = false;
+            ThrowIfRunScenariosAreMixedWithStandardKeywords(IsRunningSuite, Keywords);
 
-                ChangeLoopFlowByCommand(_debugger.Command, ref shouldBreak, ref keywords, ref index, ref shouldContinue, _data);
+            return this;
+        }
 
-                if (shouldContinue)
-                    continue;
-                if (shouldBreak)
-                    break;
-
-                // Execution
-                try
-                {
-                    if (isRunningSuite)
-                        _reloader.Reload();
-
-                    ExecuteKeyword(_debugger.Command.SelectedKeyword);
-                }
-                finally
-                {
-                    if (isRunningSuite)
-                        OnScenarioFinished(new ScenarioFinishedEventArgs(((RunScenario)_debugger.Command.SelectedKeyword).Keywords.ToList()));
-                    
-                }
-            }
-
-            // Results
+        private int Exit()
+        {
             //TODO : the result should be processed by triage, success/failure evaluation must not be done by reports
-            WriteResults(isRunningSuite, keywords);
 
             SharedObjectDataAccess.Instance = new Lazy<SharedObjectDataAccess>();
 
-            if (keywords.Any(x => (x).Status == KeywordStatus.Error.ToString()))
+            if (Keywords.Any(x => (x).Status == KeywordStatus.Error.ToString()))
             {
                 return Program.ScenarioFailureStatusCode;
             }
 
+
             return Program.OkStatusCode;
         }
+
+
+        public static IEnumerable<Keyword> ReadTempFile()
+        {
+            string fileName = System.IO.Path.GetTempPath() + LastScenarioTempFilePath + ".csv";
+
+            var foa = new FileObjectAccess(fileName, ServiceLocator.Instance.Resolve<ITypeRegistry>());
+            return foa.ReadAllObjects().OfType<Keyword>();
+        }
+
 
         private void WriteResults(bool isRunningSuite, List<Keyword> keywords)
         {
             if (!isRunningSuite)
             {
-                OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
+            //    OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
                 Console.WriteLine("\n\t - Keyword scenario ended -\n");
             }
             else
             {
-                OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
+            //    OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
                 Console.WriteLine("\n\t - Keyword scenario ended -\n");
             }
 
@@ -166,7 +208,7 @@ namespace Gears.Interpreter.Applications
             }
         }
 
-        private void ChangeLoopFlowByCommand(ConsoleDebuggerCommand command, ref bool shouldBreak, ref List<Keyword> keywords, ref int index, ref bool shouldContinue, IDataContext dataContext)
+        private void ChangeLoopFlowByCommand(ConsoleDebuggerCommand command, ref bool shouldBreak, ref bool shouldContinue, IDataContext dataContext)
         {
             if (command.RunStep && command.SelectedKeyword != null)
             {
@@ -182,11 +224,11 @@ namespace Gears.Interpreter.Applications
             {
                 HandleReload(dataContext);
 
-                keywords = dataContext.GetAll<Keyword>().ToList();
+                Keywords = dataContext.GetAll<Keyword>().ToList();
 
-                if (index >= keywords.ToList().Count)
+                if (_index >= Keywords.ToList().Count)
                 {
-                    index = -1;
+                    _index = -1;
                 }
                 shouldContinue = true;
             }
@@ -211,10 +253,10 @@ namespace Gears.Interpreter.Applications
 
         private void RegisterEventHandlers(IEnumerable<IApplicationEventHandler> applicationEventHandlers)
         {
-            foreach (var handler in applicationEventHandlers)
-            {
-                handler.Register(this);
-            }
+            //foreach (var handler in applicationEventHandlers)
+            //{
+            //    handler.Register(this);
+            //}
         }
 
         private void ThrowIfRunScenariosAreMixedWithStandardKeywords(bool isRunningSuite, List<Keyword> keywords)
@@ -240,5 +282,6 @@ namespace Gears.Interpreter.Applications
             }
             Console.ResetColor();
         }
+
     }
 }

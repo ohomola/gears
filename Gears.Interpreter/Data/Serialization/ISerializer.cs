@@ -23,7 +23,7 @@ using System.Collections.Generic;
 
 namespace Gears.Interpreter.Data.Serialization
 {
-    internal interface ISerializer : IDisposable
+    public interface ISerializer : IDisposable
     {
         void Serialize(IEnumerable<object> dataObjects);
         IEnumerable<object> Deserialize();

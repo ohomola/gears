@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Core.Registrations;
@@ -32,7 +33,7 @@ namespace Gears.Interpreter.Applications.Debugging
 {
     public interface IConsoleDebugger
     {
-        int Update(int index, List<Keyword> keywords);
+        int Update(int index, List<Keyword> keywords, Func<string> inputFunction, ApplicationLoop loop);
         DebugMode Config { get; set; }
         ConsoleDebuggerCommand Command { get; set; }
     }
@@ -53,7 +54,7 @@ namespace Gears.Interpreter.Applications.Debugging
         }
 
        
-        public int Update(int index, List<Keyword> keywords)
+        public int Update(int index, List<Keyword> keywords, Func<string> inputFunction, ApplicationLoop loop)
         {
             index = index + 1;
 
@@ -75,17 +76,18 @@ namespace Gears.Interpreter.Applications.Debugging
 
             ResetCommand(index, selectedKeyword);
 
-            if (Command.StepThrough == false)
-            {
-                return Command.NextIndex;
-            }
+            //if (Command.StepThrough == false)
+            //{
+            //    return Command.NextIndex;
+            //}
+
             var hooks = GetActionHooks(index, keywords);
             
             OutputStatusText(index, keywords, selectedKeyword, hooks);
 
             try
             {
-                ParseInput(hooks, index, keywords);
+                ParseInput(hooks, index, keywords, inputFunction, loop);
             
                 
                 Console.ResetColor();
@@ -119,9 +121,9 @@ namespace Gears.Interpreter.Applications.Debugging
 
         }
 
-        private void ParseInput(List<ConsoleDebuggerActionHook> commands, int index, List<Keyword> keywords)
+        private void ParseInput(List<ConsoleDebuggerActionHook> commands, int index, List<Keyword> keywords, Func<string> inputFunction, ApplicationLoop loop)
         {
-            var userInput = Console.ReadLine() ?? "";
+            var userInput = inputFunction.Invoke() ?? "";
 
             if (string.IsNullOrEmpty(userInput))
             {
@@ -137,7 +139,7 @@ namespace Gears.Interpreter.Applications.Debugging
             {
                 if (c.Matches(userInput))
                 {
-                    c.Action(userInput);
+                    c.Action(userInput, loop);
                     return;
                 }
             }
@@ -150,7 +152,7 @@ namespace Gears.Interpreter.Applications.Debugging
         {
             var commands = new List<ConsoleDebuggerActionHook>()
             {
-                new ConsoleDebuggerActionHook("click (.+)", "click X: use this to click on element ad-hoc", input =>
+                new ConsoleDebuggerActionHook("click (.+)", "click X: use this to click on element ad-hoc", (input,loop) =>
                 {
                     var arg = ParseArguments(input, 1).First();
                     var click = new Click(arg);
@@ -158,7 +160,15 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = click;
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("isvisible (.+)", "isvisible X: checks visibility of text", input =>
+                new ConsoleDebuggerActionHook("google (.+)", "google X: googles something", (input,loop) =>
+                {
+                    var arg = ParseArguments(input, 1).First();
+                    var goToUrl = new GoToUrl("https://www.google.cz/search?q="+WebUtility.UrlEncode(arg));
+                    ServiceLocator.Instance.Resolve(goToUrl);
+                    Command.SelectedKeyword = goToUrl;
+                    Command.NextIndex = Command.NextIndex-1;
+                }),
+                new ConsoleDebuggerActionHook("isvisible (.+)", "isvisible X: checks visibility of text", (input,loop) =>
                 {
                     var arg = ParseArguments(input, 1).First();
                     var isVisible = new IsVisible(arg) {Expect = true};
@@ -166,7 +176,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = (isVisible);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("fill (.+) (.+)", "fill X Y: use this to fill on element ad-hoc", input =>
+                new ConsoleDebuggerActionHook("fill (.+) (.+)", "fill X Y: use this to fill on element ad-hoc", (input,loop) =>
                 {
                     var args = ParseArguments(input, 2);
                     var fill = new Fill(args.First(), args.Last());
@@ -174,7 +184,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = (fill);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("show", "show : currently selected keyword will not preform any controller action but instead will only highlight the element it owuld normally interact with.", input =>
+                new ConsoleDebuggerActionHook("show", "show : currently selected keyword will not preform any controller action but instead will only highlight the element it owuld normally interact with.", (input,loop) =>
                 {
                     var technique = Command.SelectedKeyword as IHasTechnique;
                     if (technique != null)
@@ -198,7 +208,7 @@ namespace Gears.Interpreter.Applications.Debugging
                         DontDoAnything(index);
                     }
                 }),
-                new ConsoleDebuggerActionHook("show click (.+)", "show click X:  a full-text instruction to display on screen.", input =>
+                new ConsoleDebuggerActionHook("show click (.+)", "show click X:  a full-text instruction to display on screen.", (input,loop) =>
                 {
                     var args = ParseArguments(input, 2);
                     var show = new Click(args.Last()) {Technique = Technique.HighlightOnly};
@@ -206,7 +216,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = (show);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("show fill (.+)", "show fill X:  a full-text instruction to display on screen.", input =>
+                new ConsoleDebuggerActionHook("show fill (.+)", "show fill X:  a full-text instruction to display on screen.", (input,loop) =>
                 {
                     var args = ParseArguments(input, 2);
                     var show = new Fill(args.Last()) {Technique = Technique.HighlightOnly};
@@ -214,7 +224,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = (show);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("goto (.+)", "goto X: use this to click on element ad-hoc", input =>
+                new ConsoleDebuggerActionHook("goto (.+)", "goto X: use this to click on element ad-hoc", (input,loop) =>
                 {
                     var arg = ParseArguments(input, 1).First();
                     var go = new GoToUrl(arg);
@@ -222,54 +232,59 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.SelectedKeyword = (go);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("restart", "restart : go back to the beginning of the test", input =>
+                new ConsoleDebuggerActionHook("restart", "restart : go back to the beginning of the test", (input,loop) =>
                 {
                     Command.NextIndex = -1;
                     Command.RunStep = false;
                 }),
-                new ConsoleDebuggerActionHook("savehtml", "savehtml : save current page source to a new HTML file", input =>
+                new ConsoleDebuggerActionHook("savehtml", "savehtml : save current page source to a new HTML file", (input,loop) =>
                 {
                     var save = new SaveHtml();
                     ServiceLocator.Instance.Resolve(save);
                     Command.SelectedKeyword = (save);
                     Command.NextIndex = Command.NextIndex-1;
                 }),
-                new ConsoleDebuggerActionHook("run ([0-9]*)", "run <N>: runs N steps", input =>
+                new ConsoleDebuggerActionHook("run ([0-9]*)", "run <N>: runs N steps", (input,loop) =>
                 {
                     var args2 = ParseArguments(input, 1);
                     Command.StopOnIndex = Math.Min(allKeywords.Count() - 2, index + 1 + int.Parse(args2.First()));
                     Command.StepThrough = false;
                 }),
-                new ConsoleDebuggerActionHook("run", "run : Run selected step", input => { Command.StepThrough = false; }),
-                new ConsoleDebuggerActionHook("back ([0-9]*)", "back <N>: Return selection N steps back", input =>
+                new ConsoleDebuggerActionHook("run", "run : Run selected step", (input,loop) => { Command.StepThrough = false; }),
+                new ConsoleDebuggerActionHook("back ([0-9]*)", "back <N>: Return selection N steps back", (input,loop) =>
                 {
                     var args3 = ParseArguments(input, 1);
                     Command.NextIndex = Math.Max(-1, index - 1 - int.Parse(args3.First()));
                     Command.RunStep = false;
                 }),
-                new ConsoleDebuggerActionHook("back", "back : Return selection to previous step", input =>
+                new ConsoleDebuggerActionHook("back", "back : Return selection to previous step", (input,loop) =>
                 {
                     Command.NextIndex = Math.Max(-1, index - 2);
                     Command.RunStep = false;
                 }),
-                new ConsoleDebuggerActionHook("skip ([0-9]*)", "skip N : Skips N steps", input =>
+                new ConsoleDebuggerActionHook("skip ([0-9]*)", "skip N : Skips N steps", (input,loop) =>
                 {
                     var args4 = ParseArguments(input, 1);
                     Command.NextIndex = Math.Min(allKeywords.Count() - 2, index - 1 + int.Parse(args4.First()));
                     Command.RunStep = false;
                 }),
-                new ConsoleDebuggerActionHook("skip", "skip : Skips one step", input => { Command.RunStep = false; }),
-                new ConsoleDebuggerActionHook("stop", "stop : Stops the test", input =>
+                new ConsoleDebuggerActionHook("skip", "skip : Skips one step", (input,loop) => { Command.RunStep = false; }),
+                new ConsoleDebuggerActionHook("stop", "stop : Stops the test", (input,loop) =>
                 {
                     Command.Break = true;
                     DontDoAnything(index);
                 }),
-                new ConsoleDebuggerActionHook("eval", "eval : if current keyword has expressions, it evaluates them and shows their result", input =>
+                new ConsoleDebuggerActionHook("eval", "eval : if current keyword has expressions, it evaluates them and shows their result", (input,loop) =>
                 {
                     Command.SelectedKeyword.Hydrate();
                     DontDoAnything(index);
                 }),
-                new ConsoleDebuggerActionHook("reload", "reload : re-reads all input files", input =>
+                new ConsoleDebuggerActionHook("last scenario", "last scenario : loads all keywords executed in the last debugger session", (input,loop) =>
+                {
+                    loop.Keywords=ApplicationLoop.ReadTempFile().ToList();
+                    DontDoAnything(index);
+                }),
+                new ConsoleDebuggerActionHook("reload", "reload : re-reads all input files", (input,loop) =>
                 {
                     foreach (var dataAccess1 in Data.DataAccesses.OfType<FileObjectAccess>())
                     {
@@ -278,7 +293,7 @@ namespace Gears.Interpreter.Applications.Debugging
                     Command.Reload = true;
                     DontDoAnything(index);
                 }),
-                new ConsoleDebuggerActionHook("forget", "forget : deletes all remembered text values", input =>
+                new ConsoleDebuggerActionHook("forget", "forget : deletes all remembered text values", (input,loop) =>
                 {
                     Data.RemoveAll<RememberedText>();
                     DontDoAnything(index);

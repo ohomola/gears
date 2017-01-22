@@ -23,10 +23,13 @@ using System;
 using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core;
+using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
+    [UserDescription("fill <inst> \t-\t fills element via instruction")]
     public class Fill : Keyword, IHasTechnique, IInstructed
     {
         #region Semantics
@@ -71,7 +74,12 @@ namespace Gears.Interpreter.Library
             Text = text;
         }
 
-        public override object Run()
+        public override IKeyword FromString(string textInstruction)
+        {
+            return new Fill(ExtractSingleParameterFromTextInstruction(textInstruction));
+        }
+
+        public override object DoRun()
         {
             var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
 
@@ -85,8 +93,8 @@ namespace Gears.Interpreter.Library
             switch (Technique)
             {
                 case Technique.HighlightOnly:
-                    Show.HighlightElements(Selenium, lookupResult.OtherValidResults);
-                    break;
+                    Highlighter.HighlightElements(Selenium, lookupResult.OtherValidResults);
+                    return new InformativeAnswer("Highlighting complete.");
                 case Technique.Javascript:
                     lookupResult.Result.WebElement.SendKeys(Text);
                     break;
@@ -99,11 +107,10 @@ namespace Gears.Interpreter.Library
                     Thread.Sleep(50);
                     UserInteropAdapter.SendText(handle, Text, screenLocation);
                     Thread.Sleep(50);
-                    UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
                     break;
             }
 
-            return lookupResult.Result;
+            return new SuccessAnswer("Fill successful.");
         }
 
         public override string ToString()

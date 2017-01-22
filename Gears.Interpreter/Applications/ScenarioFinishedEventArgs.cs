@@ -5,9 +5,9 @@ namespace Gears.Interpreter.Applications
 {
     public class ScenarioFinishedEventArgs
     {
-        public List<Keyword> Keywords { get; set; }
+        public List<IKeyword> Keywords { get; set; }
 
-        public ScenarioFinishedEventArgs(List<Keyword> keywords)
+        public ScenarioFinishedEventArgs(List<IKeyword> keywords)
         {
             Keywords = keywords;
         }

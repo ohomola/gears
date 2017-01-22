@@ -140,8 +140,13 @@
     <Compile Include="Adapters\Interoperability\UserInteropAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerCommand.cs" />
     <Compile Include="Applications\Configuration\IAutoRegistered.cs" />
+    <Compile Include="Applications\IAnswer.cs" />
+    <Compile Include="Applications\Interpreter.cs" />
+    <Compile Include="Applications\Iterator.cs" />
+    <Compile Include="Applications\Language.cs" />
     <Compile Include="Applications\Registrations\DependencyReloader.cs" />
     <Compile Include="Applications\Registrations\ObjectAccessFactory.cs" />
+    <Compile Include="ConsoleOutputMapper.cs" />
     <Compile Include="Data\Serialization\Mapping\LazyResolving\CodeStubResolver.cs" />
     <Compile Include="Data\Serialization\Mapping\LazyResolving\LazyExpressionResolver.cs" />
     <Compile Include="Data\Serialization\Mapping\DataObjectInterceptor.cs" />
@@ -163,7 +168,6 @@
     <Compile Include="Core\Extensions\StringExtensions.cs" />
     <Compile Include="Core\Registrations\ServiceLocator.cs" />
     <Compile Include="Core\Registrations\WindsorContainerExtensions.cs" />
-    <Compile Include="Core\Runnable.cs" />
     <Compile Include="Core\SuperEntities\WebSite.cs" />
     <Compile Include="Data\Core\DataAccessBuffer.cs" />
     <Compile Include="Data\Core\Include.cs" />
@@ -185,6 +189,10 @@
     <Compile Include="Library\BufferedElement.cs" />
     <Compile Include="Data\Serialization\SerializerFactory.cs" />
     <Compile Include="Library\Clear.cs" />
+    <Compile Include="Library\Reload.cs" />
+    <Compile Include="Library\Show.cs" />
+    <Compile Include="Library\Workflow\Back.cs" />
+    <Compile Include="Library\Workflow\EndOfScenario.cs" />
     <Compile Include="Library\Enums.cs" />
     <Compile Include="Library\IInstructed.cs" />
     <Compile Include="Library\Instruction.cs" />
@@ -195,7 +203,7 @@
     <Compile Include="Library\Reports\CsvScenarioReport.cs" />
     <Compile Include="Library\Reports\JUnitSuiteReport.cs" />
     <Compile Include="Library\RunScenario.cs" />
-    <Compile Include="Library\Show.cs" />
+    <Compile Include="Library\Highlighter.cs" />
     <Compile Include="Library\TagQuery.cs" />
     <Compile Include="Library\SaveHtml.cs" />
     <Compile Include="Library\StringResolver.cs" />
@@ -207,6 +215,18 @@
     <Compile Include="Library\IsVisible.cs" />
     <Compile Include="Library\Wait.cs" />
     <Compile Include="Library\WebDriverExtensions.cs" />
+    <Compile Include="Library\Workflow\Close.cs" />
+    <Compile Include="Library\Workflow\Eval.cs" />
+    <Compile Include="Library\Workflow\GoTo.cs" />
+    <Compile Include="Library\Workflow\Help.cs" />
+    <Compile Include="Library\Workflow\NotLoggedAttribute.cs" />
+    <Compile Include="Library\Workflow\Open.cs" />
+    <Compile Include="Library\Workflow\LastPlan.cs" />
+    <Compile Include="Library\Workflow\Run.cs" />
+    <Compile Include="Library\Workflow\Skip.cs" />
+    <Compile Include="Library\Workflow\Start.cs" />
+    <Compile Include="Library\Workflow\Status.cs" />
+    <Compile Include="Library\Workflow\Stop.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Applications\Registrations\Bootstrapper.cs" />
@@ -219,12 +239,14 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Library\DoWhatYouWant.cs" />
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />
     <Compile Include="Tests\Pages\Iteration2Tests.cs" />
     <Compile Include="Tests\Pages\Iteration1Tests.cs" />
     <Compile Include="Tests\Pages\Iteration5Tests.cs" />
     <Compile Include="Tests\Pages\Iteration4Tests.cs" />
     <Compile Include="Library\Reports\JUnitScenarioReport.cs" />
+    <Compile Include="Tests\Pages\Iteration6Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

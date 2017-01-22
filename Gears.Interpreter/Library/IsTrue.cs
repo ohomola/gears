@@ -15,7 +15,7 @@
 
         public string Message { get; set; }
 
-        public override object Run()
+        public override object DoRun()
         {
             return Predicate;
         }

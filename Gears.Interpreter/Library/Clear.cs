@@ -37,7 +37,7 @@ namespace Gears.Interpreter.Library
             Order = spec.Order;
         }
 
-        public override object Run()
+        public override object DoRun()
         {
             try
             {

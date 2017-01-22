@@ -20,12 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.IO;
+using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
+    [NotLogged]
+    [UserDescription("savehtml \t-\t  save current page source to a new HTML file")]
     public class SaveHtml:Keyword
     {
-        public override object Run()
+        public override object DoRun()
         {
             var outputFile = string.Format(Properties.Settings.Default.ScenarioOutputPath, DateTime.Now.ToString("s").Replace(":", "_"))+".html";
             using (var fw = new StreamWriter(outputFile))

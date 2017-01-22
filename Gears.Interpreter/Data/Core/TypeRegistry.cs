@@ -46,6 +46,8 @@ namespace Gears.Interpreter.Data.Core
                         .Where(x => x.Namespace != null && x.Namespace.Contains("Library")).ToList();
                 }
 
+                _types.Add(typeof(Include));
+
                 return _types;
             }
         }

@@ -26,10 +26,10 @@ namespace Gears.Interpreter.Applications.Debugging
     public class ConsoleDebuggerActionHook
     {
         public string Description { get; set; }
-        public Action<string> Action { get; set; }
+        public Action<string, ApplicationLoop> Action { get; set; }
         private readonly string _commandRegEx;
 
-        public ConsoleDebuggerActionHook(string commandRegEx, string description, Action<string> action)
+        public ConsoleDebuggerActionHook(string commandRegEx, string description, Action<string, ApplicationLoop> action)
         {
             Description = description;
             Action = action;

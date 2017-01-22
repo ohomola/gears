@@ -16,7 +16,7 @@
     <StartArguments>c:\Solutions\Test1.xlsx</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>.\Scenarios\Test1.xlsx -DebugMode</StartArguments>
+    <StartArguments>-DebugMode</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <StartArguments>

@@ -25,7 +25,7 @@ namespace Gears.Interpreter.Library.Reports
             _path = path;
         }
 
-        public void Register(ApplicationLoop applicationLoop)
+        public void Register(IInterpreter applicationLoop)
         {
             applicationLoop.SuiteFinished += CreateNewFile;
         }

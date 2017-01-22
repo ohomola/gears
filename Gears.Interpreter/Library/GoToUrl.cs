@@ -19,14 +19,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Net;
 using System.Xml.Serialization;
+using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
+    [UserDescription("gotourl <url>\t-\t navigates web browser to specified URL.")]
     public class GoToUrl : Keyword
     {
+        public const string SuccessMessage = "Page loaded.";
         public virtual string Url { get; set;  }
 
         [Wire]
@@ -36,6 +42,13 @@ namespace Gears.Interpreter.Library
         public GoToUrl(string url)
         {
             Url = url;
+        }
+
+        public override IKeyword FromString(string textInstruction)
+        {
+            var param = ExtractSingleParameterFromTextInstruction(textInstruction);
+
+            return new GoToUrl(param);
         }
 
         public GoToUrl()
@@ -51,11 +64,10 @@ namespace Gears.Interpreter.Library
             return combinedUri.AbsoluteUri;
         }
 
-        public override object Run()
+        public override object DoRun()
         {
             Selenium.WebDriver.Navigate().GoToUrl(Url);
-
-            return null;
+            return new SuccessAnswer(SuccessMessage);
         }
 
         public override string ToString()

@@ -36,7 +36,7 @@ namespace Gears.Interpreter.Library
 
         public virtual int What { get; set; }
 
-        public override object Run()
+        public override object DoRun()
         {
             Thread.Sleep(What);
             return null;

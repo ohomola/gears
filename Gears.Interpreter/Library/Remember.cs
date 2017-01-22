@@ -39,7 +39,7 @@ namespace Gears.Interpreter.Library
             What = what;
         }
 
-        public override object Run()
+        public override object DoRun()
         {
             var existingMemory = Data.GetAll<RememberedText>().FirstOrDefault(x => x.Variable.ToLower() == Variable.ToLower());
             if (existingMemory != null)

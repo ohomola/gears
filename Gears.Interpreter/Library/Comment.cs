@@ -43,7 +43,7 @@ namespace Gears.Interpreter.Library
         {
         }
 
-        public override object Run()
+        public override object DoRun()
         {
             Console.Out.WriteColoredLine(ConsoleColor.DarkGreen,"\""+Text+ "\"\n");
 

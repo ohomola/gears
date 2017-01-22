@@ -25,8 +25,10 @@ using System.Linq;
 using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Extensions;
+using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
@@ -35,8 +37,11 @@ namespace Gears.Interpreter.Library
         Technique Technique { get; set; }
     }
 
+    [UserDescription("click <inst>\t-\t clicks a button identified by instruction")]
     public class Click : Keyword, IHasTechnique, IInstructed
     {
+        public const string SuccessMessage = "Click performed.";
+
         #region Semantics
 
         public virtual int Order { get; set; }
@@ -66,12 +71,17 @@ namespace Gears.Interpreter.Library
         {
         }
 
+        public override IKeyword FromString(string textInstruction)
+        {
+            return new Click(ExtractSingleParameterFromTextInstruction(textInstruction));
+        }
+
         public Click(string what)
         {
             MapSyntaxToSemantics(new Instruction(what));
         }
 
-        public override object Run()
+        public override object DoRun()
         {
             var query = new LocationHeuristictSearchStrategy(Selenium);
 
@@ -85,26 +95,25 @@ namespace Gears.Interpreter.Library
             switch (Technique)
             {
                 case Technique.HighlightOnly:
-                    Show.HighlightElements(Selenium, result.OtherValidResults, Order);
-                    break;
+                    Highlighter.HighlightElements(Selenium, result.OtherValidResults, Order);
+                    return new InformativeAnswer("Highlighting complete.");
                 case Technique.Javascript:
                     Selenium.WebDriver.Click(result.Result.WebElement);
                     break;
                 case Technique.MouseAndKeyboard:
                     var screenLocation = Selenium.PutElementOnScreen(result.Result.WebElement);
-                    //Show.HighlightPoints(Selenium, screenLocation);
+                    //Highlighter.HighlightPoints(Selenium, screenLocation);
                     UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
                     Thread.Sleep(50);
-                    UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
                     break;
             }
 
-            return result.Result;
+            return new SuccessAnswer(SuccessMessage);
         }
         
         public override string ToString()
         {
-            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(SubjectType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {NeighbourToLookFrom} {(Direction==default(SearchDirection)?"":Direction.ToString())}";
+            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(SubjectType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":Direction.ToString())} {NeighbourToLookFrom}";
         }
 
         

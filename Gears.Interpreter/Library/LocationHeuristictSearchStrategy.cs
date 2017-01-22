@@ -249,7 +249,7 @@ namespace Gears.Interpreter.Library
                 
                 results.AddRange(bufferedElements);
 
-                //Show.HighlightElements(bufferedElements.Select(x=>x.WebElement), Selenium);
+                //Highlighter.HighlightElements(bufferedElements.Select(x=>x.WebElement), Selenium);
             }
 
             return new LocationHeuristictSearchStrategy(_seleniumAdapter, new ReadOnlyCollection<IWebElement>(results.Select(x => x.WebElement).ToList()));

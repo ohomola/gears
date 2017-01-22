@@ -26,9 +26,12 @@ using System.Linq;
 using System.Windows.Forms;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Applications;
+using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
+    [UserDescription("isvisible <i>\t-\t checks if an element is visible on screen")]
     public class IsVisible : Keyword
     {
         private  Instruction spec;
@@ -56,7 +59,13 @@ namespace Gears.Interpreter.Library
             TagNames = spec.TagNames;
         }
 
-        public override object Run()
+
+        public override IKeyword FromString(string textInstruction)
+        {
+            return new IsVisible(ExtractSingleParameterFromTextInstruction(textInstruction)) {Expect = true};
+        }
+
+        public override object DoRun()
         {
             var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
             var lookupResult = searchStrategy.DirectLookup(TagNames, SubjectName, Locale, Direction, Order, false);
@@ -88,50 +97,50 @@ namespace Gears.Interpreter.Library
                     }
                     else
                     {
-                        //Show.HighlightElements(Selenium, lookupResult.OtherValidResults, index);
+                        //Highlighter.HighlightElements(Selenium, lookupResult.OtherValidResults, index);
                         return true;
                     }
                 }
-                //Show.HighlightElements(Selenium, lookupResult.OtherValidResults);
+                //Highlighter.HighlightElements(Selenium, lookupResult.OtherValidResults);
                 return false;
             }
 
-            throw new NotImplementedException();
+            throw new NotImplementedException($"Checking visibility of nth ({Order}) elements is not implemented.");
         }
 
         
 
-        private bool CheckTextOnly(string what)
-        {
-            var oldClipboard = Clipboard.GetDataObject();
+        //private bool CheckTextOnly(string what)
+        //{
+        //    var oldClipboard = Clipboard.GetDataObject();
 
-            var chromeHandle = Selenium.GetChromeHandle();
-            UserBindings.SetForegroundWindow(chromeHandle);
-            var pointOnScreen = new Point(100,10);
-            UserBindings.ClientToScreen(chromeHandle, ref pointOnScreen);
-            UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), pointOnScreen);
+        //    var chromeHandle = Selenium.GetChromeHandle();
+        //    UserBindings.SetForegroundWindow(chromeHandle);
+        //    var pointOnScreen = new Point(100,10);
+        //    UserBindings.ClientToScreen(chromeHandle, ref pointOnScreen);
+        //    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), pointOnScreen);
 
-            UserInteropAdapter.PressWithControl(chromeHandle, 0x41);
-            UserInteropAdapter.PressWithControl(chromeHandle, 0x43);
+        //    UserInteropAdapter.PressWithControl(chromeHandle, 0x41);
+        //    UserInteropAdapter.PressWithControl(chromeHandle, 0x43);
 
-            UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), pointOnScreen);
+        //    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), pointOnScreen);
 
-            var text = Clipboard.GetText(TextDataFormat.UnicodeText);
-            if (oldClipboard != null)
-            {
-                Clipboard.SetDataObject(oldClipboard);
-            }
-            UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+        //    var text = Clipboard.GetText(TextDataFormat.UnicodeText);
+        //    if (oldClipboard != null)
+        //    {
+        //        Clipboard.SetDataObject(oldClipboard);
+        //    }
+        //    UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
 
-            if (text.ToLower().Contains(what.ToLower()))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        //    if (text.ToLower().Contains(what.ToLower()))
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
 
         public override string ToString()
         {

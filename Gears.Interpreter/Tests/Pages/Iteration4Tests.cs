@@ -156,13 +156,17 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShoulClickOnExpectedButtons1()
         {
-            new GoToUrl($"http://www.material-ui.com/#/components/snackbar")
+            new GoToUrl($"http://www.material-ui.com/#/")
             {
                 Selenium = _selenium
             }.Execute();
 
-            new Click("1st Drawer from top") { Selenium = _selenium }.Execute();
-            
+            new Click("1st button from top") { Selenium = _selenium }.Execute();
+            new Wait(700).Execute();
+            new Click("1st Components from left") { Selenium = _selenium }.Execute();
+            new Wait(700).Execute();
+            new Click("1st Drawer from left") { Selenium = _selenium }.Execute();
+
             try
             {
                 new Click("button Menu Item 2") { Selenium = _selenium }.Execute();
@@ -173,21 +177,10 @@ namespace Gears.Interpreter.Tests.Pages
             }
             new IsVisible("Menu Item 2 left from Examples") { Selenium = _selenium, Expect = false }.Execute();
             new Click("1st Toggle drawer from top") { Selenium = _selenium }.Execute();
-            new Wait(700).Execute();
-            new Click("button Menu Item 2") { Selenium = _selenium }.Execute();
+            new Wait(1200).Execute();
+            new Click("Menu Item 2 from left") { Selenium = _selenium }.Execute();
             new Wait(900).Execute();
-            new IsVisible("Menu Item 2 left from Examples") { Selenium = _selenium, Expect = true }.Execute();
-            new Click("1st Toggle drawer from top") { Selenium = _selenium }.Execute();
-            new Wait(900).Execute();
-            new IsVisible("Menu Item 2 left from Examples") { Selenium = _selenium, Expect = false }.Execute();
 
-            new IsVisible("AppBar right from Examples") { Selenium = _selenium, Expect = false }.Execute();
-            new Click("2nd Toggle drawer from top") { Selenium = _selenium }.Execute();
-            new Wait(900).Execute();
-            new IsVisible("AppBar right from Examples") { Selenium = _selenium, Expect = true }.Execute();
-            new Click("2nd Toggle drawer from top") { Selenium = _selenium }.Execute();
-            new Wait(900).Execute();
-            new IsVisible("AppBar right from Examples") { Selenium = _selenium, Expect = false }.Execute();
         }
 
 
