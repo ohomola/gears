@@ -43,11 +43,16 @@ namespace Gears.Interpreter.Library
         {
         }
 
+        public override IKeyword FromString(string textInstruction)
+        {
+            return new Comment(ExtractSingleParameterFromTextInstruction(textInstruction));
+        }
+
         public override object DoRun()
         {
             Console.Out.WriteColoredLine(ConsoleColor.DarkGreen,"\""+Text+ "\"\n");
 
-            return null;
+            return Text;
         }
 
         public override string ToString()

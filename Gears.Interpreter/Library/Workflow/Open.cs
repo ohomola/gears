@@ -8,6 +8,7 @@ using Gears.Interpreter.Data.Core;
 namespace Gears.Interpreter.Library.Workflow
 {
     [NotLogged]
+    [UserDescription("open <file> \t-\t loads steps from a scenario file")]
     public class Open : Keyword
     {
         public string File { get; set; }

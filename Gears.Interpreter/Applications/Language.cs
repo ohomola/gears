@@ -44,14 +44,18 @@ namespace Gears.Interpreter.Applications
                 ServiceLocator.Instance.Resolve(template);
             }
 
-            var parts = command.Split(' ');
+            var parts = new string[]
+            {
+                command.Split(' ').First(),
+                string.Join(" ", command.Split(' ').Skip(1))
+            };
             if (parts.Length == 2 && _lazyExpressionResolver.CanResolve(parts.Last()))
             {
                 var resolvedParameter = _lazyExpressionResolver.Resolve(parts.Last()) as string;
                 return template.FromString(parts.First()+ ' ' + resolvedParameter);
             }
 
-            command = Normalize(command);
+            //command = Normalize(command);
 
             return template.FromString(command);
         }

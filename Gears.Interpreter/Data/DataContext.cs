@@ -146,6 +146,11 @@ namespace Gears.Interpreter.Data
             {
                 oda.RemoveAll<T>();
             }
+
+            foreach (var oda in DataAccesses.OfType<SharedObjectDataAccess>())
+            {
+                oda.RemoveAll<T>();
+            }
         }
 
         public bool Contains(Type t)

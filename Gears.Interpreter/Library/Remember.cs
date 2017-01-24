@@ -19,11 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 
+using System;
 using System.Linq;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Data;
+using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
+    [UserDescription("remember <var> <val> \t saves/updates a variable with a specified value.")]
     public class Remember : Keyword
     {
         public virtual string Variable { get; set; }
@@ -39,19 +43,39 @@ namespace Gears.Interpreter.Library
             What = what;
         }
 
+        public override IKeyword FromString(string textInstruction)
+        {
+            var args = ExtractTwoParametersFromTextInstruction(textInstruction);
+            return new Remember(args[0], args[1]);
+        }
+
         public override object DoRun()
         {
+            if (string.IsNullOrEmpty(Variable))
+            {
+                throw new ArgumentException("Variable name cannot be empty");
+            }
+
+            if (string.IsNullOrEmpty(What))
+            {
+                throw new ArgumentException("Value cannot be empty");
+            }
+
             var existingMemory = Data.GetAll<RememberedText>().FirstOrDefault(x => x.Variable.ToLower() == Variable.ToLower());
             if (existingMemory != null)
             {
                 existingMemory.What = What;
+                return new SuccessAnswer($"Updated '{existingMemory.Variable}' to new value \'{existingMemory.What}\' to memory.");
             }
             else
             {
-                Data.DataAccesses.OfType<SharedObjectDataAccess>().First().Add(new RememberedText(Variable, What));
+                var rememberedText = new RememberedText(Variable, What);
+                Data.DataAccesses.OfType<SharedObjectDataAccess>().First().Add(rememberedText);
+
+                return new SuccessAnswer($"Saved \'{rememberedText.What}\' as variable '{rememberedText.Variable}'.");
             }
 
-            return null;
+            
         }
 
         public override string ToString()

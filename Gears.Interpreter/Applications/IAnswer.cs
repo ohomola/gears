@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Gears.Interpreter.Data;
 using Gears.Interpreter.Library;
 using JetBrains.Annotations;
 using OpenQA.Selenium;
@@ -132,14 +133,16 @@ namespace Gears.Interpreter.Applications
     }
     public class StatusAnswer : IAnswer
     {
-        public StatusAnswer(IEnumerable<IKeyword> keywords, int index)
+        public StatusAnswer(IEnumerable<IKeyword> keywords, int index, IDataContext data)
         {
             Keywords = keywords;
             Index = index;
+            Data = data;
         }
 
         public IEnumerable<IKeyword> Keywords { get; set; }
         public int Index { get; set; }
+        public IDataContext Data { get; set; }
         public object Body { get; }
         public List<IAnswer> Children { get; }
         public string Text { get; }

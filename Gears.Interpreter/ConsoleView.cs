@@ -7,9 +7,26 @@ using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter
 {
-    public class ConsoleOutputMapper
+    public class ConsoleView
     {
-        public static List<ConsoleOutput> MapToOutput(IAnswer response)
+        public static void Render(IAnswer answer)
+        {
+            var outputs = ToDisplayData(answer);
+
+            foreach (var consoleOutput in outputs)
+            {
+                Console.Out.WriteColored(consoleOutput.Color, consoleOutput.Text);
+            }
+
+            Console.Out.Write("\n");
+        }
+
+        public static void Render(ConsoleColor color, string text)
+        {
+            Console.Out.WriteColoredLine(color, text);
+        }
+
+        public static List<ConsoleOutput> ToDisplayData(IAnswer response)
         {
             var returnValue = new List<ConsoleOutput>();
 
@@ -62,7 +79,7 @@ namespace Gears.Interpreter
 
         private static void AddWithChildren(InformativeAnswer informativeResponse, ConsoleColor mainColor, ConsoleColor secondaryColor, List<ConsoleOutput> returnValue)
         {
-            returnValue.Add(new ConsoleOutput(mainColor, informativeResponse.Text));
+            returnValue.Add(new ConsoleOutput(mainColor, informativeResponse.Text+ " "));
 
             foreach (var child in informativeResponse.Children)
             {
@@ -85,8 +102,16 @@ namespace Gears.Interpreter
                 selectedKeyword = status.Keywords.ElementAt(Math.Max(0,status.Index)) as Keyword;
             }
 
-            AddLine(ConsoleColor.Gray, $"Scenario with {keywords.Count()} steps.", returnValue);
-            AddLine(ConsoleColor.Gray, "Selected step is:\t", returnValue);
+            if (status.Data.Contains<RememberedText>())
+            {
+                foreach (var rememberedText in status.Data.GetAll<RememberedText>())
+                {
+                    Add(ConsoleColor.Magenta, $"[{rememberedText.Variable}]", returnValue);
+                    AddLine(ConsoleColor.DarkMagenta, $" = '{rememberedText.What}' ", returnValue);
+                }
+            }
+
+            AddLine(ConsoleColor.Gray, $"Scenario with {keywords.Count} steps: ", returnValue);
 
             //10 before
             if (status.Index > 10)
@@ -157,5 +182,22 @@ namespace Gears.Interpreter
             Add(ConsoleColor.DarkGray, "\n", returnValue);
         }
 
+    }
+
+    public class ConsoleOutput
+    {
+        public ConsoleColor Color;
+        public string Text;
+
+        public ConsoleOutput(ConsoleColor color, string text)
+        {
+            Color = color;
+            Text = text;
+        }
+
+        public override string ToString()
+        {
+            return $"[{Color}] '{Text}'";
+        }
     }
 }

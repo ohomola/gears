@@ -6,10 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.Core;
+using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Applications.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Library;
+using Gears.Interpreter.Library.Config;
 using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Applications
@@ -25,6 +27,7 @@ namespace Gears.Interpreter.Applications
         ILanguage Language { get; }
         Iterator<IKeyword> Iterator { get; set; }
         IDataContext Data { get; }
+        bool IsDebugMode { get; set;  }
 
         IAnswer Please(string command);
 
@@ -34,6 +37,7 @@ namespace Gears.Interpreter.Applications
         void OnScenarioFinished(ScenarioFinishedEventArgs e);
         event EventHandler<ScenarioFinishedEventArgs> SuiteFinished;
         void OnSuiteFinished(ScenarioFinishedEventArgs e);
+        string Continue();
     }
 
     public class Interpreter : IInterpreter, IDisposable
@@ -67,6 +71,8 @@ namespace Gears.Interpreter.Applications
 
         public bool IsRunningSuite => Plan.Any(x => x is RunScenario);
 
+        public bool IsDebugMode { get; set; }
+
         [DoNotWire]
         public List<IKeyword> ExecutionHistory { get; set; } = new List<IKeyword>();
 
@@ -85,6 +91,21 @@ namespace Gears.Interpreter.Applications
         {
             SuiteFinished?.Invoke(this, e);
         }
+
+        public string Continue()
+        {
+            if (IsDebugMode)
+            {
+                UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+
+                return Console.ReadLine();
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
         #endregion
 
         public Interpreter(IDependencyReloader reloader, IDataContext data, ILanguage language)

@@ -102,7 +102,7 @@ namespace Gears.Interpreter.Library
         public virtual IKeyword FromString(string textInstruction)
         {
             //return (IKeyword) Activator.CreateInstance(TypeRegistry.GetDTOTypes().First(x=> textInstruction.StartsWith(x.Name.ToLower())));
-            var type = TypeRegistry.GetDTOTypes().First(x => textInstruction.StartsWith(x.Name.ToLower()));
+            var type = TypeRegistry.GetDTOTypes().First(x => textInstruction.Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
             return (IKeyword) ServiceLocator.Instance.Resolve(type);
         }
 
@@ -216,7 +216,25 @@ namespace Gears.Interpreter.Library
 
         protected static string ExtractSingleParameterFromTextInstruction(string textInstruction)
         {
-            return string.Join(" ", textInstruction.Split(' ').Skip(1));
+            var strings = textInstruction.Split(' ');
+
+            return string.Join(" ", strings.Skip(1));
+        }
+
+        protected static string []ExtractTwoParametersFromTextInstruction(string textInstruction)
+        {
+            var strings = textInstruction.Split(' ');
+
+            if (strings.Length < 3)
+            {
+                throw new ArgumentException("Must provide two parameters.");
+            }
+
+            return new []
+            {
+                strings.Skip(1).First(),
+                string.Join(" ", strings.Skip(2))
+            };
         }
     }
     public enum KeywordStatus

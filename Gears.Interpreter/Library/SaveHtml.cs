@@ -25,7 +25,7 @@ using Gears.Interpreter.Library.Workflow;
 namespace Gears.Interpreter.Library
 {
     [NotLogged]
-    [UserDescription("savehtml \t-\t  save current page source to a new HTML file")]
+    [UserDescription("savehtml \t-\t save current page source to a new HTML file")]
     public class SaveHtml:Keyword
     {
         public override object DoRun()

@@ -74,6 +74,25 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual($"Moved to 6.", response.Body);
         }
 
+        [Test]
+        public void CanRememberAndForget()
+        {
+            Bootstrapper.Register();
+            var interpreter = Bootstrapper.ResolveInterpreter();
+
+            var response = interpreter.Please($"remember var1 World");
+            Assert.IsInstanceOf<SuccessAnswer>(response);
+            
+            response = interpreter.Please("Comment {\"Hello \" + \"[var1]\"}");
+            Assert.AreEqual($"Hello World", response.Body);
+
+            response = interpreter.Please("forget");
+            Assert.IsInstanceOf<SuccessAnswer>(response);
+
+            response = interpreter.Please("Comment {\"Hello \" + \"[var1]\"}");
+            Assert.AreNotEqual($"Hello World", response.Body);
+        }
+
 
         [Test]
         public void CanClickAndCheckVisiility()
@@ -209,10 +228,10 @@ namespace Gears.Interpreter.Tests.Pages
 
             var response = interpreter.Please("help");
 
-            var output = ConsoleOutputMapper.MapToOutput(response);
+            var output = ConsoleView.ToDisplayData(response);
 
             Assert.AreEqual(ConsoleColor.White, output.First().Color);
-            Assert.AreEqual("\n--- Help ---\nConsole commands: \n", output.First().Text);
+            Assert.AreEqual("\n--- Help ---\nConsole commands: \n ", output.First().Text);
         }
 
         [Test]

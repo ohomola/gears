@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Internal;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Library.Config;
 
 namespace Gears.Interpreter.Library.Workflow
 {
@@ -50,7 +52,12 @@ namespace Gears.Interpreter.Library.Workflow
                 //    successAnswer.Children.Add(new SuccessAnswer($"\nRegistered {applicationEventHandler}"));
                 //}
             }
-            
+
+            if (Interpreter.Data.GetAll<DebugMode>().Any() || Interpreter.Plan.IsNullOrEmpty())
+            {
+                Interpreter.IsDebugMode = true;
+            }
+
             return successAnswer;
         }
 
