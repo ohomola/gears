@@ -190,7 +190,7 @@ namespace Gears.Interpreter.Library
         public virtual bool IsHydrated { get; set; }
 
         [XmlIgnore]
-        public virtual Guid Guid { get; }
+        public virtual Guid Guid { get; set; }
 
         public virtual void Hydrate()
         {

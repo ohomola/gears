@@ -42,6 +42,14 @@ namespace Gears.Interpreter.Library
     {
         public const string SuccessMessage = "Click performed.";
 
+        public virtual string What
+        {
+            set
+            {
+                MapSyntaxToSemantics(new Instruction(value));
+            }
+        }
+
         #region Semantics
 
         public virtual int Order { get; set; }
@@ -73,7 +81,7 @@ namespace Gears.Interpreter.Library
 
         public override IKeyword FromString(string textInstruction)
         {
-            return new Click(ExtractSingleParameterFromTextInstruction(textInstruction));
+            return new Click() {What= ExtractSingleParameterFromTextInstruction(textInstruction)};
         }
 
         public Click(string what)

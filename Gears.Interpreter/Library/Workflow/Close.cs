@@ -13,6 +13,7 @@ namespace Gears.Interpreter.Library.Workflow
         public override object DoRun()
         {
             Interpreter.Plan = new List<IKeyword>();
+            Interpreter.Iterator.Index = 0;
 
             return new SuccessAnswer("Scenario closed.");
         }

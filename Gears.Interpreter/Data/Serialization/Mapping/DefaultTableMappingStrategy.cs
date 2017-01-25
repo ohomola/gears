@@ -150,7 +150,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
                 }
                 catch (Exception ex)
                 {
-                    obj = new CorruptObject { Exception = ex };
+                    obj = new CorruptObject { Description = string.Join(", ",row.ItemArray),Exception = ex };
                 }
 
                 yield return obj;

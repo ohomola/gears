@@ -75,7 +75,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             }
             catch (Exception ex)
             {
-                return new CorruptObject {Exception = ex};
+                return new CorruptObject {Description = type.Name, Exception = ex};
             }
         }
 
@@ -86,7 +86,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
             var properties = type.GetProperties();
             foreach (var propertyInfo in properties)
             {
-                if (!propertyInfo.GetMethod.IsVirtual && lazyValues.ContainsKey(propertyInfo.Name.ToLower()))
+                if (propertyInfo.SetMethod == null || (!propertyInfo.SetMethod.IsVirtual && lazyValues.ContainsKey(propertyInfo.Name.ToLower())))
                 {
                     throw new ArgumentException($"Property {propertyInfo.Name} of {type.Name} cannot be lazy-evaluated because it is not declared virtual.");
                 }

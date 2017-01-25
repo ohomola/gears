@@ -25,9 +25,11 @@ namespace Gears.Interpreter.Data.Core
     public class CorruptObject
     {
         public Exception Exception { get; set; }
+        public string Description { get; set; }
+
         public override string ToString()
         {
-            return $"Corrupt Object: cannot be loaded due to '{Exception.Message}'";
+            return $"Corrupt Object '{Description}': cannot be loaded due to '{Exception.Message}'";
         }
     }
 }

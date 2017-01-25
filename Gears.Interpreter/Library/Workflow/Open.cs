@@ -27,6 +27,12 @@ namespace Gears.Interpreter.Library.Workflow
 
             Interpreter.Plan = data.OfType<IKeyword>();
 
+            var corruptObjects = data.OfType<CorruptObject>();
+            if (corruptObjects.Any())
+            {
+                return new ExceptionAnswer("Invalid Keywords found in file.").With(new ExceptionAnswer(string.Join("\n\t", corruptObjects)));
+            }
+
             return new SuccessAnswer("File loaded successfully.");
         }
 

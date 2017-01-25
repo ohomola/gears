@@ -16,6 +16,7 @@ namespace Gears.Interpreter.Tests.Pages
     public class Iteration6Tests
     {
         private string _filePath;
+        private string _clickScenarioFilePath;
 
         [Test]
         public void CanRememberHistory()
@@ -285,10 +286,17 @@ namespace Gears.Interpreter.Tests.Pages
         }
 
         [Test]
-        public void CanReload()
+        public void CanEvaluateSubString()
         {
             Bootstrapper.Register();
             var interpreter = Bootstrapper.ResolveInterpreter();
+            interpreter.Please("remember you I");
+            interpreter.Please("comment how do [you] do?");
+
+            interpreter.Please($"open {_clickScenarioFilePath}");
+            interpreter.Please("remember buttonName button1");
+            interpreter.Please(string.Empty);
+            interpreter.Please("click first [buttonName] from left");
         }
 
         [SetUp]
@@ -303,6 +311,13 @@ namespace Gears.Interpreter.Tests.Pages
                 "DoWhatYouWant,\n" +
                 "DoWhatYouWant,\n" +
                 "DoWhatYouWant,\n");
+
+            _clickScenarioFilePath = folder + "\\Scenario10.csv";
+            File.WriteAllText(_clickScenarioFilePath,
+                "Discriminator, Url, What, Expect\n" +
+                "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n" +
+                "Click,,first button from left,\n" +
+                "Click,,first button from left,\n");
         }
 
         [TearDown]
