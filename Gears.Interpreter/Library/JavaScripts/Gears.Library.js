@@ -41,6 +41,28 @@ function GetElementsByAttributeValues(names, values) {
 }
 
 //WrappedByWebdriverExtension
+function GetElementByCoordinates(x, y) {
+
+    var hitElements = [];
+
+    var allElements = document.all;
+    for (var i = 0; i < allElements.length; i++) {
+
+        var el = allElements[i];
+        var rect = el.getBoundingClientRect();
+
+        if (rect.left < x && (rect.left + rect.width > x) && (rect.top < y && (rect.top + rect.height > y))) {
+
+            hitElements.push(el);
+
+        }
+
+    };
+
+    return hitElements;
+}
+
+//WrappedByWebdriverExtension
 function GetElementsByTagNames(tags) {
 
     var allElements = [];

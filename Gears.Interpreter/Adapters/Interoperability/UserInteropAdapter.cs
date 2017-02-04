@@ -9,6 +9,8 @@ namespace Gears.Interpreter.Adapters.Interoperability
 {
     static class UserInteropAdapter
     {
+
+
         /// <summary>
         /// Converts screen coordinates to zero-based coordinates of the pixel buffer.
         /// Input - point returned by ClientToScreen native method (this can be negative for multiple screen layout- Zero is on primary monitor regardless of the layout.)
@@ -20,6 +22,19 @@ namespace Gears.Interpreter.Adapters.Interoperability
             p.X -= VirtualScreenLeft;
             p.Y -= VirtualScreenTop;
         }
+
+        /// <summary>
+        /// Converts screen coordinates to zero-based coordinates of the pixel buffer.
+        /// Input - point returned by ClientToScreen native method (this can be negative for multiple screen layout- Zero is on primary monitor regardless of the layout.)
+        /// Output - point in a space where top-left is 0,0
+        /// </summary>
+        /// <param name="p"></param>
+        public static void GraphicsToScreen(ref Point p)
+        {
+            p.X += VirtualScreenLeft;
+            p.Y += VirtualScreenTop;
+        }
+
 
 
         public static int VirtualScreenLeft

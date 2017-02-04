@@ -270,7 +270,7 @@ namespace Gears.Interpreter.Library
                 var centerY = refreshedPosition.Y + refreshedPosition.Height / 2;
 
                 var p = new Point(centerX, centerY);
-                _seleniumAdapter.BrowserToClient(ref p);
+                _seleniumAdapter.ConvertFromPageToWindow(ref p);
 
                 if (p.X >= 0 && p.X <= browserBox.Right && p.Y >= 0 && p.Y <= browserBox.Bottom)
                 {

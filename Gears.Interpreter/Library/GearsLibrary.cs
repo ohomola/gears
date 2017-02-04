@@ -29,15 +29,7 @@ using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
 {
-    public static class WebElementExtensions
-    {
-        public static IBufferedElement AsBufferedElement(this IWebElement webElement)
-        {
-            return new BufferedElement(webElement);
-        }
-    }
-
-    public static class WebDriverExtensions
+    public static class GearsLibrary
     {
         public static object RunLibraryScript(this IWebDriver webDriver, string scriptCode, params object[] elements)
         {
@@ -46,7 +38,15 @@ namespace Gears.Interpreter.Library
             script += scriptCode;
             return ((IJavaScriptExecutor)webDriver).ExecuteScript(script, elements);
         }
-        
+
+        [JavascriptFunctionWrapper]
+        public static ReadOnlyCollection<IWebElement> GetElementByCoordinates(this IWebDriver webDriver, int x, int y)
+        {
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0], arguments[1])", x, y);
+
+            return ToCollection(result);
+        }
+
         [JavascriptFunctionWrapper]
         public static void Click(this IWebDriver webDriver, IWebElement element)
         {

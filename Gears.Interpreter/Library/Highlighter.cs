@@ -77,7 +77,7 @@ namespace Gears.Interpreter.Library
                     i++;
 
                     var p = new Point(element.Rectangle.Left, element.Rectangle.Top);
-                    seleniumAdapter.BrowserToClient(ref p);
+                    seleniumAdapter.ConvertFromPageToWindow(ref p);
 
                     overlay.DrawStuff(handle, i, p.X, p.Y,
                         overlay.Graphics, element.Rectangle.Width, element.Rectangle.Height, 

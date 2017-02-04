@@ -25,13 +25,16 @@ using System.Runtime.InteropServices;
 
 namespace Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings
 {
-    internal static class UserBindings
+    public static class UserBindings
     {
         [DllImport("user32", ExactSpelling = true, SetLastError = true)]
         internal static extern int GetSystemMetrics(int nIndex);
 
         [DllImport("user32.dll")]
         public static extern bool ClientToScreen(IntPtr hWnd, ref Point lpPoint);
+
+        [DllImport("user32.dll")]
+        public static extern bool ScreenToClient(IntPtr hWnd, ref Point lpPoint);
 
         [DllImport("user32.dll")]
         internal static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray), In] INPUT[] pInputs,
@@ -87,6 +90,9 @@ namespace Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings
 
         [DllImport("user32", ExactSpelling = true, SetLastError = true)]
         internal static extern bool GetWindowRect(IntPtr hWndTo, [In, Out] ref RECT rect);
+
+        [DllImport("user32", ExactSpelling = true, SetLastError = true)]
+        internal static extern bool GetClientRect(IntPtr hWndTo, [In, Out] ref RECT rect);
 
 
         [StructLayout(LayoutKind.Sequential)]

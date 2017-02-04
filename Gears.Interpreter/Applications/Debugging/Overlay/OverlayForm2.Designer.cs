@@ -8,7 +8,7 @@ using Gears.Interpreter.Adapters.Interoperability;
 
 namespace Gears.Interpreter.Applications.Debugging.Overlay
 {
-    partial class OverlayForm
+    partial class OverlayForm2
     {
         /// <summary>
         /// Required designer variable.
@@ -90,11 +90,23 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 
             //MaximizeEverything();
 
+            //this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            //this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            //this.ClientSize = new System.Drawing.Size(284, 262);
+            //this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            //this.Location = new System.Drawing.Point(-1280, 0);
+            //this.Name = "MasterForm";
+            //this.Text = "HIGHLIGHT Overlay";
+            //this.TopMost = true;
+            this.TransparencyKey = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            //this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+
             //oldWindowLong = GetWindowLong(Handle, (int)MasterForm.GetWindowLongConst.GWL_EXSTYLE);
             //SetWindowLong(Handle, (int)MasterForm.GetWindowLongConst.GWL_EXSTYLE, Convert.ToInt32(oldWindowLong | (uint)MasterForm.WindowStyles.WS_EX_LAYERED | (uint)MasterForm.WindowStyles.WS_EX_TRANSPARENT));
-            //SetLayeredWindowAttributes(this.Handle, 0x0, 125, 0x3);
+            SetLayeredWindowAttributes(this.Handle, 0x0, 125, 0x3);
 
-
+            
         }
 
         [DllImport("user32.dll")]

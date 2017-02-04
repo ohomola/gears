@@ -39,7 +39,7 @@ namespace Gears.Interpreter.Applications.Registrations
 {
     public class Bootstrapper
     {
-        private static WindsorContainer _container;
+        public static WindsorContainer Container { get; private set; }
 
         private static SeleniumAdapter _seleniumAdapterInstance;
 
@@ -50,10 +50,10 @@ namespace Gears.Interpreter.Applications.Registrations
             Register();
 
             _dependencyReloaderInstance = new DependencyReloader(explicitObjects);
-            _container.Register(Component.For<IDependencyReloader>().Instance(_dependencyReloaderInstance).LifestyleSingleton());
+            Container.Register(Component.For<IDependencyReloader>().Instance(_dependencyReloaderInstance).LifestyleSingleton());
 
-            _container.Register(Component.For<IObjectAccessFactory>().ImplementedBy<ObjectAccessFactory>().LifestyleSingleton());
-            _container.Register(Component.For<IDataObjectAccess>().Named("ExplicitObjects")
+            Container.Register(Component.For<IObjectAccessFactory>().ImplementedBy<ObjectAccessFactory>().LifestyleSingleton());
+            Container.Register(Component.For<IDataObjectAccess>().Named("ExplicitObjects")
                 .UsingFactory((IObjectAccessFactory f) => f.CreateFromObjects(explicitObjects)));
         }
 
@@ -62,13 +62,13 @@ namespace Gears.Interpreter.Applications.Registrations
             Register();
 
             _dependencyReloaderInstance = new DependencyReloader(args);
-            _container.Register(Component.For<IDependencyReloader>().Instance(_dependencyReloaderInstance).LifestyleSingleton());
+            Container.Register(Component.For<IDependencyReloader>().Instance(_dependencyReloaderInstance).LifestyleSingleton());
 
             var i = 0;
             foreach (var argument in args.Where(x => !x.StartsWith("-")))
             {
                 i++;
-                _container.Register(
+                Container.Register(
                     Component.For<IDataObjectAccess>()
                     .ImplementedBy<FileObjectAccess>()
                     .DependsOn(Dependency.OnValue("path", FileFinder.Find(argument)))
@@ -78,69 +78,69 @@ namespace Gears.Interpreter.Applications.Registrations
 
             var switchArguments = args.Where(x => x.StartsWith("-")).ToArray();
 
-            _container.Register(Component.For<IObjectAccessFactory>().ImplementedBy<ObjectAccessFactory>().LifestyleSingleton());
-            _container.Register(Component.For<IDataObjectAccess>().Named("SwitchesDataAccess").UsingFactory((IObjectAccessFactory f)=>f.CreateFromArguments(switchArguments)));
+            Container.Register(Component.For<IObjectAccessFactory>().ImplementedBy<ObjectAccessFactory>().LifestyleSingleton());
+            Container.Register(Component.For<IDataObjectAccess>().Named("SwitchesDataAccess").UsingFactory((IObjectAccessFactory f)=>f.CreateFromArguments(switchArguments)));
         }
 
         private static void Register()
         {
             Release();
-            _container = new WindsorContainer();
+            Container = new WindsorContainer();
 
             
-            _container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel));
+            Container.Kernel.Resolver.AddSubResolver(new CollectionResolver(Container.Kernel));
 
-            _container.Register(Classes.FromAssemblyContaining<IKeyword>()
+            Container.Register(Classes.FromAssemblyContaining<IKeyword>()
                 .BasedOn<Keyword>().WithServiceSelf().WithServiceAllInterfaces());
 
 
-            _container.Register(Component.For<IDataObjectAccess>().Named("SharedObjectDataAccess").Instance(SharedObjectDataAccess.Instance.Value).LifestyleSingleton());
+            Container.Register(Component.For<IDataObjectAccess>().Named("SharedObjectDataAccess").Instance(SharedObjectDataAccess.Instance.Value).LifestyleSingleton());
 
-            _container.Register(Component.For<ICodeStubResolver>().ImplementedBy<CodeStubResolver>().LifestyleSingleton());
-            _container.Register(Component.For<IRememberedDataResolver>().ImplementedBy<RememberedDataResolver>().LifestyleSingleton());
-            _container.Register(Component.For<ILazyExpressionResolver>().ImplementedBy<LazyExpressionResolver>().LifestyleSingleton());
-            _container.Register(Component.For<IDictionaryToObjectMapper>().ImplementedBy<DictionaryToObjectMapper>().LifestyleSingleton());
+            Container.Register(Component.For<ICodeStubResolver>().ImplementedBy<CodeStubResolver>().LifestyleSingleton());
+            Container.Register(Component.For<IRememberedDataResolver>().ImplementedBy<RememberedDataResolver>().LifestyleSingleton());
+            Container.Register(Component.For<ILazyExpressionResolver>().ImplementedBy<LazyExpressionResolver>().LifestyleSingleton());
+            Container.Register(Component.For<IDictionaryToObjectMapper>().ImplementedBy<DictionaryToObjectMapper>().LifestyleSingleton());
 
-            _container.Register(Component.For<ITypeRegistry>().ImplementedBy<TypeRegistry>().LifestyleSingleton());
-            _container.Register(Component.For<IDataContext>().ImplementedBy<DataContext>().LifestyleSingleton());
+            Container.Register(Component.For<ITypeRegistry>().ImplementedBy<TypeRegistry>().LifestyleSingleton());
+            Container.Register(Component.For<IDataContext>().ImplementedBy<DataContext>().LifestyleSingleton());
 
             _seleniumAdapterInstance = new SeleniumAdapter();
-            _container.Register(Component.For<ISeleniumAdapter>().Instance(_seleniumAdapterInstance));
+            Container.Register(Component.For<ISeleniumAdapter>().Instance(_seleniumAdapterInstance));
 
-            _container.Register(Component.For<IConsoleDebugger>().ImplementedBy<ConsoleDebugger>().LifestyleSingleton());
+            Container.Register(Component.For<IConsoleDebugger>().ImplementedBy<ConsoleDebugger>().LifestyleSingleton());
 
-            _container.Register(Component.For<ILanguage>().ImplementedBy<Language>().LifestyleSingleton());
+            Container.Register(Component.For<ILanguage>().ImplementedBy<Language>().LifestyleSingleton());
 
-            _container.Register(Component.For<IOverlay>().ImplementedBy<Overlay>().LifestyleSingleton());
-            _container.Register(Component.For<ILateBoundDataContext>().ImplementedBy<LateBoundDataContext>().LifestyleSingleton());
+            Container.Register(Component.For<IOverlay>().ImplementedBy<Overlay>().LifestyleSingleton());
+            Container.Register(Component.For<ILateBoundDataContext>().ImplementedBy<LateBoundDataContext>().LifestyleSingleton());
 
-            _container.Register(Component.For<IApplicationLoop>().ImplementedBy<ApplicationLoop>().LifestyleTransient());
-            _container.Register(Component.For<IInterpreter>().ImplementedBy<Interpreter>().LifestyleSingleton());
+            Container.Register(Component.For<IApplicationLoop>().ImplementedBy<ApplicationLoop>().LifestyleTransient());
+            Container.Register(Component.For<IInterpreter>().ImplementedBy<Interpreter>().LifestyleSingleton());
 
-            _container.Kernel.AddFacility<TypedFactoryFacility>();
-            ServiceLocator.Initialise(_container);
+            Container.Kernel.AddFacility<TypedFactoryFacility>();
+            ServiceLocator.Initialise(Container);
         }
 
         public static IApplicationLoop Resolve()
         {
-            return _container.Resolve<IApplicationLoop>();
+            return Container.Resolve<IApplicationLoop>();
         }
 
         public static IInterpreter ResolveInterpreter()
         {
-            if (_container == null)
+            if (Container == null)
             {
                 throw new InvalidOperationException("Bootstrapper is not registered");
             }
 
-            return _container.Resolve<IInterpreter>();
+            return Container.Resolve<IInterpreter>();
         }
 
         public static void Release()
         {
             _seleniumAdapterInstance?.Dispose();
-            _container?.Dispose();
-            _container = null;
+            Container?.Dispose();
+            Container = null;
             ServiceLocator.Release();
         }
     }

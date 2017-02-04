@@ -10,11 +10,11 @@ using System.Windows.Forms;
 
 namespace Gears.Interpreter.Applications.Debugging.Overlay
 {
-    public partial class OverlayForm : Form
+    public partial class OverlayForm2 : Form
     {
         public int X;
 
-        public OverlayForm()
+        public OverlayForm2()
         {
             InitializeComponent();
         }

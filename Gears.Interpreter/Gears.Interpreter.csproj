@@ -140,11 +140,16 @@
     <Compile Include="Adapters\Interoperability\UserInteropAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerCommand.cs" />
     <Compile Include="Applications\Configuration\IAutoRegistered.cs" />
-    <Compile Include="Applications\Debugging\Overlay\OverlayForm.cs">
+    <Compile Include="Applications\Debugging\Overlay\ClickableHudForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Applications\Debugging\Overlay\OverlayForm.Designer.cs">
-      <DependentUpon>OverlayForm.cs</DependentUpon>
+    <Compile Include="Applications\Debugging\Overlay\HUD.cs" />
+    <Compile Include="Applications\Debugging\Overlay\HudWorker.cs" />
+    <Compile Include="Applications\Debugging\Overlay\OverlayForm2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Applications\Debugging\Overlay\OverlayForm2.Designer.cs">
+      <DependentUpon>OverlayForm2.cs</DependentUpon>
     </Compile>
     <Compile Include="Applications\IAnswer.cs" />
     <Compile Include="Applications\Interpreter.cs" />
@@ -197,6 +202,7 @@
     <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Show.cs" />
+    <Compile Include="Library\WebElementExtensions.cs" />
     <Compile Include="Library\WhatIs.cs" />
     <Compile Include="Library\Workflow\Back.cs" />
     <Compile Include="Library\Workflow\EndOfScenario.cs" />
@@ -221,7 +227,7 @@
     <Compile Include="Library\GoToUrl.cs" />
     <Compile Include="Library\IsVisible.cs" />
     <Compile Include="Library\Wait.cs" />
-    <Compile Include="Library\WebDriverExtensions.cs" />
+    <Compile Include="Library\GearsLibrary.cs" />
     <Compile Include="Library\Workflow\Close.cs" />
     <Compile Include="Library\Workflow\Eval.cs" />
     <Compile Include="Library\Workflow\GoTo.cs" />

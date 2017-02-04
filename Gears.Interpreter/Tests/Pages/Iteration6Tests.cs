@@ -5,11 +5,14 @@ using System.Linq;
 using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
+using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Registrations;
+using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Library;
 using Gears.Interpreter.Library.Workflow;
 using NUnit.Framework;
+using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Tests.Pages
 {
@@ -304,17 +307,58 @@ namespace Gears.Interpreter.Tests.Pages
         {
             Bootstrapper.Register();
             var interpreter = Bootstrapper.ResolveInterpreter();
-            interpreter.Please($"gotourl {_clickScenarioFilePath}");
-            //interpreter.Please("whatisit {I.PointAt()}");
-            var response = interpreter.Please("whatisit 50 50") as InformativeAnswer;
-            Assert.AreEqual(3, response);
-            Assert.AreEqual("button 'Button1'", response.Text);
-            interpreter.Please($"click ");
-
-            interpreter.Please($"click ");
-            interpreter.Please("remember buttonName button1");
+            interpreter.Please($"open {_clickScenarioFilePath}");
             interpreter.Please(string.Empty);
-            interpreter.Please("click first [buttonName] from left");
+            //interpreter.Please("whatisit {I.PointAt()}");
+            var response = interpreter.Please("whatisit 20 20");
+            Assert.IsInstanceOf<SuccessAnswer>(response);
+            Assert.AreEqual("1st Button 'Button1'", response.Text.Trim());
+            interpreter.Please($"click 1st Button 'Button1'");
+            Assert.AreEqual("pressed", ServiceLocator.Instance.Resolve<ISeleniumAdapter>().WebDriver.FindElement(By.Id("b1")).GetAttribute("innerText"));
+
+            response = interpreter.Please("whatisit 80 20");
+            Assert.AreEqual("1st Button 'Button2'", response.Text.Trim());
+            interpreter.Please($"click [it]");
+            Assert.AreEqual("pressed", ServiceLocator.Instance.Resolve<ISeleniumAdapter>().WebDriver.FindElement(By.Id("b2")).GetAttribute("innerText"));
+
+            response = interpreter.Please("whatisit 150 150");
+            Assert.IsInstanceOf<WarningAnswer>(response);
+            //interpreter.Please($"click ");
+            //interpreter.Please("remember buttonName button1");
+            //interpreter.Please(string.Empty);
+            //interpreter.Please("click first [buttonName] from left");
+        }
+
+        [Test]
+        public void CanConvertCordinates()
+        {
+            Bootstrapper.Register();
+            var interpreter = Bootstrapper.ResolveInterpreter();
+            interpreter.Please($"open {_clickScenarioFilePath}");
+            interpreter.Please(string.Empty);
+
+            var selenium = Bootstrapper.Container.Resolve<ISeleniumAdapter>();
+
+            var p =  selenium.WebDriver.FindElement(By.Id("b1")).Location;
+
+            var x = p.X;
+            var y = p.Y;
+
+            selenium.ConvertFromPageToWindow(ref p);
+
+            selenium.ConvertFromWindowToScreen(ref p);
+
+            selenium.ConvertFromScreenToGraphics(ref p);
+
+            selenium.ConvertFromGraphicsToScreen(ref p);
+
+            selenium.ConvertFromScreenToWindow(ref p);
+
+            selenium.ConvertFromWindowToPage(ref p);
+
+            Assert.AreEqual(x, p.X);
+            Assert.AreEqual(y, p.Y);
+
         }
 
         [SetUp]

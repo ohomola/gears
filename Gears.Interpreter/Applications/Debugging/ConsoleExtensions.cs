@@ -36,6 +36,18 @@ namespace Gears.Interpreter.Applications.Debugging
             Console.ForegroundColor = oldColor;
         }
 
+        public static void BeginRewritableLine(this TextWriter writer)
+        {
+            RewritableAreaCaretStart = Console.CursorLeft;
+        }
+
+        public static int RewritableAreaCaretStart { get; set; }
+
+        public static void Wipe(this TextWriter writer)
+        {
+            Console.Out.Write(string.Empty.PadLeft(Math.Max(0,Console.CursorLeft - RewritableAreaCaretStart), '\b'));
+        }
+
         public static void WriteColoredLine(this TextWriter writer, ConsoleColor color, string text)
         {
             WriteColored(writer, color, text + "\n\r");

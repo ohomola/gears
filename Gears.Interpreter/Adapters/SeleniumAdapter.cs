@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
@@ -35,9 +36,19 @@ namespace Gears.Interpreter.Adapters
     public interface ISeleniumAdapter: IDisposable
     {
         IWebDriver WebDriver { get; }
+        UserBindings.RECT BrowserWindowScreenRectangle { get; }
         IntPtr GetChromeHandle();
         Point PutElementOnScreen(IWebElement element);
-        void BrowserToClient(ref Point p);
+        void ConvertFromPageToWindow(ref Point p);
+        void ConvertFromWindowToScreen(ref Point point);
+        void ConvertFromScreenToGraphics(ref Point point);
+
+
+        void ConvertFromWindowToPage(ref Point p);
+        void ConvertFromGraphicsToScreen(ref Point point);
+        void ConvertFromScreenToWindow(ref Point point);
+        int ContentOffsetX();
+        int ContentOffsetY();
     }
 
     public class SeleniumAdapter : ISeleniumAdapter, IDisposable
@@ -49,12 +60,28 @@ namespace Gears.Interpreter.Adapters
         {
             get
             {
-                if (_webDriver == null)
-                {
-                    var path = FileFinder.Find("chromedriver.exe");
-                    _webDriver = new ChromeDriver(Path.GetDirectoryName(path), new ChromeOptions());
-                }
+                LazyInitialize();
                 return _webDriver;
+            }
+        }
+
+        public UserBindings.RECT BrowserWindowScreenRectangle {
+            get
+            {
+                var handle = this.GetChromeHandle();
+                var rect = new UserBindings.RECT();
+                UserBindings.GetWindowRect(handle, ref rect);
+
+                return rect;
+            }
+        }
+
+        private void LazyInitialize()
+        {
+            if (_webDriver == null)
+            {
+                var path = FileFinder.Find("chromedriver.exe");
+                _webDriver = new ChromeDriver(Path.GetDirectoryName(path), new ChromeOptions());
             }
         }
 
@@ -76,6 +103,8 @@ namespace Gears.Interpreter.Adapters
 
         public IntPtr GetChromeHandle()
         {
+            LazyInitialize();
+
             if (_handle == default(IntPtr))
             {
                 var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
@@ -94,7 +123,10 @@ namespace Gears.Interpreter.Adapters
             return _handle;
         }
 
-        public void BrowserToClient(ref Point p)
+
+
+
+        public void ConvertFromPageToWindow(ref Point p)
         {
             var YOffset =
                 (int)
@@ -114,6 +146,39 @@ namespace Gears.Interpreter.Adapters
             p.Y += YOffset - scrollOffset;
         }
 
+        public void ConvertFromWindowToScreen(ref Point point)
+        {
+            UserBindings.ClientToScreen(this.GetChromeHandle(), ref point);
+        }
+
+        public void ConvertFromScreenToGraphics(ref Point point)
+        {
+            UserInteropAdapter.ScreenToGraphics(ref point);
+        }
+
+        public void ConvertFromGraphicsToScreen(ref Point point)
+        {
+            UserInteropAdapter.GraphicsToScreen(ref point);
+        }
+
+        public void ConvertFromScreenToWindow(ref Point point)
+        {
+            UserBindings.ScreenToClient(this.GetChromeHandle(), ref point);
+        }
+
+        public void ConvertFromWindowToPage(ref Point p)
+        {
+            var scrollOffset =
+                (int)
+                Math.Abs(
+                    (long)
+                    WebDriver.RunLibraryScript("return window.pageYOffset || document.documentElement.scrollTop"));
+
+            p.X -= ContentOffsetX();
+            p.Y -= ContentOffsetY() - scrollOffset;
+        }
+
+        
         public Point PutElementOnScreen(IWebElement element)
         {
             ((IJavaScriptExecutor)WebDriver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
@@ -128,12 +193,23 @@ namespace Gears.Interpreter.Adapters
 
             location = GetLocation(element);
 
-            var browserBarHeight = WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight");
-            var bb = WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth");
-            location.Y += (int)Math.Abs((long)browserBarHeight);
+            var browserBarHeight = ContentOffsetY();
+            var bb = ContentOffsetX();
+            location.Y += (int)Math.Abs(browserBarHeight);
             location.Y += 5;
             location.X += 5;
             return location;
+        }
+
+        public int ContentOffsetX()
+        {
+            return (int)
+                Math.Abs((long)WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth"))-7;
+        }
+
+        public int ContentOffsetY()
+        {
+            return (int)Math.Abs((long)WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight"))-7;
         }
 
         private Point GetLocation(IWebElement element)

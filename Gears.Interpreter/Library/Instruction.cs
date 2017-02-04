@@ -27,9 +27,8 @@ namespace Gears.Interpreter.Library
 
         public List<ITagSelector> TagNames { get; set; }
 
-        public Instruction(string what)
+        public Instruction(string what) : this()
         {
-            TagNames = new List<ITagSelector>();
             what = " " + what + " ";
             var regex = new Regex("^"+
                     Optional(CapturingGroup("Order", NumberStrippingOffNthTextSuffix))+
@@ -71,6 +70,11 @@ namespace Gears.Interpreter.Library
                 SubjectName = GetCapturedValue(result, "Subject");
                 this.SubjectType= MapToSubjectTypeAndAddTagnamesRange(GetCapturedValue(result, "SubjectTagName"), TagNames);
             }
+        }
+
+        public Instruction()
+        {
+            TagNames = new List<ITagSelector>();
         }
 
         private SubjectType MapToSubjectTypeAndAddTagnamesRange(string subject, List<ITagSelector> selectors)
@@ -165,7 +169,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"{(this.Order+1).ToOrdinalString()} {(SubjectType == default(SubjectType) ? "element" : SubjectType.ToString())} with text '{this.SubjectName}' {(Direction==default(SearchDirection)?"":"looking '"+Direction+"'")} {(string.IsNullOrEmpty(Locale)?"":"'"+Locale+"'")}";
+            return $"{(this.Order+1).ToOrdinalString()} {(SubjectType == default(SubjectType) ? "" : SubjectType.ToString())} '{this.SubjectName}' {(Direction==default(SearchDirection)?"":"looking '"+Direction+"'")} {(string.IsNullOrEmpty(Locale)?"":"'"+Locale+"'")}";
         }
     }
 }
