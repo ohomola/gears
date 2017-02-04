@@ -45,6 +45,26 @@ namespace Gears.Interpreter.Library
             HighlightElements(seleniumAdapter, elements, Color.FromArgb(255, 0, 255, 255), Color.FromArgb(255, 255, 0, 255), selectionIndex, Color.FromArgb(255, 0, 255, 0));
         }
 
+        public static void Prompt(ISeleniumAdapter seleniumAdapter)
+        {
+            using (var overlay = new Overlay())
+            {
+                var handle = seleniumAdapter.GetChromeHandle();
+                overlay.Init2();
+
+
+                DateTime timedout = DateTime.Now.AddSeconds(7);
+                int A = 0;
+
+                overlay.MasterForm.StartRenderingLoop();
+                while (A == 0 && DateTime.Now < timedout)
+                {
+                    A = overlay.get();
+                }
+                Console.Out.Write($"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA {A}");
+            }
+        }
+
         public static void HighlightElements(ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor, int selectionIndex, Color selectionColor)
         {
             using (var overlay = new Overlay())

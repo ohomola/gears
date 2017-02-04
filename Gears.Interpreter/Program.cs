@@ -19,9 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 using Castle.Core.Internal;
+using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Applications.Registrations;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Library.Config;
@@ -30,11 +35,71 @@ namespace Gears.Interpreter
 {
     public class Program
     {
+        private static OverlayForm form;
         public const int CriticalErrorStatusCode = -2;
         public const int ScenarioFailureStatusCode = -1;
         public const int OkStatusCode = 0;
 
+        private static void bw_DoWork(object sender, DoWorkEventArgs e)
+        {
+            try
+            {
+                form = new OverlayForm();
+                //form.Init();
+                Application.Run(form);
+                form.Dispose();
+            }
+            catch (Exception)
+            {
+            }
+
+            Application.Exit();
+        }
+
         private static int Main(string[] args)
+        {
+            
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+
+            //var ff = new MasterForm();
+            //ff.InitializeAsInvisibleForm();
+            //var gg = ff.CreateGraphics();
+            //gg.FillRectangle(new SolidBrush(Color.Red), 5, 5, 500, 500);
+
+
+            
+
+            //Application.Run(form);
+            var bw = new BackgroundWorker();
+            bw.DoWork += new DoWorkEventHandler(bw_DoWork);
+            
+            bw.RunWorkerAsync();
+
+
+            Thread.Sleep(1000);
+            var Graphics = form.CreateGraphics();
+            Graphics.CompositingMode = CompositingMode.SourceOver;
+            Graphics.FillRectangle(new SolidBrush(Color.Red), 5, 5, 500, 500);
+            Thread.Sleep(5000);
+            var asd = form.X;
+            Thread.Sleep(5000);
+            //Graphics.Clear(Color.Black);
+            //Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 0, 255, 255)), 0, 0, 400, 50);
+            //Graphics.DrawString("HIGHLIGHTING", new Font(FontFamily.GenericSansSerif, 24), new SolidBrush(Color.FromArgb(255, 0, 200, 200)), 50, 8);
+
+
+            //form.Activate();
+
+            //form.StartRenderingLoop();
+
+
+
+            return 0;
+        }
+        private static int Main3(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Out.WriteLine("----------------------------------------");

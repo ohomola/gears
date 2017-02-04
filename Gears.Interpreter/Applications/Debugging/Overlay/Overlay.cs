@@ -36,10 +36,30 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 
     public class Overlay : IOverlay, IDisposable
     {
-        private MasterForm _masterForm;
+        public MasterForm MasterForm { get; private set; }
         private bool _initialized;
         private static bool _appInitialized;
         public Graphics Graphics { get; set; }
+
+        public void Init2()
+        {
+            if (_initialized)
+            {
+                return;
+            }
+
+            StaticInit();
+
+            MasterForm = new MasterForm();
+            MasterForm.InitializeAsClickableForm();
+            MasterForm.StartRenderingLoop();
+
+        }
+
+        public int get()
+        {
+            return MasterForm.X;
+        }
 
         public void Init()
         {
@@ -50,9 +70,9 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 
             StaticInit();
 
-            _masterForm = new MasterForm();
-            _masterForm.InitializeAsInvisibleForm();
-            Graphics = _masterForm.CreateGraphics();
+            MasterForm = new MasterForm();
+            MasterForm.InitializeAsInvisibleForm();
+            Graphics = MasterForm.CreateGraphics();
             //Graphics.CompositingMode = CompositingMode.SourceCopy;
             Graphics.CompositingMode = CompositingMode.SourceOver;
 
@@ -97,7 +117,7 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 
         public void Dispose()
         {
-            _masterForm?.Dispose();
+            MasterForm?.Dispose();
         }
     }
 }

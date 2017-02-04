@@ -19,6 +19,11 @@ namespace Gears.Interpreter.Applications
     {
     }
 
+    public interface IAnswerChoice
+    {
+        string Text { get; set; }
+    }
+
     public interface IInformativeAnswer : IAnswer
     {
     }

@@ -140,6 +140,12 @@
     <Compile Include="Adapters\Interoperability\UserInteropAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerCommand.cs" />
     <Compile Include="Applications\Configuration\IAutoRegistered.cs" />
+    <Compile Include="Applications\Debugging\Overlay\OverlayForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Applications\Debugging\Overlay\OverlayForm.Designer.cs">
+      <DependentUpon>OverlayForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Applications\IAnswer.cs" />
     <Compile Include="Applications\Interpreter.cs" />
     <Compile Include="Applications\Iterator.cs" />
@@ -191,6 +197,7 @@
     <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Show.cs" />
+    <Compile Include="Library\WhatIs.cs" />
     <Compile Include="Library\Workflow\Back.cs" />
     <Compile Include="Library\Workflow\EndOfScenario.cs" />
     <Compile Include="Library\Enums.cs" />

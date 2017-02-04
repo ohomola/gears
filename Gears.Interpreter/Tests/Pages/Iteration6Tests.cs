@@ -299,6 +299,24 @@ namespace Gears.Interpreter.Tests.Pages
             interpreter.Please("click first [buttonName] from left");
         }
 
+        [Test]
+        public void CanDescribe()
+        {
+            Bootstrapper.Register();
+            var interpreter = Bootstrapper.ResolveInterpreter();
+            interpreter.Please($"gotourl {_clickScenarioFilePath}");
+            //interpreter.Please("whatisit {I.PointAt()}");
+            var response = interpreter.Please("whatisit 50 50") as InformativeAnswer;
+            Assert.AreEqual(3, response);
+            Assert.AreEqual("button 'Button1'", response.Text);
+            interpreter.Please($"click ");
+
+            interpreter.Please($"click ");
+            interpreter.Please("remember buttonName button1");
+            interpreter.Please(string.Empty);
+            interpreter.Please("click first [buttonName] from left");
+        }
+
         [SetUp]
         public void SetUp()
         {

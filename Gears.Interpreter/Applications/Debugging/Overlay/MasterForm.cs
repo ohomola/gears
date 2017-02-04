@@ -30,6 +30,40 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 {
     public partial class MasterForm : Form
     {
+        public void InitializeAsInvisibleForm()
+        {
+            InitializeComponent();
+
+            MaximizeEverything();
+
+            SetFormTransparent(this.Handle);
+
+            SetTheLayeredWindowAttribute();
+        }
+
+        public void InitializeAsClickableForm()
+        {
+            InitializeComponent();
+
+            MaximizeEverything();
+
+            //SetFormTransparent(this.Handle);
+            
+            //SetTheLayeredWindowAttribute();
+
+            this.MouseClick += new MouseEventHandler(delegate (object sender, MouseEventArgs e)
+            {
+                Console.Out.Write("BBBBBBBB");
+                X = 99999;
+            });
+
+            this.KeyDown += new KeyEventHandler(delegate (object sender, KeyEventArgs e)
+            {
+                Console.Out.Write("AAAAAA");
+                X = 1213123;
+            });
+        }
+
         BackgroundWorker bw = new BackgroundWorker();
         Random rand = new Random(DateTime.Now.Millisecond);
 
@@ -56,7 +90,7 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
         //public OverlayContainer OverlayContainer { get; set; }
 
         [Flags]
-        enum WindowStyles : uint
+        public enum WindowStyles : uint
         {
             WS_OVERLAPPED = 0x00000000,
             WS_POPUP = 0x80000000,
@@ -156,6 +190,17 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
             Alpha = 0x2,
         }
 
+        public int X { get; set;}
+
+        protected override void OnClick(EventArgs e)
+        {
+            Console.Out.Write("--- On Click called ---");
+
+            //base.OnClick(e);
+
+            X = 456;
+        }
+
         [DllImport("user32.dll", SetLastError = true)]
         static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
@@ -224,17 +269,6 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
             return new Point(minX, minY);
         }
 
-        public void InitializeAsInvisibleForm()
-        {
-            InitializeComponent();
-
-            MaximizeEverything();
-
-            SetFormTransparent(this.Handle);
-
-            SetTheLayeredWindowAttribute();
-        }
-
         public void StartRenderingLoop()
         {
             BackgroundWorker tmpBw = new BackgroundWorker();
@@ -271,5 +305,20 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
         }
 
         public bool IsStopped { get; set; }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MasterForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }
