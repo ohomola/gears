@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Configuration;
 
 namespace Gears.Interpreter.Library.Config
@@ -36,5 +37,9 @@ namespace Gears.Interpreter.Library.Config
         }
 
         public bool IsActive { get; set; }
+
+        public void Register(IInterpreter applicationLoop)
+        {
+        }
     }
 }

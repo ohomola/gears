@@ -6,22 +6,24 @@ using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Library.Workflow;
 using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
 {
-    public class WhatIs : Keyword
+    [UserDescription("whatisit \t-\t suggests an identifier for a button (selected with mouse)")]
+    public class WhatIsIt : Keyword
     {
         private int _x;
         private int _y;
 
-        private WhatIs(int x, int y)
+        private WhatIsIt(int x, int y)
         {
             _x = x;
             _y = y;
         }
 
-        public WhatIs()
+        public WhatIsIt()
         {
         }
 
@@ -31,20 +33,15 @@ namespace Gears.Interpreter.Library
 
             if (strings.Length < 3)
             {
-                return new WhatIs();
+                return new WhatIsIt();
             }
 
             var args = ExtractTwoParametersFromTextInstruction(textInstruction);
-            return new WhatIs(int.Parse(args[0]), int.Parse(args[1]));
+            return new WhatIsIt(int.Parse(args[0]), int.Parse(args[1]));
         }
 
         public override object DoRun()
         {
-            var outerHeight =(int)Math.Abs((long)Selenium.WebDriver.RunLibraryScript("return  window.outerHeight"));
-            var outerWidth = (int)Math.Abs((long)Selenium.WebDriver.RunLibraryScript("return window.outerWidth"));
-            var innerHeight = (int) Math.Abs((long)Selenium.WebDriver.RunLibraryScript("return window.innerHeight"));
-            var innerWidth = (int)Math.Abs((long)Selenium.WebDriver.RunLibraryScript("return window.innerWidth"));
-
             var clientRect = new UserBindings.RECT();
             UserBindings.GetClientRect(Selenium.GetChromeHandle(), ref clientRect);
 
@@ -64,8 +61,6 @@ namespace Gears.Interpreter.Library
 
                     _x = point.X;
                     _y = point.Y;
-
-                    
                 }
             }
 
@@ -110,11 +105,72 @@ namespace Gears.Interpreter.Library
                         return new SuccessAnswer(instruction.ToString());
                     }
                 }
+
+                var relatives = query.Elements(new[] {"div", "span"})
+                    .RelativeTo(element, SearchDirection.RightFromAnotherElement, true,
+                    0, 20)
+                    .Results();
+                relatives = relatives.Where(x => !string.IsNullOrEmpty(x.WebElement.Text)).ToList();
+
+                if (relatives.Any())
+                {
+                    var relativeInstruction = new Instruction();
+
+                    relativeInstruction.Direction = SearchDirection.LeftFromAnotherElement;
+                    relativeInstruction.Locale = relatives.First().WebElement.Text;
+                    relativeInstruction.SubjectType = instruction.SubjectType;
+
+                    new Remember("it", relativeInstruction.ToString()).Execute();
+
+                    return new SuccessAnswer(relativeInstruction);
+                }
+
+                relatives = query.Elements(new[] { "div", "span" })
+                    .RelativeTo(element, SearchDirection.LeftFromAnotherElement, true,
+                    0, 20)
+                    .Results();
+                relatives = relatives.Where(x => !string.IsNullOrEmpty(x.WebElement.Text)).ToList();
+
+                if (relatives.Any())
+                {
+                    var relativeInstruction = new Instruction();
+
+                    relativeInstruction.Direction = SearchDirection.RightFromAnotherElement;
+                    relativeInstruction.Locale = relatives.First().WebElement.Text;
+                    relativeInstruction.SubjectType = instruction.SubjectType;
+
+                    new Remember("it", relativeInstruction.ToString()).Execute();
+
+                    return new SuccessAnswer(relativeInstruction);
+                }
+
+                relatives = query.Elements(new[] { "div", "span" })
+                    .RelativeTo(element, SearchDirection.AboveAnotherElement, true,
+                    0, 20)
+                    .Results();
+                relatives = relatives.Where(x => !string.IsNullOrEmpty(x.WebElement.Text)).ToList();
+
+                if (relatives.Any())
+                {
+                    var relativeInstruction = new Instruction();
+
+                    relativeInstruction.Direction = SearchDirection.BelowAnotherElement;
+                    relativeInstruction.Locale = relatives.First().WebElement.Text;
+                    relativeInstruction.SubjectType = instruction.SubjectType;
+
+                    new Remember("it", relativeInstruction.ToString()).Execute();
+
+                    return new SuccessAnswer(relativeInstruction);
+                }
+
             }
 
             return new WarningAnswer("No element on that location.");
         }
 
-        
+        public override string ToString()
+        {
+            return "What is it?";
+        }
     }
 }

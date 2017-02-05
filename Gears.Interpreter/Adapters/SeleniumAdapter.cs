@@ -49,12 +49,29 @@ namespace Gears.Interpreter.Adapters
         void ConvertFromScreenToWindow(ref Point point);
         int ContentOffsetX();
         int ContentOffsetY();
+        void BringToFront();
     }
 
     public class SeleniumAdapter : ISeleniumAdapter, IDisposable
     {
         private IntPtr _handle;
         private IWebDriver _webDriver;
+
+        protected Lazy<int> LazyContentOffsetX { get; set; }
+        protected Lazy<int> LazyContentOffsetY { get; set; }
+
+        public SeleniumAdapter()
+        {
+            LazyContentOffsetX = new Lazy<int>(() => (int)
+                Math.Abs((long)WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth")) - 15);
+
+            LazyContentOffsetY =
+                new Lazy<int>(
+                    () =>
+                        (int)
+                        Math.Abs((long) WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight")) -
+                        7);
+        }
 
         public IWebDriver WebDriver
         {
@@ -81,7 +98,9 @@ namespace Gears.Interpreter.Adapters
             if (_webDriver == null)
             {
                 var path = FileFinder.Find("chromedriver.exe");
+                var existingChromes = AllChromeHandles();
                 _webDriver = new ChromeDriver(Path.GetDirectoryName(path), new ChromeOptions());
+                _handle = FindChromeHandle(existingChromes);
             }
         }
 
@@ -105,45 +124,41 @@ namespace Gears.Interpreter.Adapters
         {
             LazyInitialize();
 
-            if (_handle == default(IntPtr))
-            {
-                var processes = Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome"));
-                if (processes.Count() > 1)
-                {
-                    throw new ApplicationException("Please close other Chrome windows.");
-                }
-                var process = processes.FirstOrDefault();
-                if (process == null)
-                {
-                    throw new ApplicationException("Chrome window was not found");
-                }
-                _handle = process.MainWindowHandle;
-            }
+            
 
             return _handle;
         }
 
+        private IntPtr FindChromeHandle(IEnumerable<Process> oldChromes)
+        {
+            var allChromeHandles = AllChromeHandles();
 
+            var newChromees = allChromeHandles.Where(each=>!oldChromes.Select(x=>x.Id).Contains(each.Id));
+            var process = newChromees.Single();
+            if (process == null)
+            {
+                throw new ApplicationException("Chrome window was not found");
+            }
+
+            return process.MainWindowHandle;
+        }
+
+        private static IEnumerable<Process> AllChromeHandles()
+        {
+            return Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome")).ToList();
+        }
 
 
         public void ConvertFromPageToWindow(ref Point p)
         {
-            var YOffset =
-                (int)
-                Math.Abs(
-                    (long)WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight"));
-            var XOffset =
-                (int)
-                Math.Abs((long)WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth"));
-
             var scrollOffset =
                 (int)
                 Math.Abs(
                     (long)
                     WebDriver.RunLibraryScript("return window.pageYOffset || document.documentElement.scrollTop"));
 
-            p.X += XOffset;
-            p.Y += YOffset - scrollOffset;
+            p.X += ContentOffsetX();
+            p.Y += ContentOffsetY() - scrollOffset;
         }
 
         public void ConvertFromWindowToScreen(ref Point point)
@@ -196,20 +211,25 @@ namespace Gears.Interpreter.Adapters
             var browserBarHeight = ContentOffsetY();
             var bb = ContentOffsetX();
             location.Y += (int)Math.Abs(browserBarHeight);
-            location.Y += 5;
-            location.X += 5;
+            location.Y += 8;
+            location.X += 8;
             return location;
         }
 
         public int ContentOffsetX()
         {
-            return (int)
-                Math.Abs((long)WebDriver.RunLibraryScript("return window.innerWidth - window.outerWidth"))-7;
+            return LazyContentOffsetX.Value;
         }
 
         public int ContentOffsetY()
         {
-            return (int)Math.Abs((long)WebDriver.RunLibraryScript("return window.innerHeight - window.outerHeight"))-7;
+            return LazyContentOffsetY.Value;
+        }
+
+        public void BringToFront()
+        {
+            UserBindings.SetForegroundWindow(_handle);
+            ((IJavaScriptExecutor)WebDriver).ExecuteScript("window.focus();");
         }
 
         private Point GetLocation(IWebElement element)

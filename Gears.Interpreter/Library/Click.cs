@@ -26,6 +26,7 @@ using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications;
+using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Library.Workflow;
@@ -40,8 +41,6 @@ namespace Gears.Interpreter.Library
     [UserDescription("click <inst>\t-\t clicks a button identified by instruction")]
     public class Click : Keyword, IHasTechnique, IInstructed
     {
-        public const string SuccessMessage = "Click performed.";
-
         public virtual string What
         {
             set
@@ -71,6 +70,18 @@ namespace Gears.Interpreter.Library
             VisibleTextOfTheButton = instruction.SubjectName;
             Direction = instruction.Direction;
             NeighbourToLookFrom = instruction.Locale;
+
+            if (new[]
+            {
+                SearchDirection.AboveAnotherElement,
+                SearchDirection.BelowAnotherElement,
+                SearchDirection.RightFromAnotherElement,
+                SearchDirection.LeftFromAnotherElement,
+
+            }.Contains(Direction))
+            {
+                LookForOrthogonalNeighboursOnly = true;
+            }
         }
 
         #endregion
@@ -95,9 +106,14 @@ namespace Gears.Interpreter.Library
 
             var result = query.DirectLookup(SearchedTagNames, VisibleTextOfTheButton, NeighbourToLookFrom, Direction, Order, LookForOrthogonalNeighboursOnly);
 
+            if (Interpreter?.IsAnalysis == true)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.Result}\nAll results:\n\t{string.Join("\n\t", result.OtherValidResults)}");
+            }
+
             if (result.Success == false)
             {
-                throw new LookupFailureException(result, $"Cannot find element {(Order > 0 ? (Order + 1).ToString() : "")}({result.OtherValidResults.Count()} results found)");
+                throw new LookupFailureException(result, $"Failed {ToString()}.\nCannot find element {(Order > 0 ? (Order + 1).ToString() : "")}({result.OtherValidResults.Count()} results found)");
             }
 
             switch (Technique)
@@ -109,6 +125,7 @@ namespace Gears.Interpreter.Library
                     Selenium.WebDriver.Click(result.Result.WebElement);
                     break;
                 case Technique.MouseAndKeyboard:
+                    Selenium.BringToFront();
                     var screenLocation = Selenium.PutElementOnScreen(result.Result.WebElement);
                     //Highlighter.HighlightPoints(Selenium, screenLocation);
                     UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
@@ -116,12 +133,12 @@ namespace Gears.Interpreter.Library
                     break;
             }
 
-            return new SuccessAnswer(SuccessMessage);
+            return new SuccessAnswer($"Performed {ToString()}");
         }
         
         public override string ToString()
         {
-            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(SubjectType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":Direction.ToString())} {NeighbourToLookFrom}";
+            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(SubjectType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":Instruction.GetDescription(Direction))} {NeighbourToLookFrom}";
         }
 
         

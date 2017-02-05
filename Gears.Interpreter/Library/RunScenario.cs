@@ -68,7 +68,7 @@ namespace Gears.Interpreter.Library
             }
             finally
             {
-                Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Keywords.ToList()));
+                Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Keywords.ToList(), FileName));
             }
             
             return null;

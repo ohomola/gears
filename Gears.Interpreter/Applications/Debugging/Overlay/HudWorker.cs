@@ -17,6 +17,7 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
     {
         private readonly Func<ClickableHudForm> _hudFormFactory;
         private ClickableHudForm _form;
+        private Bitmap _backBuffer;
         public BackgroundWorker BackgroundWorker { get; set; }
 
         public HudWorker(Func<ClickableHudForm> hudFormFactory)
@@ -35,69 +36,58 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
                 Thread.Sleep(50);
             }
 
-
             var graphics = _form.CreateGraphics();
 
             graphics.CompositingMode = CompositingMode.SourceOver;
 
-            
-            while (_form.ClickPosition == default(Point))
-            {
-                Thread.Sleep(5);
-                Render(_form, graphics, selenium);
-            }
+            _backBuffer = new Bitmap(_form.Width, _form.Height);
+            var backBufferPainter = Graphics.FromImage(_backBuffer);
 
+            try
+            {
+                while (_form.ClickPosition == default(Point))
+                {
+                    Render(backBufferPainter, selenium);
+
+                    graphics.DrawImage(_backBuffer, 0, 0);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Yellow, $"Error rendering overlay: {e.ToString()}");
+            }
 
             return _form.ClickPosition;
         }
 
-        private void Render(ClickableHudForm form, Graphics graphics, ISeleniumAdapter selenium)
+        private void Render(Graphics backBuffer, ISeleniumAdapter selenium)
         {
-            try
-            {
-                var handle = selenium.GetChromeHandle();
-                var p = new Point(0, 0);
+            var windowRect = selenium.BrowserWindowScreenRectangle;
+            var topLeft = new Point(windowRect.Left, windowRect.Top);
+            var bottomRight = new Point(windowRect.Right, windowRect.Bottom);
 
-                var windowRect = selenium.BrowserWindowScreenRectangle;
-                var topLeft = new Point(windowRect.Left, windowRect.Top);
-                var bottomRight = new Point(windowRect.Right, windowRect.Bottom);
+            UserInteropAdapter.ScreenToGraphics(ref topLeft);
+            UserInteropAdapter.ScreenToGraphics(ref bottomRight);
 
-                UserInteropAdapter.ScreenToGraphics(ref topLeft);
-                UserInteropAdapter.ScreenToGraphics(ref bottomRight);
+            backBuffer.Clear(Color.Black);
 
-
-                Bitmap bitmap = new Bitmap(form.Width, form.Height);
-                Graphics g = Graphics.FromImage(bitmap);
-
-                g.Clear(Color.Black);
+            float height = Math.Abs(bottomRight.Y - topLeft.Y);
+            float width = Math.Abs(bottomRight.X - topLeft.X);
+            backBuffer.FillRectangle(new SolidBrush(Color.FromArgb(255, 100, 255, 255)), topLeft.X+8, topLeft.Y+22, width-16, height-30);
                 
+            var contentTopLeft = new Point(windowRect.Left, windowRect.Top);
+            contentTopLeft.X += selenium.ContentOffsetX();
+            contentTopLeft.Y += selenium.ContentOffsetY();
+            backBuffer.FillRectangle(new SolidBrush(Color.FromArgb(255, 100, 255, 150)), contentTopLeft.X+8, contentTopLeft.Y, width- selenium.ContentOffsetX()-16, height- selenium.ContentOffsetY()-18);
 
-                float height = Math.Abs(bottomRight.Y - topLeft.Y);
-                float width = Math.Abs(bottomRight.X - topLeft.X);
-                g.FillRectangle(new SolidBrush(Color.FromArgb(255, 100, 255, 255)), topLeft.X+8, topLeft.Y+22, width-16, height-30);
+            backBuffer.DrawString("Click an element", new Font(FontFamily.GenericSansSerif, 14), new SolidBrush(Color.FromArgb(255, 10, 10, 10)), topLeft.X+340, topLeft.Y+22);
 
-                
-                var contentTopLeft = new Point(windowRect.Left, windowRect.Top);
-                contentTopLeft.X += selenium.ContentOffsetX();
-                contentTopLeft.Y += selenium.ContentOffsetY();
-                g.FillRectangle(new SolidBrush(Color.FromArgb(255, 100, 255, 150)), contentTopLeft.X+8, contentTopLeft.Y, width- selenium.ContentOffsetX()-16, height- selenium.ContentOffsetY()-18);
-
-                //g.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 255, 128)), topLeft.X+280, topLeft.Y, 320, 50);
-                g.DrawString("Click an element", new Font(FontFamily.GenericSansSerif, 14), new SolidBrush(Color.FromArgb(255, 10, 10, 10)), topLeft.X+340, topLeft.Y+22);
-
-                if (ElementLocation != default(Point))
-                {
-                    g.DrawRectangle(new Pen(Color.FromArgb(255, 0, 50, 150), 2),
-                        ElementLocation.X, ElementLocation.Y, ElementSize.Width, ElementSize.Height);
-                    g.FillRectangle(new SolidBrush(Color.FromArgb(255, 100, 255, 255)), 
-                        ElementLocation.X, ElementLocation.Y, ElementSize.Width, ElementSize.Height);
-                }
-
-                graphics.DrawImage(bitmap,0,0);
-
-            }
-            catch (Exception)
+            if (ElementLocation != default(Point))
             {
+                backBuffer.DrawRectangle(new Pen(Color.FromArgb(255, 0, 50, 150), 2),
+                    ElementLocation.X, ElementLocation.Y, ElementSize.Width, ElementSize.Height);
+                backBuffer.FillRectangle(new SolidBrush(Color.FromArgb(255, 100, 255, 255)), 
+                    ElementLocation.X, ElementLocation.Y, ElementSize.Width, ElementSize.Height);
             }
         }
 

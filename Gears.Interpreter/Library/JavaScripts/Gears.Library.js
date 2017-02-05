@@ -119,11 +119,11 @@ function FilterElementsByText(searchedText, allElements, matchWhenTextIsInChild)
 }
 
 //WrappedByWebdriverExtension
-function FilterOrthogonalElements(allElements, element) {
+function FilterOrthogonalElements(allElements, element, xTolerance, yTolerance) {
     var matches = [];
     
     for (var i = 0; i < allElements.length; i++) {
-        if (!isHidden(allElements[i]) && areOrthogonal(allElements[i], element)) {
+        if (!isHidden(allElements[i]) && areOrthogonal(allElements[i], element, xTolerance, yTolerance)) {
             matches.push(allElements[i]);
         }
     }
@@ -276,12 +276,12 @@ function isExactMatch(element, searchedText) {
     return false;
 }
 
-function areOrthogonal(input, element) {
+function areOrthogonal(input, element, xTolerance, yTolerance) {
     var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);
-    if (dif < 5) return true;
+    if (dif < yTolerance) return true;
 
     dif = Math.abs(input.getBoundingClientRect().left - element.getBoundingClientRect().left);
-    if (dif < 5) return true;
+    if (dif < xTolerance) return true;
 
     return false;
 }
@@ -289,6 +289,21 @@ function areOrthogonal(input, element) {
 function isHidden(el) {
     if (el.offsetParent === null) {
         return true;
+    }
+
+    var rect = el.getBoundingClientRect();
+
+    if (el.style.opacity === 0) {
+        return false;
+    }
+
+    if (
+        rect.top < 0 ||
+            rect.left < 0 ||
+            rect.bottom > (window.innerHeight || document.documentElement.clientHeight) || /*or $(window).height() */
+            rect.right > (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+    ) {
+        return false;
     }
 
     var style = window.getComputedStyle(el);

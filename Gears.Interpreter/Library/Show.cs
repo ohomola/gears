@@ -9,9 +9,25 @@ namespace Gears.Interpreter.Library
     [UserDescription("show (command)\t-\t shows a current keyword or another command (if specified)")]
     public class Show : Keyword
     {
+        private IKeyword keyword;
+
         public override object DoRun()
         {
-            throw new NotImplementedException();
+            var tech = (keyword as IHasTechnique);
+            var oldTechnique = tech.Technique;
+            tech.Technique = Technique.HighlightOnly;
+            keyword.Execute();
+            tech.Technique = oldTechnique;
+            return new SuccessAnswer("Done.");
+        }
+
+        public Show()
+        {
+        }
+
+        public Show(IKeyword keyword)
+        {
+            this.keyword = keyword;
         }
 
         public override IKeyword FromString(string textInstruction)
@@ -36,8 +52,7 @@ namespace Gears.Interpreter.Library
 
             if (keyword is IHasTechnique)
             {
-                (keyword as IHasTechnique).Technique = Technique.HighlightOnly;
-                return keyword;
+                return new Show(keyword);
             }
             
             throw new ArgumentException($"Cannot highlight {keyword.GetType().Name} because it does not support this operation. Only the following keywords are supported: \n\t{string.Join("\n\t", Interpreter.Language.Keywords.OfType<IHasTechnique>().Select(x=>" - "+x.GetType().Name))}\n");

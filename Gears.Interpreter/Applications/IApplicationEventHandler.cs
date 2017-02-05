@@ -1,7 +1,8 @@
+using Gears.Interpreter.Applications.Configuration;
+
 namespace Gears.Interpreter.Applications
 {
-    public interface IApplicationEventHandler
+    public interface IApplicationEventHandler : IAutoRegistered
     {
-        void Register(IInterpreter applicationLoop);
     }
 }

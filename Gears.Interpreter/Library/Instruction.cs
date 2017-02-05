@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Gears.Interpreter.Core.Extensions;
 
@@ -169,7 +171,25 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"{(this.Order+1).ToOrdinalString()} {(SubjectType == default(SubjectType) ? "" : SubjectType.ToString())} '{this.SubjectName}' {(Direction==default(SearchDirection)?"":"looking '"+Direction+"'")} {(string.IsNullOrEmpty(Locale)?"":"'"+Locale+"'")}";
+            return $"{(this.Order+1).ToOrdinalString()} " +
+                   $"{(SubjectType == default(SubjectType) ? "" : SubjectType.ToString())} " +
+                   $"{(string.IsNullOrEmpty(this.SubjectName)? "":$"'{this.SubjectName}'")} " +
+                   $"{(Direction==default(SearchDirection)?"": GetDescription(Direction))} " +
+                   $"{(string.IsNullOrEmpty(Locale)?"":"'"+Locale+"'")}";
+        }
+
+        public static string GetDescription(SearchDirection enumValue)
+        {
+            var fi = typeof(SearchDirection).GetField(enumValue.ToString());
+
+            if (null != fi)
+            {
+                object[] attrs = fi.GetCustomAttributes(typeof(DescriptionAttribute), true);
+                if (attrs != null && attrs.Length > 0)
+                    return ((DescriptionAttribute)attrs[0]).Description;
+            }
+
+            return enumValue.ToString();
         }
     }
 }

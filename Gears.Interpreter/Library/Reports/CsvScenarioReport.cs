@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Configuration;
 using Gears.Interpreter.Applications.Debugging;
@@ -10,19 +12,20 @@ using JetBrains.Annotations;
 
 namespace Gears.Interpreter.Library.Reports
 {
-    public class CsvScenarioReport : IAutoRegistered, IApplicationEventHandler
+    public class CsvScenarioReport : Keyword, IApplicationEventHandler, IHasTechnique
     {
         private string _path;
-        private int _filesCreated = 0;
+        private static int _filesCreated = 0;
+        private readonly string _pathTemplate;
 
         public CsvScenarioReport()
         {
-            _path = ".\\Output\\ScenarioReport_csv{0}.csv";
+            _pathTemplate = ".\\Output\\ScenarioReport_csv{0}.csv";
         }
 
         public CsvScenarioReport([NotNull] string path)
         {
-            _path = path;
+            _pathTemplate = path;
         }
 
         public void Register(IInterpreter applicationLoop)
@@ -32,13 +35,32 @@ namespace Gears.Interpreter.Library.Reports
 
         private void WriteLog(object sender, ScenarioFinishedEventArgs e)
         {
-            var path = string.Format(_path, DateTime.Now.ToString("s").Replace(":", "_") + _filesCreated++);
+            _path = string.Format(_pathTemplate, DateTime.Now.ToString("s").Replace(":", "_") + _filesCreated++);
 
             Directory.CreateDirectory(Path.GetDirectoryName(_path));
 
-            Console.Out.WriteColoredLine(ConsoleColor.Gray, $"CSV Scenario Report  was saved to file \'{path}\'.");
+            Console.Out.WriteColoredLine(ConsoleColor.Gray, $"{e.Name} report was saved to CSV file \'{_path}\'.");
 
-            new FileObjectAccess(path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).AddRange(e.Keywords);
+            new FileObjectAccess(_path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).AddRange(e.Keywords);
+
+            if (Technique == Technique.HighlightOnly)
+            {
+                Process.Start("explorer.exe", _path);
+            }
+        }
+
+        public override object DoRun()
+        {
+            WriteLog(null, new ScenarioFinishedEventArgs(Interpreter.GetLog().ToList(), "Master scenario"));
+
+            return new SuccessAnswer($"Saved report to {_path}");
+        }
+
+        public virtual Technique Technique { get; set; }
+
+        public override string ToString()
+        {
+            return "Save scenario report as CSV.";
         }
     }
 }

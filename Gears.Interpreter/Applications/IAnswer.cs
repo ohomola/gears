@@ -88,6 +88,22 @@ namespace Gears.Interpreter.Applications
         }
     }
 
+    public class ExternalMessageAnswer : InformativeAnswer
+    {
+        public ExternalMessageAnswer(object response) : base(response)
+        {
+        }
+    }
+
+    public class DataDescriptionAnswer : InformativeAnswer
+    {
+        public DataDescriptionAnswer(object response) : base(response)
+        {
+        }
+    }
+
+
+
     public class ResultAnswer : InformativeAnswer
     {
         public int Code { get; set; }
@@ -112,15 +128,19 @@ namespace Gears.Interpreter.Applications
 
         public CriticalFailure(string message) : base(message)
         {
+            Text = message;
         }
 
         public CriticalFailure(string message, Exception innerException) : base(message, innerException)
         {
+            Text = message;
         }
 
         protected CriticalFailure([NotNull] SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
+
+
 
         public List<IAnswer> Children => new List<IAnswer>()
         {

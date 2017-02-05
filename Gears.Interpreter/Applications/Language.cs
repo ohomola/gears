@@ -38,6 +38,7 @@ namespace Gears.Interpreter.Applications
 
         public IKeyword ResolveKeyword(string command)
         {
+            command = command.Trim();
             var template = Keywords.First(x => x.Matches(command));
             if (ServiceLocator.IsInitialised())
             {

@@ -87,9 +87,9 @@ namespace Gears.Interpreter.Library
         }
         
         [JavascriptFunctionWrapper]
-        public static ReadOnlyCollection<IWebElement> FilterOrthogonalElements(this IWebDriver webDriver, ReadOnlyCollection<IWebElement> elements, IWebElement element)
+        public static ReadOnlyCollection<IWebElement> FilterOrthogonalElements(this IWebDriver webDriver, ReadOnlyCollection<IWebElement> elements, IWebElement element, int xTolerance, int yTolerance)
         {
-            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0], arguments[1])", elements, element);
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(arguments[0], arguments[1], arguments[2], arguments[3])", elements, element, xTolerance, yTolerance);
 
             return ToCollection(result);
         }

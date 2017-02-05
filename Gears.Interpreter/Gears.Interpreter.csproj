@@ -203,7 +203,9 @@
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\WebElementExtensions.cs" />
-    <Compile Include="Library\WhatIs.cs" />
+    <Compile Include="Library\WhatIsIt.cs" />
+    <Compile Include="Library\Workflow\Analysis.cs" />
+    <Compile Include="Library\Workflow\AnalysisOff.cs" />
     <Compile Include="Library\Workflow\Back.cs" />
     <Compile Include="Library\Workflow\EndOfScenario.cs" />
     <Compile Include="Library\Enums.cs" />
@@ -240,6 +242,7 @@
     <Compile Include="Library\Workflow\Start.cs" />
     <Compile Include="Library\Workflow\Status.cs" />
     <Compile Include="Library\Workflow\Stop.cs" />
+    <Compile Include="Library\Workflow\Take.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Applications\Registrations\Bootstrapper.cs" />

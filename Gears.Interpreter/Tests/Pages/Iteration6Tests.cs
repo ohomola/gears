@@ -9,6 +9,8 @@ using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Registrations;
 using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Data;
+using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 using Gears.Interpreter.Library.Workflow;
 using NUnit.Framework;
@@ -113,7 +115,7 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.IsInstanceOf<WarningAnswer>(response);
             
             response = interpreter.Please("click 1st button from right");
-            Assert.AreEqual(Click.SuccessMessage, response.Body);
+            Assert.IsInstanceOf<SuccessAnswer>(response);
 
             response = interpreter.Please("isvisible pressed");
             Assert.IsInstanceOf<SuccessAnswer>(response);
@@ -359,6 +361,26 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual(x, p.X);
             Assert.AreEqual(y, p.Y);
 
+        }
+
+        [Test]
+        public void AllKeywordsCanBeWritten()
+        {
+            Bootstrapper.Register();
+            var keywords = ServiceLocator.Instance.ResolveAll<IKeyword>();
+
+            foreach (var keyword in keywords)
+            {
+                try
+                {
+                    new TempFileObjectAccess("Test1.csv", ServiceLocator.Instance.Resolve<ITypeRegistry>()).Write(keyword);
+                }
+                catch (Exception e)
+                {
+                    Assert.Fail($"Class {keyword.GetType().Name} cannot be written to file. Error occured : {e}");
+                }
+            }
+            Bootstrapper.Release();
         }
 
         [SetUp]

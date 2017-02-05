@@ -20,7 +20,7 @@ namespace Gears.Interpreter.Library.Workflow
             Interpreter.IsAlive = false;
 
             //TODO : the result should be processed by triage, success/failure evaluation must not be done by reports
-            WriteResults(Interpreter.IsRunningSuite, Interpreter.Plan);
+            //WriteResults(Interpreter.IsRunningSuite, Interpreter.Plan);
 
             SharedObjectDataAccess.Instance = new Lazy<SharedObjectDataAccess>();
 
@@ -29,36 +29,26 @@ namespace Gears.Interpreter.Library.Workflow
                 return new ResultAnswer(Program.ScenarioFailureStatusCode);
             }
 
-            WriteTempFile(Interpreter.Plan.Any() ? Interpreter.Plan : Interpreter.ExecutionHistory.Where(IsLogged));
+            var objectsToBeWritten = Interpreter.GetLog();
+
+            new TempFileObjectAccess(Applications.Interpreter.LastScenarioTempFilePath + ".csv", ServiceLocator.Instance.Resolve<ITypeRegistry>())
+                .Write(objectsToBeWritten);
 
             return new ResultAnswer(Program.OkStatusCode);
         }
 
-        private void WriteTempFile(IEnumerable<IKeyword> keywords)
-        {
-            string fileName = System.IO.Path.GetTempPath() + Applications.Interpreter.LastScenarioTempFilePath + ".csv";
 
-            File.Delete(fileName);
-
-            var foa = new FileObjectAccess(fileName, ServiceLocator.Instance.Resolve<ITypeRegistry>());
-            
-            foa.WriteObjects(keywords);
-
-            var exists = File.Exists(fileName);
-        }
-
-
-        private void WriteResults(bool isRunningSuite, IEnumerable<IKeyword> keywords)
-        {
-            if (!isRunningSuite)
-            {
-                Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
-            }
-            else
-            {
-                Interpreter.OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
-            }
-        }
+        //private void WriteResults(bool isRunningSuite, IEnumerable<IKeyword> keywords)
+        //{
+        //    if (!isRunningSuite)
+        //    {
+        //        Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList(), "Master scenario"));
+        //    }
+        //    else
+        //    {
+        //        Interpreter.OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
+        //    }
+        //}
 
     }
 }

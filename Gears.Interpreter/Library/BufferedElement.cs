@@ -24,5 +24,27 @@ namespace Gears.Interpreter.Library
         public IWebElement WebElement { get; set; }
 
         public Rectangle Rectangle { get; set; }
+        public override string ToString()
+        {
+            return $"<{WebElement.TagName}> {(string.IsNullOrEmpty(WebElement.Text)?"": $" with text {WebElement.Text}")} Position {WebElement.Location} Size {WebElement.Size}";
+        }
+
+        protected bool Equals(BufferedElement other)
+        {
+            return Rectangle.Equals(other.Rectangle);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((BufferedElement) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Rectangle.GetHashCode();
+        }
     }
 }

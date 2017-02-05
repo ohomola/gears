@@ -16,7 +16,8 @@ namespace Gears.Interpreter.Library
 
         IElementSearchStrategy Elements(IEnumerable<string> searchedTagNames);
         IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild);
-        IElementSearchStrategy RelativeTo(string text, SearchDirection specDirection, bool orthogonalOnly);
+        IElementSearchStrategy RelativeTo(string text, SearchDirection specDirection, bool orthogonalOnly, int xTolerance = 5, int yTolerance = 5);
+        IElementSearchStrategy RelativeTo(IWebElement relative, SearchDirection specDirection, bool orthogonalOnly, int xTolerance = 5, int yTolerance = 5);
         IElementSearchStrategy SortBy(SearchDirection specDirection);
         IEnumerable<IBufferedElement> Results();
         bool Any();
@@ -70,14 +71,26 @@ namespace Gears.Interpreter.Library
 
                 var query = Elements(searchedTagNames).WithText(subjectName, lookingForSpecificElements);
 
+                var xTolerance = (searchDirection == SearchDirection.AboveAnotherElement ||
+                                  searchDirection == SearchDirection.BelowAnotherElement)
+                    ? 40
+                    : 5;
+
+                var yTolerance = (searchDirection == SearchDirection.AboveAnotherElement ||
+                                  searchDirection == SearchDirection.BelowAnotherElement)
+                    ? 5
+                    : 40;
+
                 if (!string.IsNullOrEmpty(locale))
                 {
-                    query = query.RelativeTo(locale, searchDirection, orthogonalOnly);
+                    query = query.RelativeTo(locale, searchDirection, orthogonalOnly, xTolerance, yTolerance);
                 }
 
                 query = query.SortBy(searchDirection);
 
-                var validResults = OnScreen(query.Results());
+                var validResults = RemoveDuplicatesAndDegenerates(query.Results());
+
+                validResults = OnScreen(validResults);
 
                 try
                 {
@@ -130,6 +143,8 @@ namespace Gears.Interpreter.Library
                         .Results();
                 }
 
+                validResults = RemoveDuplicatesAndDegenerates(validResults);
+
                 validResults = OnScreen(validResults);
 
                 try
@@ -151,6 +166,11 @@ namespace Gears.Interpreter.Library
                 }
                 throw;
             }
+        }
+
+        private IEnumerable<IBufferedElement> RemoveDuplicatesAndDegenerates(IEnumerable<IBufferedElement> validResults)
+        {
+            return new HashSet<IBufferedElement>(validResults.Where(x=>x.Rectangle.Height >0 && x.Rectangle.Width > 0));
         }
 
         public IElementSearchStrategy Elements()
@@ -201,24 +221,18 @@ namespace Gears.Interpreter.Library
             return new LocationHeuristictSearchStrategy(_seleniumAdapter, newQuery);
         }
 
-        public IElementSearchStrategy RelativeTo(string visibleTextOfTheRelativeElement, SearchDirection direction, bool orthogonalOnly)
+        public IElementSearchStrategy RelativeTo(IWebElement relative, SearchDirection direction, bool orthogonalOnly, int xTolerance = 5, int yTolerance = 5)
         {
-            if (string.IsNullOrEmpty(visibleTextOfTheRelativeElement))
-            {
-                return new LocationHeuristictSearchStrategy(_seleniumAdapter, _query);
-            }
-
-            var results = new List<IBufferedElement>();
-            var relativeElements = _seleniumAdapter.WebDriver.FilterElementsByText(visibleTextOfTheRelativeElement, _seleniumAdapter.WebDriver.GetAllElements(), false);
+            //var candidates = new ReadOnlyCollection<IWebElement>(new List<IWebElement>() {relative});
 
             var candidates = _query;
 
-            foreach (var relative in relativeElements)
+            var results = new List<IBufferedElement>();
             {
-                if (direction == SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo && 
-                    _query.Any(q=>q.Equals(relative)))
+                if (direction == SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo &&
+                    _query.Any(q => q.Equals(relative)))
                 {
-                    results.AddRange(_query.Where(q => q.Equals(relative)).Select(q=>new BufferedElement(q)));
+                    results.AddRange(_query.Where(q => q.Equals(relative)).Select(q => new BufferedElement(q)));
                 }
 
                 var domNeighbours = _seleniumAdapter.WebDriver.FilterDomNeighbours(candidates, relative);
@@ -233,7 +247,63 @@ namespace Gears.Interpreter.Library
                 IEnumerable<IBufferedElement> bufferedElements;
                 if (orthogonalOnly)
                 {
-                    var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative);
+                    var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative, xTolerance, yTolerance);
+                    bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(orthogonalInputs);
+                }
+                else
+                {
+                    bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(candidates);
+                }
+
+                bufferedElements = SortByDistance(bufferedElements, relative.Location.X, relative.Location.Y);
+
+                bufferedElements = PutNeighborsToFront(bufferedElements, domNeighbours);
+
+                bufferedElements = FilterOtherDirections(direction, bufferedElements, relative);
+
+                results.AddRange(bufferedElements);
+
+                //Highlighter.HighlightElements(bufferedElements.Select(x=>x.WebElement), Selenium);
+            }
+
+            return new LocationHeuristictSearchStrategy(_seleniumAdapter, new ReadOnlyCollection<IWebElement>(results.Select(x => x.WebElement).ToList()));
+        }
+
+        public IElementSearchStrategy RelativeTo(string visibleTextOfTheRelativeElement, SearchDirection direction, bool orthogonalOnly, int xTolerance =5, int yTolerance = 5)
+        {
+            if (string.IsNullOrEmpty(visibleTextOfTheRelativeElement))
+            {
+                return new LocationHeuristictSearchStrategy(_seleniumAdapter, _query);
+            }
+
+            var results = new List<IBufferedElement>();
+            var relativeElements = _seleniumAdapter.WebDriver.FilterElementsByText(visibleTextOfTheRelativeElement, _seleniumAdapter.WebDriver.GetAllElements(), false);
+
+            var relativeBufferedElements = OnScreen(_seleniumAdapter.WebDriver.SelectWithLocation(relativeElements));
+
+            var candidates = _query;
+
+            foreach (var relative in relativeBufferedElements)
+            {
+                if (direction == SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo && 
+                    _query.Any(q=>q.Equals(relative)))
+                {
+                    results.AddRange(_query.Where(q => q.Equals(relative)).Select(q=>new BufferedElement(q)));
+                }
+
+                var domNeighbours = _seleniumAdapter.WebDriver.FilterDomNeighbours(candidates, relative.WebElement);
+                //if (domNeighbours.Any())
+                //{
+                //    if (domNeighbours.Count() == 1)
+                //    {
+                //        results.Add(new BufferedElement(domNeighbours.First()));
+                //    }
+                //}
+
+                IEnumerable<IBufferedElement> bufferedElements;
+                if (orthogonalOnly)
+                {
+                    var orthogonalInputs = _seleniumAdapter.WebDriver.FilterOrthogonalElements(candidates, relative.WebElement, xTolerance, yTolerance);
                     bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(orthogonalInputs);
                 }
                 else
@@ -241,11 +311,11 @@ namespace Gears.Interpreter.Library
                     bufferedElements = _seleniumAdapter.WebDriver.SelectWithLocation(candidates);
                 }
                 
-                bufferedElements = SortByDistance(bufferedElements, relative.Location.X, relative.Location.Y);
+                bufferedElements = SortByDistance(bufferedElements, relative.Rectangle.X, relative.Rectangle.Y);
 
                 bufferedElements = PutNeighborsToFront(bufferedElements, domNeighbours);
 
-                bufferedElements = FilterOtherDirections(direction, bufferedElements, relative);
+                bufferedElements = FilterOtherDirections(direction, bufferedElements, relative.WebElement);
                 
                 results.AddRange(bufferedElements);
 

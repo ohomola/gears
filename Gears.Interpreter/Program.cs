@@ -79,8 +79,13 @@ namespace Gears.Interpreter
 
                 while (interpreter.IsAlive)
                 {
-                    ConsoleView.Render(interpreter.Please("status"));
+                    if (interpreter.IsAnalysis)
+                    {
+                        ConsoleView.Render(interpreter.Please("AnalyseData"));
+                    }
 
+                    ConsoleView.Render(interpreter.Please("status"));
+                    
                     var answer = interpreter.Please(interpreter.Continue());
 
                     ConsoleView.Render(answer);
@@ -90,8 +95,7 @@ namespace Gears.Interpreter
             }
             catch (Exception e)
             {
-                ConsoleView.Render(ConsoleColor.Red, "Error running application: " + e.GetAllMessages());
-                
+                ConsoleView.Render(ConsoleColor.Red, "Error running application: " + e);
                 return CriticalErrorStatusCode;
             }
             finally

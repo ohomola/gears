@@ -67,7 +67,10 @@ namespace Gears.Interpreter.Data.Serialization.Mapping
 
                 row[DiscriminatorColumn] = obj.GetType().Name;
 
-                foreach (var property in _mapper.GetTypeProperties(obj.GetType()))
+                var persistableProperties = _mapper.GetTypeProperties(obj.GetType()).Where(x=>x.CanRead && x.CanWrite);
+
+
+                foreach (var property in persistableProperties)
                 {
                     row[property.Name] = property.GetValue(obj, null);
                 }

@@ -61,6 +61,11 @@ namespace Gears.Interpreter.Library
                 throw new ArgumentException("Value cannot be empty");
             }
 
+            if (Variable.Contains("[") || Variable.Contains("]"))
+            {
+                throw new ArgumentException("Variable name must not contain [] brackets. Please use brackets to reference an existing variable later, not while decalaring it.");
+            }
+
             var existingMemory = Data.GetAll<RememberedText>().FirstOrDefault(x => x.Variable.ToLower() == Variable.ToLower());
             if (existingMemory != null)
             {

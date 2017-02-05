@@ -24,6 +24,7 @@ using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications;
+using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Library.Workflow;
 
@@ -85,6 +86,11 @@ namespace Gears.Interpreter.Library
 
             var lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order);
 
+            if (Interpreter?.IsAnalysis == true)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
+            }
+
             if (lookupResult.Success == false)
             {
                 throw new LookupFailureException(lookupResult, "Input not found");
@@ -103,6 +109,7 @@ namespace Gears.Interpreter.Library
 
                     var screenLocation = Selenium.PutElementOnScreen(lookupResult.Result.WebElement);
 
+                    Selenium.BringToFront();
                     UserInteropAdapter.ClickOnPoint(handle, screenLocation);
                     Thread.Sleep(50);
                     UserInteropAdapter.SendText(handle, Text, screenLocation);

@@ -28,6 +28,7 @@ namespace Gears.Interpreter.Applications
         Iterator<IKeyword> Iterator { get; set; }
         IDataContext Data { get; }
         bool IsDebugMode { get; set;  }
+        bool IsAnalysis { get; set; }
 
         IAnswer Please(string command);
 
@@ -38,6 +39,8 @@ namespace Gears.Interpreter.Applications
         event EventHandler<ScenarioFinishedEventArgs> SuiteFinished;
         void OnSuiteFinished(ScenarioFinishedEventArgs e);
         string Continue();
+        IEnumerable<IKeyword> GetLog();
+        void AddToPlan(IKeyword keyword);
     }
 
     public class Interpreter : IInterpreter, IDisposable
@@ -47,7 +50,7 @@ namespace Gears.Interpreter.Applications
         private IDependencyReloader _reloader;
         public IDataContext Data { get; }
         public ILanguage Language { get; }
-        private IEnumerable<IKeyword> _plan = new List<IKeyword>();
+        private List<IKeyword> _plan = new List<IKeyword>();
 
         public Iterator<IKeyword> Iterator { get; set; } 
 
@@ -60,8 +63,13 @@ namespace Gears.Interpreter.Applications
             set
             {
                 ValidatePlan(value);
-                _plan = value;
+                _plan = value.ToList();
             }
+        }
+
+        public void AddToPlan(IKeyword keyword)
+        {
+            _plan.Add(keyword);
         }
 
         private void ValidatePlan(IEnumerable<IKeyword> value)
@@ -72,6 +80,8 @@ namespace Gears.Interpreter.Applications
         public bool IsRunningSuite => Plan.Any(x => x is RunScenario);
 
         public bool IsDebugMode { get; set; }
+
+        public bool IsAnalysis { get; set; }
 
         [DoNotWire]
         public List<IKeyword> ExecutionHistory { get; set; } = new List<IKeyword>();
@@ -174,7 +184,7 @@ namespace Gears.Interpreter.Applications
             catch (Exception exception)
             {
                 return new ExceptionAnswer($"Unexpected error \n {exception.Message}")
-                    .With(new ProblemDescriptionAnswer(exception.StackTrace));
+                    .With(new ExceptionAnswer(exception.StackTrace));
             }
         }
 
@@ -193,6 +203,11 @@ namespace Gears.Interpreter.Applications
             }
 
             return result;
+        }
+
+        public IEnumerable<IKeyword> GetLog()
+        {
+            return Plan.Any() ? Plan.Where(Keyword.IsLogged) : ExecutionHistory.Where(Keyword.IsLogged);
         }
 
         public void Dispose()

@@ -14,19 +14,27 @@ namespace Gears.Interpreter.Library.Workflow
     }
 
     [NotLogged]
-    public class Analysis : Keyword
+    public class AnalyseData : Keyword
     {
         public override object DoRun()
         {
-            InformativeAnswer successAnswer = new InformativeAnswer("\n------- Interpreter details -------\n");
+            InformativeAnswer successAnswer = new DataDescriptionAnswer(
+            $"\n{ConsoleView.HorizontalLine}\n Data Analysis\n{ConsoleView.HorizontalLine}\n");
 
             if (Interpreter.Data.DataAccesses.OfType<FileObjectAccess>().Any())
             {
-                successAnswer.Children.Add(new SuccessAnswer($"Files registered : {Interpreter.Data.DataAccesses.OfType<FileObjectAccess>().Count()}\n"));
+                successAnswer.Children.Add(new ExternalMessageAnswer($" Registered Files ({Interpreter.Data.DataAccesses.OfType<FileObjectAccess>().Count()}):\n"));
                 foreach (var foa in Interpreter.Data.DataAccesses.OfType<FileObjectAccess>())
                 {
-                    successAnswer.Children.Add(new SuccessAnswer($"\nData Access {foa}"));
+                    successAnswer.Children.Add(new ExternalMessageAnswer($"\n\t - {foa}"));
                 }
+            }
+
+            successAnswer.Children.Add(new DataDescriptionAnswer($"\n  Data:"));
+
+            foreach (var foa in Interpreter.Data.GetAll())
+            {
+                successAnswer.Children.Add(new DataDescriptionAnswer($"\n\t<{foa.GetType().Name}>\t\t{foa}"));
             }
 
             return successAnswer;

@@ -31,7 +31,7 @@ namespace Gears.Interpreter.Library.Workflow
 
             Interpreter.Plan = _data.GetAll<Keyword>().ToList();
 
-            ThrowIfRunScenariosAreMixedWithStandardKeywords(Interpreter.IsRunningSuite, Interpreter.Plan);
+            //ThrowIfRunScenariosAreMixedWithStandardKeywords(Interpreter.IsRunningSuite, Interpreter.Plan);
 
             InformativeAnswer successAnswer = new SuccessAnswer("Initialization complete.\n");
 
@@ -61,13 +61,13 @@ namespace Gears.Interpreter.Library.Workflow
             return successAnswer;
         }
 
-        private void ThrowIfRunScenariosAreMixedWithStandardKeywords(bool isRunningSuite, IEnumerable<IKeyword> keywords)
-        {
-            if (isRunningSuite && !keywords.All(x => x is RunScenario))
-            {
-                throw new CriticalFailure("Scenario cannot contain RunScenario steps as well as basic Keywords.");
-            }
-        }
+        //private void ThrowIfRunScenariosAreMixedWithStandardKeywords(bool isRunningSuite, IEnumerable<IKeyword> keywords)
+        //{
+        //    if (isRunningSuite && !keywords.All(x => x is RunScenario))
+        //    {
+        //        throw new CriticalFailure("Scenario cannot contain RunScenario steps as well as basic Keywords.");
+        //    }
+        //}
 
 
         private void WriteErrorsForCorruptObjects(IDataContext dataContext)

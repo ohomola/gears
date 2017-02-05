@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using Castle.DynamicProxy;
@@ -31,6 +32,13 @@ using Microsoft.CSharp.RuntimeBinder;
 
 namespace Gears.Interpreter.Data
 {
+    public class TempFileObjectAccess : FileObjectAccess
+    {
+        public TempFileObjectAccess(string fileName, ITypeRegistry typeRegistry) : base(System.IO.Path.GetTempPath() + System.IO.Path.PathSeparator + fileName, typeRegistry)
+        {
+        }
+    }
+
     public class FileObjectAccess : IDataObjectAccess
     {
         [Wire]
@@ -47,6 +55,8 @@ namespace Gears.Interpreter.Data
 
             TypeRegistry = typeRegistry;
         }
+
+
 
         public IDataAccessBuffer LazyLoadBuffer()
         {
@@ -105,14 +115,14 @@ namespace Gears.Interpreter.Data
 
             if (!File.Exists(Path))
             {
-                WriteObjects(Enumerable.Empty<object>());
+                Append(Enumerable.Empty<object>());
             }
 
             var existingContent = ReadAllObjects().ToList();
 
             var newContent = objects.Select(UnwrapProxy).ToList();
             newContent.AddRange(existingContent);
-            WriteObjects(newContent);
+            Append(newContent);
         }
 
         internal static TType UnwrapProxy<TType>(TType proxy)
@@ -163,10 +173,9 @@ namespace Gears.Interpreter.Data
         
         public override string ToString()
         {
-            return "File '"+ System.IO.Path.GetFileName(Path) + "'"
-                + (_buffer.Size > 0 ? " ({0} buffered objects)".FormatWith(_buffer.Size.ToString()):"")
-                + " at '"+this.Path + "'"
-                + (_buffer.Size > 0 ? ": \n\t== "+string.Join("\n\t== ",_buffer.GetAll()):"");
+            return
+                $"File \'{System.IO.Path.GetFileName(Path)}\'\tat: '{this.Path}'" +
+                $"\n\t\tContent  {(_buffer.Size > 0 ? $"({_buffer.Size.ToString()} buffered objects)" : "")}{(_buffer.Size > 0 ? ": \n\t\t\t - " + string.Join("\n\t\t\t - ", _buffer.GetAll()) : "")}";
         }
         
         public override bool Equals(object obj)
@@ -224,7 +233,26 @@ namespace Gears.Interpreter.Data
             }
         }
 
-        public void WriteObjects(IEnumerable<object> dataObjects)
+        public void Delete()
+        {
+            if (File.Exists(Path))
+            {
+                File.Delete(Path);
+            }
+        }
+
+        public void Write(IEnumerable<object> dataObjects)
+        {
+            Delete();
+            Append(dataObjects);
+        }
+
+        public void Write(object obj)
+        {
+            Write(new[] {obj});
+        }
+
+        public void Append(IEnumerable<object> dataObjects)
         {
             ISerializer serializer = null;
 

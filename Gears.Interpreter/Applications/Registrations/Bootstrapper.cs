@@ -53,8 +53,7 @@ namespace Gears.Interpreter.Applications.Registrations
             Container.Register(Component.For<IDependencyReloader>().Instance(_dependencyReloaderInstance).LifestyleSingleton());
 
             Container.Register(Component.For<IObjectAccessFactory>().ImplementedBy<ObjectAccessFactory>().LifestyleSingleton());
-            Container.Register(Component.For<IDataObjectAccess>().Named("ExplicitObjects")
-                .UsingFactory((IObjectAccessFactory f) => f.CreateFromObjects(explicitObjects)));
+            Container.Register(Component.For<IDataObjectAccess>().Named("ExplicitObjects").UsingFactory((IObjectAccessFactory f) => f.CreateFromObjects(explicitObjects)));
         }
 
         public static void Register(string[] args)

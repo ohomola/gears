@@ -9,6 +9,8 @@ namespace Gears.Interpreter
 {
     public class ConsoleView
     {
+        public const string HorizontalLine = "------------------------------------------------------------------------------------";
+
         public static void Render(IAnswer answer)
         {
             var outputs = ToDisplayData(answer);
@@ -26,15 +28,44 @@ namespace Gears.Interpreter
             Console.Out.WriteColoredLine(color, text);
         }
 
+
+        private static Dictionary<Type, ConsoleColor> MasterColors;
+        private static Dictionary<Type, ConsoleColor> ChildColors;
+
         public static List<ConsoleOutput> ToDisplayData(IAnswer response)
         {
+            MasterColors = new Dictionary<Type, ConsoleColor>()
+            {
+                { typeof(ExceptionAnswer), ConsoleColor.Red},
+                { typeof(CriticalFailure), ConsoleColor.Red},
+                { typeof(WarningAnswer), ConsoleColor.Yellow},
+                { typeof(ExternalMessageAnswer), ConsoleColor.Blue},
+                { typeof(DataDescriptionAnswer), ConsoleColor.Magenta},
+
+                { typeof(SuccessAnswer), ConsoleColor.Green},
+                { typeof(IInformativeAnswer), ConsoleColor.White},
+            };
+
+            ChildColors = new Dictionary<Type, ConsoleColor>()
+            {
+                { typeof(ExceptionAnswer), ConsoleColor.DarkRed},
+                { typeof(CriticalFailure), ConsoleColor.DarkRed},
+                { typeof(WarningAnswer), ConsoleColor.DarkYellow},
+                { typeof(ExternalMessageAnswer), ConsoleColor.Blue},
+                { typeof(DataDescriptionAnswer), ConsoleColor.DarkMagenta},
+
+                { typeof(SuccessAnswer), ConsoleColor.DarkGreen},
+                { typeof(IInformativeAnswer), ConsoleColor.White},
+            };
+
             var returnValue = new List<ConsoleOutput>();
 
             var exceptionAnswer = response as ExceptionAnswer;
             var successRes = response as SuccessAnswer;
             var warning = response as WarningAnswer;
-            var informativeResponse = response as InformativeAnswer;
+            var informativeResponse = response as IInformativeAnswer;
             var resultAnswer = response as ResultAnswer;
+            var failure = response as CriticalFailure;
 
             if (resultAnswer != null)
             {
@@ -51,21 +82,9 @@ namespace Gears.Interpreter
                     AddWithChildren(resultAnswer, ConsoleColor.Green, ConsoleColor.DarkGreen, returnValue);
                 }
             }
-            else if (exceptionAnswer != null)
+            else if(response != null)
             {
-                AddWithChildren(informativeResponse, ConsoleColor.Red, ConsoleColor.DarkRed, returnValue);
-            }
-            else if (warning != null)
-            {
-                AddWithChildren(informativeResponse, ConsoleColor.Yellow, ConsoleColor.DarkYellow, returnValue);
-            }
-            else if (successRes != null)
-            {
-                AddWithChildren(informativeResponse, ConsoleColor.Green, ConsoleColor.DarkGreen, returnValue);
-            }
-            else if (informativeResponse != null)
-            {
-                AddWithChildren(informativeResponse, ConsoleColor.White, ConsoleColor.Gray, returnValue);
+                AddWithChildrenColored(response, returnValue);
             }
 
             var statusResponse = response as StatusAnswer;
@@ -77,7 +96,34 @@ namespace Gears.Interpreter
             return returnValue;
         }
 
-        private static void AddWithChildren(InformativeAnswer informativeResponse, ConsoleColor mainColor, ConsoleColor secondaryColor, List<ConsoleOutput> returnValue)
+        private static void AddWithChildrenColored(IAnswer response, List<ConsoleOutput> returnValue)
+        {
+            foreach (var type in MasterColors.Keys)
+            {
+                if (type.IsAssignableFrom(response.GetType()))
+                {
+                    returnValue.Add(new ConsoleOutput(MasterColors[type], response.Text + " "));
+                    break;
+                }
+            }
+
+            if (response.Children != null)
+            {
+                foreach (var child in response.Children)
+                {
+                    foreach (var type in ChildColors.Keys)
+                    {
+                        if (type.IsAssignableFrom(child.GetType()))
+                        {
+                            returnValue.Add(new ConsoleOutput(ChildColors[type], child.Text + " "));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void AddWithChildren(IInformativeAnswer informativeResponse, ConsoleColor mainColor, ConsoleColor secondaryColor, List<ConsoleOutput> returnValue)
         {
             returnValue.Add(new ConsoleOutput(mainColor, informativeResponse.Text+ " "));
 
@@ -91,9 +137,9 @@ namespace Gears.Interpreter
         {
             var keywords = status.Keywords.ToList();
 
-            AddLine(ConsoleColor.DarkGray,"\n----------------------------------------", returnValue);
+            AddLine(ConsoleColor.DarkGray, $"\n{HorizontalLine}", returnValue);
             AddLine(ConsoleColor.DarkGray, "Gears Scenario Debugger", returnValue);
-            AddLine(ConsoleColor.DarkGray, "----------------------------------------", returnValue);
+            AddLine(ConsoleColor.DarkGray, HorizontalLine, returnValue);
 
             Keyword selectedKeyword = null;
 

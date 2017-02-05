@@ -3,6 +3,7 @@ using System.Linq;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Applications.Registrations
 {
@@ -36,7 +37,13 @@ namespace Gears.Interpreter.Applications.Registrations
                     throw new ArgumentException($"Argument {argument} is not recognized.");
                 }
                 var instance = Activator.CreateInstance(type);
+
                 objectDataAccess.Add(instance);
+            }
+
+            foreach (var obj in objectDataAccess.GetAll())
+            {
+                (obj as Keyword)?.Hydrate();
             }
 
             return objectDataAccess;
@@ -49,7 +56,10 @@ namespace Gears.Interpreter.Applications.Registrations
             foreach (var instance in objects)
             {
                 objectDataAccess.Add(instance);
+                (instance as Keyword)?.Hydrate();
             }
+
+            
 
             return objectDataAccess;
         }

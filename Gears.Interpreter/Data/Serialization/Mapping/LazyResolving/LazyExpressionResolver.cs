@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Castle.DynamicProxy;
 
 namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
@@ -52,7 +53,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
         {
             IDictionary<string, object> lazyValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
-            foreach (var propertyInfo in type.GetProperties())
+            foreach (var propertyInfo in type.GetProperties().Where(x=>x.CanRead && x.CanWrite))
             {
                 if (this.CanResolve(propertyInfo.GetValue(objectInstance)))
                 {

@@ -29,5 +29,6 @@ namespace Gears.Interpreter.Applications.Configuration
     /// </summary>
     public interface IAutoRegistered
     {
+        void Register(IInterpreter applicationLoop);
     }
 }

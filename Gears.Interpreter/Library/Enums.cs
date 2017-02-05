@@ -1,4 +1,6 @@
-﻿namespace Gears.Interpreter.Library
+﻿using System.ComponentModel;
+
+namespace Gears.Interpreter.Library
 {
     public enum SubjectType
     {
@@ -10,14 +12,23 @@
 
     public enum SearchDirection
     {
+
         RightFromAnotherElementInclusiveOrAnywhereNextTo = 0,
+        [Description("right from")]
         RightFromAnotherElement,
+        [Description("left from")]
         LeftFromAnotherElement,
+        [Description("above")]
         AboveAnotherElement,
-        LeftFromRightEdge,
-        RightFromLeftEdge,
+        [Description("below")]
         BelowAnotherElement,
+        [Description("from right")]
+        LeftFromRightEdge,
+        [Description("from left")]
+        RightFromLeftEdge,
+        [Description("from top")]
         DownFromTopEdge,
+        [Description("from bottom")]
         UpFromBottomEdge
     }
 }
