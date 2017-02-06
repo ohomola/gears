@@ -61,7 +61,9 @@ namespace Gears.Interpreter.Library
         public virtual bool LookForOrthogonalNeighboursOnly { get; set; }
         //TODO parse from instruction
         public virtual Technique Technique { get; set; }
-        
+
+        private Instruction _instruction;
+
         public void MapSyntaxToSemantics(Instruction instruction)
         {
             Order = instruction.Order;
@@ -82,7 +84,11 @@ namespace Gears.Interpreter.Library
             {
                 LookForOrthogonalNeighboursOnly = true;
             }
+
+            _instruction = instruction;
         }
+
+        
 
         #endregion
 
@@ -108,6 +114,7 @@ namespace Gears.Interpreter.Library
 
             if (Interpreter?.IsAnalysis == true)
             {
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, _instruction?.ToAnalysisString());
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.Result}\nAll results:\n\t{string.Join("\n\t", result.OtherValidResults)}");
             }
 

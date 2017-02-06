@@ -146,7 +146,7 @@ namespace Gears.Interpreter.Library
 
                 relatives = query.Elements(new[] { "div", "span" })
                     .RelativeTo(element, SearchDirection.AboveAnotherElement, true,
-                    0, 20)
+                    20, 0)
                     .Results();
                 relatives = relatives.Where(x => !string.IsNullOrEmpty(x.WebElement.Text)).ToList();
 

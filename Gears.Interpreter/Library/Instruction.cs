@@ -178,6 +178,20 @@ namespace Gears.Interpreter.Library
                    $"{(string.IsNullOrEmpty(Locale)?"":"'"+Locale+"'")}";
         }
 
+        public string ToAnalysisString()
+        {
+            return "Instruction:\n" +
+                   $"{nameof(Order)} = {Order}\n" +
+                   $"{nameof(SubjectType)} = {SubjectType}\n" +
+                   $"{nameof(SubjectName)} = {SubjectName}\n" +
+                   $"{nameof(Direction)} = {Direction}\n" +
+                   $"{nameof(Locale)} = {Locale}\n" +
+                   $"{nameof(With)} = {With}\n" +
+                   $"{nameof(TagNames)} = {TagNames}\n";
+            ;
+
+        }
+
         public static string GetDescription(SearchDirection enumValue)
         {
             var fi = typeof(SearchDirection).GetField(enumValue.ToString());

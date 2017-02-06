@@ -33,6 +33,8 @@ namespace Gears.Interpreter.Library
     [UserDescription("fill <inst> \t-\t fills element via instruction")]
     public class Fill : Keyword, IHasTechnique, IInstructed
     {
+        private Instruction _instruction;
+
         #region Semantics
         public virtual int Order { get; set; }
 
@@ -58,6 +60,7 @@ namespace Gears.Interpreter.Library
             Direction = instruction.Direction;
             Text = instruction.With;
             Order = instruction.Order;
+            _instruction = instruction;
         }  
         #endregion
 
@@ -88,6 +91,7 @@ namespace Gears.Interpreter.Library
 
             if (Interpreter?.IsAnalysis == true)
             {
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, _instruction?.ToAnalysisString());
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
             }
 
