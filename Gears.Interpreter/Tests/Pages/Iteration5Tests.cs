@@ -447,7 +447,7 @@ namespace Gears.Interpreter.Tests.Pages
                 "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n" +
                 "Click,,1st button from right,");
 
-            Bootstrapper.Register(new[] { folder + "/Scenario1.csv" });
+            Bootstrapper.RegisterArguments(new[] { folder + "/Scenario1.csv" });
 
             var interpreter = Bootstrapper.ResolveInterpreter();
             interpreter.Please(nameof(Start));

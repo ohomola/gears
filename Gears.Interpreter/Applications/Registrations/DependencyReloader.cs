@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Gears.Interpreter.Applications.Registrations
 {
     public interface IDependencyReloader
@@ -8,14 +10,14 @@ namespace Gears.Interpreter.Applications.Registrations
     public class DependencyReloader : IDependencyReloader
     {
         private readonly object[] _explicitObjects;
-        private readonly string[] _args;
+        private readonly IEnumerable<string> _args;
 
         public DependencyReloader(object[] explicitObjects)
         {
             _explicitObjects = explicitObjects;
         }
 
-        public DependencyReloader(string[] args)
+        public DependencyReloader(IEnumerable<string> args)
         {
             _args = args;
         }
@@ -28,7 +30,7 @@ namespace Gears.Interpreter.Applications.Registrations
             }
             else
             {
-                Bootstrapper.Register(_args);
+                Bootstrapper.RegisterArguments(_args);
             }
         }
     }

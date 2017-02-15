@@ -27,8 +27,6 @@ namespace Gears.Interpreter.Library.Workflow
             var eventHandlers = _data.GetAll<IApplicationEventHandler>();
             RegisterEventHandlers(eventHandlers);
 
-            WriteErrorsForCorruptObjects(_data);
-
             Interpreter.Plan = _data.GetAll<Keyword>().ToList();
 
             //ThrowIfRunScenariosAreMixedWithStandardKeywords(Interpreter.IsRunningSuite, Interpreter.Plan);
@@ -70,17 +68,6 @@ namespace Gears.Interpreter.Library.Workflow
         //}
 
 
-        private void WriteErrorsForCorruptObjects(IDataContext dataContext)
-        {
-            foreach (var dataObjectAccess in dataContext.DataAccesses)
-            {
-                if (dataObjectAccess.GetAll<CorruptObject>().Any())
-                {
-                    Console.Out.WriteColoredLine(ConsoleColor.Red, $"Corrupt data found in input source:");
-                    Console.Out.WriteColoredLine(ConsoleColor.DarkRed, $"{dataObjectAccess}");
-                }
-            }
-        }
 
         private void RegisterEventHandlers(IEnumerable<IApplicationEventHandler> applicationEventHandlers)
         {

@@ -29,7 +29,7 @@ namespace Gears.Interpreter.Data.Core
 
         public override string ToString()
         {
-            return $"Corrupt Object '{Description}': cannot be loaded due to '{Exception.Message}'";
+            return $"Corrupt data. Problem description: '{Exception?.Message ?? Description}'";
         }
     }
 }

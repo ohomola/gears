@@ -147,40 +147,6 @@ namespace Gears.Interpreter.Library
         {
             return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(SubjectType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":Instruction.GetDescription(Direction))} {NeighbourToLookFrom}";
         }
-
-        
-        #region Backward compatibility
-
-        [Obsolete("Backward compatibility")]
-        public bool Javascript
-        {
-            get { return Technique == Technique.Javascript; }
-            set { Technique = value == true ? Technique.Javascript : Technique.MouseAndKeyboard; }
-        }
-
-        [Obsolete("Backward compatibility")]
-        public Click(string what, string where) : this(what)
-        {
-            where = @where.ToLower().Trim();
-            switch (@where)
-            {
-                case ("right"):
-                    Direction = SearchDirection.LeftFromRightEdge;
-                    break;
-                case ("top"):
-                case ("up"):
-                    Direction = SearchDirection.DownFromTopEdge;
-                    break;
-                case ("down"):
-                case ("bottom"):
-                    Direction = SearchDirection.UpFromBottomEdge;
-                    break;
-                default:
-                    Direction = SearchDirection.RightFromLeftEdge;
-                    break;
-            }
-        } 
-        #endregion
     }
 
     public enum Technique

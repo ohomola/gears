@@ -34,7 +34,12 @@ namespace Gears.Interpreter.Applications.Registrations
 
                 if (type == null)
                 {
-                    throw new ArgumentException($"Argument {argument} is not recognized.");
+                    //throw new ArgumentException($"Argument {argument} is not recognized.");
+
+                    objectDataAccess.Add(new CorruptObject() {Description = $"Argument {argument} is not recognized." });
+
+                    continue;
+
                 }
                 var instance = Activator.CreateInstance(type);
 

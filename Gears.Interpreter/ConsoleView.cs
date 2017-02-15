@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
+using Gears.Interpreter.Data;
+using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter
@@ -133,6 +135,23 @@ namespace Gears.Interpreter
             }
         }
 
+
+        private static void WriteErrorsForCorruptObjects(IDataContext dataContext, List<ConsoleOutput> returnValue)
+        {
+            foreach (var dataObjectAccess in dataContext.DataAccesses)
+            {
+                if (dataObjectAccess.GetAll<CorruptObject>().Any())
+                {
+                    AddLine(ConsoleColor.Yellow, $"WARNING, Invalid data loaded:", returnValue);
+                    foreach (var corruptObject in dataObjectAccess.GetAll<CorruptObject>())
+                    {
+                        AddLine(ConsoleColor.Red, $"\t - {corruptObject}", returnValue);
+                    }
+
+                }
+            }
+        }
+
         private static void BuildStatusOutputs(List<ConsoleOutput> returnValue, StatusAnswer status)
         {
             var keywords = status.Keywords.ToList();
@@ -140,6 +159,8 @@ namespace Gears.Interpreter
             AddLine(ConsoleColor.DarkGray, $"\n{HorizontalLine}", returnValue);
             AddLine(ConsoleColor.DarkGray, "Gears Scenario Debugger", returnValue);
             AddLine(ConsoleColor.DarkGray, HorizontalLine, returnValue);
+
+            WriteErrorsForCorruptObjects(status.Data, returnValue);
 
             Keyword selectedKeyword = null;
 

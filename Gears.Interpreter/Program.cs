@@ -69,13 +69,13 @@ namespace Gears.Interpreter
 
             try
             {
-                Bootstrapper.Register(args);
+                Bootstrapper.RegisterArguments(args);
 
                 var interpreter = Bootstrapper.ResolveInterpreter();
 
                 ConsoleView.Render(interpreter.Please("start"));
 
-                ConsoleView.Render(interpreter.Please("help"));
+                //ConsoleView.Render(interpreter.Please("help"));
 
                 while (interpreter.IsAlive)
                 {

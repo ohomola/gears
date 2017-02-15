@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Castle.Facilities.TypedFactory;
 using Castle.MicroKernel.Registration;
@@ -56,7 +57,12 @@ namespace Gears.Interpreter.Applications.Registrations
             Container.Register(Component.For<IDataObjectAccess>().Named("ExplicitObjects").UsingFactory((IObjectAccessFactory f) => f.CreateFromObjects(explicitObjects)));
         }
 
-        public static void Register(string[] args)
+        public static void RegisterArguments(params string[] args)
+        {
+            RegisterArguments(args.ToList());
+        }
+
+        public static void RegisterArguments(IEnumerable<string> args)
         {
             Register();
 

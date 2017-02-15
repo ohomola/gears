@@ -99,8 +99,8 @@ namespace Gears.Interpreter.Tests.Pages
                 Selenium = _selenium
             }.Execute();
 
-            new Click("SAVE", "right") {Selenium = _selenium}.Execute();
-            new Click("load", "left") {Selenium = _selenium}.Execute();
+            new Click("SAVE from right") {Selenium = _selenium}.Execute();
+            new Click("load from left") {Selenium = _selenium}.Execute();
 
             Assert.AreEqual(_selenium.WebDriver.FindElement(By.Id("but1"))
                 .GetAttribute("innerText"), "success");
@@ -160,16 +160,17 @@ namespace Gears.Interpreter.Tests.Pages
 
             
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
-            new Click("Add to my calendar", "top") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium}.Execute();
+            new Click("Add to my calendar from top") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium}.Execute();
             new Wait(800).Execute();
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = true }.Execute();
             new Wait(800).Execute();
-            new Click("Add to my calendar", "top") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium}.Execute();
+            new Click("Add to my calendar from top") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium}.Execute();
             new Wait(800).Execute();
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
         }
 
         [Test]
+        [Ignore("Covered elsewhere")]
         public void ShouldBeAbleToClickOnRelativeButton()
         {
             new GoToUrl($"file:///{FileFinder.Find("Iteration1TestPageRelativeButtons.html")}")

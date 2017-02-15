@@ -45,24 +45,37 @@ namespace Gears.Interpreter.Library
 
         public virtual int Order { get; set; }
 
+        public virtual string What
+        {
+            set
+            {
+                MapSyntaxToSemantics(new Instruction(value));
+            }
+        }
+
         public IsVisible()
         {
         }
 
         public IsVisible(string what)
         {
-            spec = new Instruction(what);
-            SubjectName = spec.SubjectName;
-            Locale = spec.Locale;
-            Direction = spec.Direction;
-            Order = spec.Order;
-            TagNames = spec.TagNames;
+            MapSyntaxToSemantics(new Instruction(what));
+        }
+
+        private void MapSyntaxToSemantics(Instruction instruction)
+        {
+            SubjectName = instruction.SubjectName;
+            Locale = instruction.Locale;
+            Direction = instruction.Direction;
+            Order = instruction.Order;
+            TagNames = instruction.TagNames;
+            spec = instruction;
         }
 
 
         public override IKeyword FromString(string textInstruction)
         {
-            return new IsVisible(ExtractSingleParameterFromTextInstruction(textInstruction)) {Expect = true};
+            return new IsVisible() {What = ExtractSingleParameterFromTextInstruction(textInstruction), Expect = true};
         }
 
         public override object DoRun()
@@ -144,7 +157,7 @@ namespace Gears.Interpreter.Library
 
         public override string ToString()
         {
-            return $"Is {spec} visible?";
+            return $"Is {spec} visible? Expect {Expect}";
         }
     }
 }

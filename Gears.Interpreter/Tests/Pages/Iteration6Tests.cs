@@ -250,7 +250,7 @@ namespace Gears.Interpreter.Tests.Pages
                 "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n" +
                 "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n");
 
-            Bootstrapper.Register(new[] { path });
+            Bootstrapper.RegisterArguments(new[] { path });
             var interpreter = Bootstrapper.ResolveInterpreter();
 
             interpreter.Please("start");
@@ -302,6 +302,21 @@ namespace Gears.Interpreter.Tests.Pages
             interpreter.Please("remember buttonName button1");
             interpreter.Please(string.Empty);
             interpreter.Please("click first [buttonName] from left");
+        }
+
+        [Test]
+        public void CanRunWithIncorrectArguments()
+        {
+            try
+            {
+                Bootstrapper.RegisterArguments(new [] { "-JUnitSuiteReport"});
+
+                var interpreter = Bootstrapper.ResolveInterpreter();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [Test]
