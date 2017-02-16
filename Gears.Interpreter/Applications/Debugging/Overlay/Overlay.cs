@@ -91,7 +91,11 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
             UserInteropAdapter.ScreenToGraphics(ref point);
 
             overlayGraphics.FillRectangle(new SolidBrush(innerColor), point.X, point.Y, width, height);
-            overlayGraphics.DrawString(number.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.FromArgb(1,1,1)), point.X, point.Y);
+            if (number != -1)
+            {
+                overlayGraphics.DrawString(number.ToString(), new Font(FontFamily.GenericSansSerif, 10),
+                    new SolidBrush(Color.FromArgb(1, 1, 1)), point.X, point.Y);
+            }
             overlayGraphics.DrawRectangle(new Pen(outerColor), point.X, point.Y, width+1, height+1);
         }
 

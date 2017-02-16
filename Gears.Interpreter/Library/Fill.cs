@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
 using System;
+using System.Drawing;
 using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
@@ -114,6 +115,11 @@ namespace Gears.Interpreter.Library
                     var screenLocation = Selenium.PutElementOnScreen(lookupResult.Result.WebElement);
 
                     Selenium.BringToFront();
+                    if (Interpreter?.IsAnalysis == true)
+                    {
+                        Highlighter.HighlightElements(750, Selenium, new[] { lookupResult.Result }, Color.Aqua, Color.Red, -1, Color.Aqua);
+                    }
+
                     UserInteropAdapter.ClickOnPoint(handle, screenLocation);
                     Thread.Sleep(50);
                     UserInteropAdapter.SendText(handle, Text, screenLocation);

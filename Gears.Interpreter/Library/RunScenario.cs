@@ -16,6 +16,11 @@ namespace Gears.Interpreter.Library
         [DoNotWire]
         public virtual List<IKeyword> Keywords { get; set; } = new List<IKeyword>();
 
+        public override IKeyword FromString(string textInstruction)
+        {
+            return new RunScenario(ExtractSingleParameterFromTextInstruction(textInstruction));
+        }
+
         public RunScenario()
         {
         }

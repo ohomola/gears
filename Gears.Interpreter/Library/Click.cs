@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
@@ -134,7 +135,11 @@ namespace Gears.Interpreter.Library
                 case Technique.MouseAndKeyboard:
                     Selenium.BringToFront();
                     var screenLocation = Selenium.PutElementOnScreen(result.Result.WebElement);
-                    //Highlighter.HighlightPoints(Selenium, screenLocation);
+                    if (Interpreter?.IsAnalysis == true)
+                    {
+                        //Highlighter.HighlightPoints(750, Selenium, screenLocation);
+                        Highlighter.HighlightElements(750, Selenium, new [] {result.Result}, Color.Aqua, Color.Red,-1,Color.Aqua);
+                    }
                     UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
                     Thread.Sleep(50);
                     break;

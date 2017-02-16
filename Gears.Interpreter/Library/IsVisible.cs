@@ -111,6 +111,11 @@ namespace Gears.Interpreter.Library
                     else
                     {
                         //Highlighter.HighlightElements(Selenium, lookupResult.OtherValidResults, index);
+                        if (Interpreter?.IsAnalysis == true)
+                        {
+                            //Highlighter.HighlightPoints(750, Selenium, screenLocation);
+                            Highlighter.HighlightElements(750, Selenium, lookupResult.OtherValidResults, (Expect.ToString().ToLower().Equals(true.ToString().ToLower()) ? Color.GreenYellow : Color.Red), Color.Yellow, -1, Color.Black);
+                        }
                         return true;
                     }
                 }

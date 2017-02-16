@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Applications.Debugging.Overlay;
@@ -67,6 +68,16 @@ namespace Gears.Interpreter.Library
 
         public static void HighlightElements(ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor, int selectionIndex, Color selectionColor)
         {
+            HighlightElements(()=>Console.ReadLine(), seleniumAdapter,elements, innerColor,outerColor,selectionIndex,selectionColor);
+        }
+
+        public static void HighlightElements(int wait, ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor, int selectionIndex, Color selectionColor)
+        {
+            HighlightElements(() => Thread.Sleep(wait), seleniumAdapter, elements, innerColor, outerColor, selectionIndex, selectionColor);
+        }
+
+        public static void HighlightElements(Action action, ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor, int selectionIndex, Color selectionColor)
+        {
             using (var overlay = new Overlay())
             {
                 var handle = seleniumAdapter.GetChromeHandle();
@@ -80,18 +91,20 @@ namespace Gears.Interpreter.Library
                     seleniumAdapter.ConvertFromPageToWindow(ref p);
 
                     overlay.DrawStuff(handle, i, p.X, p.Y,
-                        overlay.Graphics, element.Rectangle.Width, element.Rectangle.Height, 
-                        i==(1+selectionIndex)?selectionColor:innerColor, 
+                        overlay.Graphics, element.Rectangle.Width, element.Rectangle.Height,
+                        i == (1 + selectionIndex) ? selectionColor : innerColor,
                         outerColor);
                 }
 
                 Console.Out.WriteColoredLine(ConsoleColor.White,
                     $"{elements.Count()} elements highlighted on screen. Press enter to continue (highlighting will disappear).");
-                Console.ReadLine();
+                
+
+                action.Invoke();
             }
         }
 
-        public static void HighlightPoints(ISeleniumAdapter selenium, params Point[] points)
+        public static void HighlightPoints(int wait, ISeleniumAdapter selenium, params Point[] points)
         {
             using (var overlay = new Overlay())
             {
@@ -102,8 +115,10 @@ namespace Gears.Interpreter.Library
                 for (int index = 0; index < points.Length; index++)
                 {
                     var point = points[index];
-                    overlay.DrawStuff(handle, index, point.X - 5, point.Y - 5, overlay.Graphics, 10, 10, Color.FromArgb(255, 0, 255, 255), Color.FromArgb(255, 255, 0, 255));
+                    overlay.DrawStuff(handle, index, point.X - 15, point.Y - 15, overlay.Graphics, 30, 30, Color.FromArgb(255, 0, 255, 255), Color.FromArgb(255, 255, 0, 255));
                 }
+
+                Thread.Sleep(wait);
             }
         }
     }

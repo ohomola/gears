@@ -106,7 +106,6 @@ namespace Gears.Interpreter.Library
                 _staleElementCounter++;
                 if (_staleElementCounter < 10)
                 {
-                    Console.Out.WriteColoredLine(ConsoleColor.Yellow, "warning: StaleElement exception was caught");
                     return DirectLookup(searchedTagNames, subjectName, locale, searchDirection, order, orthogonalOnly);
                 }
                 throw;
@@ -161,7 +160,6 @@ namespace Gears.Interpreter.Library
                 _staleElementCounter++;
                 if (_staleElementCounter < 10)
                 {
-                    Console.Out.WriteColoredLine(ConsoleColor.Yellow, "warning: StaleElement exception was caught");
                     return DirectLookupWithNeighbours(labelText, searchDirection, order);
                 }
                 throw;
