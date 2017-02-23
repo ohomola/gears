@@ -43,6 +43,26 @@ namespace Gears.Interpreter.Library
             What = what;
         }
 
+
+        #region Documentation
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+
+| Discriminator | What               | Variable     |
+| ------------- | -----              | -----        |
+| Remember      | user1              | myLogin      |
+| Fill          | login              | [myLogin]    |
+| Remember      | {{Generate.Word(3)}} | randomWord   |
+| Fill          | password           | [randomWord] |
+";
+        }
+
+        #endregion
+
+
         public override IKeyword FromString(string textInstruction)
         {
             var args = ExtractTwoParametersFromTextInstruction(textInstruction);

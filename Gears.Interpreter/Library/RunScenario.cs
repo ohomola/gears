@@ -35,6 +35,20 @@ namespace Gears.Interpreter.Library
             FileName = fileName;
         }
 
+        #region Documentation
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+| Discriminator | FileName           | 
+| ------------- | -----              |
+| RunScenario   | ./Test1.xlsx       |
+";
+        }
+
+        #endregion
+
         private void LoadKeywords()
         {
             if (!ServiceLocator.IsInitialised() || !ServiceLocator.Instance.Kernel.HasComponent(typeof(ITypeRegistry)))

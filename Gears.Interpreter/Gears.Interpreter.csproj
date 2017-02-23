@@ -200,6 +200,7 @@
     <Compile Include="Library\BufferedElement.cs" />
     <Compile Include="Data\Serialization\SerializerFactory.cs" />
     <Compile Include="Library\Clear.cs" />
+    <Compile Include="Library\Documentations\Documentation.cs" />
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\WebElementExtensions.cs" />

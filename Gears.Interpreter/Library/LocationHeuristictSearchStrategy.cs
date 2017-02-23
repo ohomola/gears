@@ -136,8 +136,18 @@ namespace Gears.Interpreter.Library
                 }
                 else
                 {
+                    var xTolerance = (searchDirection == SearchDirection.AboveAnotherElement ||
+                                  searchDirection == SearchDirection.BelowAnotherElement)
+                    ? 40
+                    : 5;
+
+                    var yTolerance = (searchDirection == SearchDirection.AboveAnotherElement ||
+                                      searchDirection == SearchDirection.BelowAnotherElement)
+                        ? 5
+                        : 40;
+
                     validResults = allInputs
-                        .RelativeTo(labelText, searchDirection, true)
+                        .RelativeTo(labelText, searchDirection, true, xTolerance, yTolerance)
                         .SortBy(searchDirection)
                         .Results();
                 }

@@ -100,11 +100,27 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
                 _form = factory.Invoke();
                 Console.Out.WriteColored(ConsoleColor.White, $"Click element with Mouse:\n");
                 var selenium = ServiceLocator.Instance.Resolve<ISeleniumAdapter>();
+                var handle = selenium.GetChromeHandle();
+
                 _form.MouseMove+= delegate(object o, MouseEventArgs args)
                 {
                     this.HoverX = ((MouseEventArgs) args).X;
                     this.HoverY = ((MouseEventArgs)args).Y;
-                    
+
+                    //
+                    var windowRect = selenium.BrowserWindowScreenRectangle;
+                    var topLeft = new Point(windowRect.Left, windowRect.Top);
+                    var bottomRight = new Point(windowRect.Right, windowRect.Bottom);
+
+                    UserInteropAdapter.ScreenToGraphics(ref topLeft);
+                    UserInteropAdapter.ScreenToGraphics(ref bottomRight);
+                    float height = Math.Abs(bottomRight.Y - topLeft.Y);
+                    float width = Math.Abs(bottomRight.X - topLeft.X);
+                    var contentTopLeft = new Point(windowRect.Left, windowRect.Top);
+                    contentTopLeft.X += selenium.ContentOffsetX();
+                    contentTopLeft.Y += selenium.ContentOffsetY();
+                    //
+
                     var point = new Point(this.HoverX, this.HoverY);
                     selenium.ConvertFromScreenToWindow(ref point);
                     selenium.ConvertFromWindowToPage(ref point);
@@ -117,6 +133,12 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
                     Console.Out.BeginRewritableLine();
                     Console.Out.WriteColored(ConsoleColor.Yellow, $"X {HoverX:D4} Y {HoverY:D4} ");
                     Console.Out.WriteColored(ConsoleColor.Green, $"{(element == null ? "                        " : $" -- Button {element.Text} --")}");
+
+                    
+                    //Console.Out.WriteColored(ConsoleColor.Magenta, $"Top Left X {topLeft.X:D4} Y {topLeft.Y:D4} ");
+                    //Console.Out.WriteColored(ConsoleColor.Magenta, $"Bottom Right X {bottomRight.X:D4} Y {bottomRight.Y:D4} ");
+                    Console.Out.WriteColored(ConsoleColor.Magenta, $"width {width} height {height} ");
+
 
                     if (element != null)
                     {
@@ -139,8 +161,9 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 
                 _form.Dispose();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.Out.WriteColoredLine(ConsoleColor.DarkRed, "UI render issue "+ ex.Message);
             }
 
             //Application.Exit();

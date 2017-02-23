@@ -41,6 +41,7 @@ namespace Gears.Interpreter.Library
         string Status { get; set; }
         object Expect { get; set; }
         string GetUserDescription();
+        string CreateDocumentationMarkDown();
     }
 
     public enum KeywordResultSpecialCases
@@ -54,6 +55,11 @@ namespace Gears.Interpreter.Library
         protected Keyword()
         {
             Guid = Guid.NewGuid();
+        }
+
+        public virtual string CreateDocumentationMarkDown()
+        {
+            return $"## {this.GetType().Name}";
         }
 
         [XmlIgnore]

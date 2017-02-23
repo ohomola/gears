@@ -12,6 +12,7 @@ using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
+using Gears.Interpreter.Library.Documentations;
 using Gears.Interpreter.Library.Workflow;
 using NUnit.Framework;
 using OpenQA.Selenium;
@@ -396,6 +397,23 @@ namespace Gears.Interpreter.Tests.Pages
                 }
             }
             Bootstrapper.Release();
+        }
+
+        [Test]
+        public void ShouldCreateDocumentation()
+        {
+            Bootstrapper.Register();
+            var doc = new Documentation(ServiceLocator.Instance.ResolveAll<IKeyword>());
+
+            var markdown = doc.CreateContentMarkDown();
+
+            Assert.IsNotNull(markdown);
+
+            Assert.IsTrue(markdown.Contains("Click"));
+
+            Assert.IsTrue(markdown.Contains(new Click().CreateDocumentationMarkDown()));
+
+
         }
 
         [SetUp]
