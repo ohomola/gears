@@ -10,9 +10,9 @@ namespace Gears.Interpreter.Library.Workflow
 {
     [NotLogged]
     [UserDescription("take (X)\t-\t adds Keyword X to context. (e.g. 'Take junitscenarioreport' to register ScenarioReport.")]
-    public class Take : Keyword
+    public class Take : Keyword, IProtected
     {
-        [Wire]
+      [Wire]
         public ITypeRegistry TypeRegistry { get; set; }
 
         public override object DoRun()

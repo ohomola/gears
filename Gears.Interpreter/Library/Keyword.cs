@@ -59,7 +59,7 @@ namespace Gears.Interpreter.Library
 
         public virtual string CreateDocumentationMarkDown()
         {
-            return $"## {this.GetType().Name}";
+            return $"## {this.GetType().Name}\n";
         }
 
         [XmlIgnore]

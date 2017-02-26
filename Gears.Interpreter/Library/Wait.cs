@@ -42,6 +42,7 @@ namespace Gears.Interpreter.Library
 {base.CreateDocumentationMarkDown()}
 Waits for specified number of miliseconds
 
+#### Scenario usage
 | Discriminator | What   | 
 | ------------- | -----  |
 | Wait          | 1000   |

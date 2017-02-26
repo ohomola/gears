@@ -18,6 +18,17 @@ namespace Gears.Interpreter.Library.Reports
         private static int _filesCreated = 0;
         private readonly string _pathTemplate;
 
+        public override string CreateDocumentationMarkDown()
+        {
+            return base.CreateDocumentationMarkDown() +
+                   $@"Creates output file containing results of the scenario in table format.
+> Note: To add this to any scenario, you can also use a command-line argument when executing Gears Interpreter -{nameof(CsvScenarioReport)}
+
+#### Console usage
+    CsvScenarioReport
+    show CsvScenarioReport";
+        }
+
         public CsvScenarioReport()
         {
             _pathTemplate = ".\\Output\\ScenarioReport_csv{0}.csv";

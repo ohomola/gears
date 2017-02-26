@@ -50,13 +50,17 @@ namespace Gears.Interpreter.Library
         {
             return $@"
 {base.CreateDocumentationMarkDown()}
-
+Saves a specified value to a variable for later use. Your currently memorized variables are displayed in the console status.
+#### Scenario usages
 | Discriminator | What               | Variable     |
 | ------------- | -----              | -----        |
 | Remember      | user1              | myLogin      |
 | Fill          | login              | [myLogin]    |
 | Remember      | {{Generate.Word(3)}} | randomWord   |
 | Fill          | password           | [randomWord] |
+
+#### Console usages
+     remember myUser John
 ";
         }
 

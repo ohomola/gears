@@ -201,6 +201,7 @@
     <Compile Include="Data\Serialization\SerializerFactory.cs" />
     <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Documentations\Documentation.cs" />
+    <Compile Include="Library\Forget.cs" />
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\WebElementExtensions.cs" />
@@ -208,7 +209,6 @@
     <Compile Include="Library\Workflow\Analysis.cs" />
     <Compile Include="Library\Workflow\AnalysisOff.cs" />
     <Compile Include="Library\Workflow\Back.cs" />
-    <Compile Include="Library\Workflow\EndOfScenario.cs" />
     <Compile Include="Library\Enums.cs" />
     <Compile Include="Library\IInstructed.cs" />
     <Compile Include="Library\Instruction.cs" />

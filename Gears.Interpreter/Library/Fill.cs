@@ -77,13 +77,19 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
 **Text** parameter is the text to be filled into the element.
 
+#### Scenario usages
 | Discriminator | What  | Text  |
 | ------------- | ----- | ----- |
 | Fill          | login | user1 |
 | Fill          | input right from login | password |
 
+#### Console usages
+    fill login with user1
+    fill input right from login with password
+    show fill login with user1
+
 ### Additional properties
-* Technique - specify technique to use for clicking. See [Web element technique](#web-element-techniques)
+* [Common Keyword properties](Documentation#common-keyword-properties)  
 ";
         }
 

@@ -28,6 +28,19 @@ namespace Gears.Interpreter.Library
 {
     public class Comment : Keyword
     {
+        public override string CreateDocumentationMarkDown()
+        {
+            return base.CreateDocumentationMarkDown() +
+                   $@"Writes text to console. Use this to comment scenario.
+#### Scenario usage
+| Discriminator | Text |
+| ------------- | ---- |
+| Comment | Hello world |
+
+#### Console usage
+    comment Hello world";
+        }
+
         public virtual string Text { get; set; }
 
         [Wire]

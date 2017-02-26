@@ -1,6 +1,8 @@
-﻿namespace Gears.Interpreter.Library
+﻿using Gears.Interpreter.Library.Workflow;
+
+namespace Gears.Interpreter.Library
 {
-    public class DoWhatYouWant : Keyword
+    public class DoWhatYouWant : Keyword, IProtected
     {
         public override object DoRun()
         {

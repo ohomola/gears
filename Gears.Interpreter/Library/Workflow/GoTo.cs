@@ -8,6 +8,14 @@ namespace Gears.Interpreter.Library.Workflow
     [UserDescription("goto (N)\t-\t goes to Nth keyword")]
     public class GoTo : Keyword
     {
+        public override string CreateDocumentationMarkDown()
+        {
+            return base.CreateDocumentationMarkDown() +
+                   $@"Skip the plan to Nth step. Use this to skip steps without executing them.
+#### Console usage
+    goto 45";
+        }
+
         public int Index { get; set; }
 
         public override object DoRun()

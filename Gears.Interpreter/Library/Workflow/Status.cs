@@ -8,7 +8,7 @@ using Gears.Interpreter.Data.Core;
 namespace Gears.Interpreter.Library.Workflow
 {
     [NotLogged]
-    public class Status : Keyword
+    public class Status : Keyword, IProtected
     {
         public override object DoRun()
         {
@@ -17,7 +17,7 @@ namespace Gears.Interpreter.Library.Workflow
     }
 
     [NotLogged]
-    public class AnalyseData : Keyword
+    public class AnalyseData : Keyword, IProtected
     {
         public override object DoRun()
         {
@@ -43,5 +43,9 @@ namespace Gears.Interpreter.Library.Workflow
             return successAnswer;
         }
 
+    }
+
+    public interface IProtected
+    {
     }
 }

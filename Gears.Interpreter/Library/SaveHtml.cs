@@ -28,6 +28,24 @@ namespace Gears.Interpreter.Library
     [UserDescription("savehtml \t-\t save current page source to a new HTML file")]
     public class SaveHtml:Keyword
     {
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Saves current webpage in browser to a file. This file might be different to what your browser would save. Use this to create HTML snapshots as attachments for bugs.
+
+#### Scenario usage
+| Discriminator | 
+| ------------- | 
+| SaveHtml   | 
+
+#### Console usage
+    savehtml
+
+> Note: File will be created to the same Output folder as your scenario reports an will have a unique generated name.
+";
+        }
+
         public override object DoRun()
         {
             var outputFile = string.Format(Properties.Settings.Default.ScenarioOutputPath, DateTime.Now.ToString("s").Replace(":", "_"))+".html";

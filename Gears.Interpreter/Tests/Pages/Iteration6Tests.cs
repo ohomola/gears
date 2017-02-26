@@ -403,15 +403,17 @@ namespace Gears.Interpreter.Tests.Pages
         public void ShouldCreateDocumentation()
         {
             Bootstrapper.Register();
-            var doc = new Documentation(ServiceLocator.Instance.ResolveAll<IKeyword>());
+            var doc = new Documentation(ServiceLocator.Instance.ResolveAll<IKeyword>().Where(x=>!(x is IProtected)));
 
-            var markdown = doc.CreateContentMarkDown();
+            var cotent = doc.CreateContentMarkDown();
+            var sidemenu = doc.CreateSideMenuMarkDown();
 
-            Assert.IsNotNull(markdown);
+            Assert.IsNotNull(cotent);
+            Assert.IsNotNull(sidemenu);
 
-            Assert.IsTrue(markdown.Contains("Click"));
+            Assert.IsTrue(cotent.Contains("Click"));
 
-            Assert.IsTrue(markdown.Contains(new Click().CreateDocumentationMarkDown()));
+            Assert.IsTrue(cotent.Contains(new Click().CreateDocumentationMarkDown()));
 
 
         }

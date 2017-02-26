@@ -7,6 +7,9 @@ namespace Gears.Interpreter.Library.Documentations
 {
     public class Documentation
     {
+
+        public const string ConsoleKeywordNote =
+            "\n> Console control Keyword - use directly in console to control application (not recommended as part of scenario).\n\n";
         private readonly List<IKeyword> _keywords;
 
         public Documentation(IEnumerable<IKeyword> keywords)
@@ -16,15 +19,32 @@ namespace Gears.Interpreter.Library.Documentations
 
         public string CreateContentMarkDown()
         {
-            _keywords.OrderBy(x=>x.GetType().Name).ToList();
+            var orderedKeywords = _keywords.OrderBy(x=>x.GetType().Name).ToList();
 
             var sb = new StringBuilder();
-
-            foreach (var keyword in _keywords)
+            sb.AppendLine("# List of keywords");
+            foreach (var keyword in orderedKeywords)
             {
                 sb.AppendLine(keyword.CreateDocumentationMarkDown());
             }
 
+            return sb.ToString();
+        }
+
+        public string CreateSideMenuMarkDown()
+        {
+            var orderedKeywords = _keywords.OrderBy(x => x.GetType().Name).ToList();
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine("- [List of Keywords](Documentation#list-of-keywords)  ");
+
+            foreach (var keyword in orderedKeywords)
+            {
+                sb.AppendLine($"  - [{keyword.GetType().Name}](Documentation#{keyword.GetType().Name.ToLower()})");
+            }
+
+            sb.AppendLine();
             return sb.ToString();
         }
     }

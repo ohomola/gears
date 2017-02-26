@@ -6,7 +6,19 @@ namespace Gears.Interpreter.Library.Workflow
     [UserDescription("skip (N) \t-\t skips one or N (if specified) steps")]
     public class Skip : Keyword
     {
-        public int Count { get; set;} 
+        public int Count { get; set;}
+
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Skips selected number of steps of your scenario.
+
+#### Console usages
+    skip 4
+";
+        }
 
         public override object DoRun()
         {

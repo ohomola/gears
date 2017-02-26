@@ -13,6 +13,15 @@ namespace Gears.Interpreter.Library.Workflow
     {
         public string File { get; set; }
 
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return base.CreateDocumentationMarkDown() +
+                   $@"Opens a specified scenario file.
+#### Console usage
+    open c:/mytest.csv";
+        }
+
         public override object DoRun()
         {
             if (string.IsNullOrEmpty(File))

@@ -10,7 +10,7 @@ using Gears.Interpreter.Data.Core;
 namespace Gears.Interpreter.Library.Workflow
 {
     [NotLogged]
-    public class LastPlan : Keyword, IHasTechnique
+    public class LastPlan : Keyword, IHasTechnique, IProtected
     {
         public override object DoRun()
         {

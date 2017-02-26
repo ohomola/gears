@@ -11,7 +11,7 @@ using Gears.Interpreter.Library.Config;
 namespace Gears.Interpreter.Library.Workflow
 {
     [NotLogged]
-    public class Start : Keyword
+    public class Start : Keyword, IProtected
     {
         private IDataContext _data;
 

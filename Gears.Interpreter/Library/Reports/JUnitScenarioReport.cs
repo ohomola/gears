@@ -23,6 +23,17 @@ namespace Gears.Interpreter.Library.Reports
             _pathTemplate = ".\\Output\\ScenarioReport_JUnit{0}.xml";
         }
 
+        public override string CreateDocumentationMarkDown()
+        {
+            return base.CreateDocumentationMarkDown() +
+                   $@"Creates output file containing results of the scenario in JUnit-compatible XML format.
+> Note: To add this to any scenario, you can also use a command-line argument when executing Gears Interpreter -{nameof(JUnitScenarioReport)}
+
+#### Console usage
+    JUnitScenarioReport
+    show JUnitScenarioReport";
+        }
+
         public JUnitScenarioReport([NotNull] string path)
         {
             _pathTemplate = path;

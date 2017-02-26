@@ -415,16 +415,6 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreNotEqual("[randomVal]", ((Comment)testHandler.Keywords[5]).Text);
         }
 
-        public class IsUrl : Keyword
-        {
-            public override object DoRun()
-            {
-                return ExpectedUrl == Selenium.WebDriver.Url;
-            }
-
-            public string ExpectedUrl { get; set; }
-        }
-
         [Test]
         public void ShouldRecallRememberedValues4()
         {

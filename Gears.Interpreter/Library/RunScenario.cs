@@ -41,6 +41,11 @@ namespace Gears.Interpreter.Library
         {
             return $@"
 {base.CreateDocumentationMarkDown()}
+Execute entire scenario plan file. Use this keyword to define scenario-of-scenarios (i.e. Suite).
+
+> Note: You can debug a scenario containing RunScenario steps normally, however the entire RunScenarios will be called end-to-end, you cannot step inside them.
+
+#### Scenario usage
 | Discriminator | FileName           | 
 | ------------- | -----              |
 | RunScenario   | ./Test1.xlsx       |
