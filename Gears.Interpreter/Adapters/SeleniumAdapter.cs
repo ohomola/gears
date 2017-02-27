@@ -123,9 +123,7 @@ namespace Gears.Interpreter.Adapters
         public IntPtr GetChromeHandle()
         {
             LazyInitialize();
-
             
-
             return _handle;
         }
 
@@ -162,7 +160,6 @@ namespace Gears.Interpreter.Adapters
             }
             catch (Exception)
             {
-                Console.Out.WriteColoredLine(ConsoleColor.Yellow, "Warning, error");
                 scrollOffset = 0;
             }
 
