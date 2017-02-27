@@ -21,6 +21,26 @@ namespace Gears.Interpreter.Library
             return new SuccessAnswer("Done.");
         }
 
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Displays the inteded action. Used for troubleshooting or while developing new tests.
+
+When used without parameter, will try to show selected plan keyword. Note that not all keywords are 'showable' (typically only UI actions are showable)
+
+Other usage is prefixing other keyword console commands with the word show. This will perform the same as above, except against the specified command.
+
+#### Console usage
+    show
+    show click 1st login button
+    show fill textfield above password
+    show csvscenarioreport
+
+> Note: Show will use an overlay window to indicate the location of the element. This will stay displayed until a console prompt is confirmed. Note that this blocks your test until user performs an action so it is not recommended to use in live tests.
+";
+        }
+
         public Show()
         {
         }

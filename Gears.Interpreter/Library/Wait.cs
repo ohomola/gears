@@ -34,6 +34,23 @@ namespace Gears.Interpreter.Library
             What = what;
         }
 
+        #region Documentation
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Waits for specified number of miliseconds
+
+#### Scenario usage
+| Discriminator | What   | 
+| ------------- | -----  |
+| Wait          | 1000   |
+";
+        }
+
+        #endregion
+
         public virtual int What { get; set; }
 
         public override object DoRun()

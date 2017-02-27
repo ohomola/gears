@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -17,13 +18,18 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
             this.Location = new System.Drawing.Point(-1280, 0);
             this.Name = "GearsOverlayForm";
             this.Text = "Gears Overlay";
+            this.StartPosition = FormStartPosition.Manual;
             this.TopMost = true;
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            //this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.TransparencyKey = System.Drawing.Color.FromArgb(
                 ((int)(((byte)(0)))), 
                 ((int)(((byte)(0)))), 
                 ((int)(((byte)(0)))));
 
+
+            var screenRectangles = Screen.AllScreens.Select(x=>x.WorkingArea);
+
+            this.SetBounds(screenRectangles.Min(x=>x.X), screenRectangles.Min(x => x.Y), screenRectangles.Max(x => x.X+x.Width), screenRectangles.Max(x => x.Y + x.Height));
             //oldWindowLong = GetWindowLong(Handle, (int)MasterForm.GetWindowLongConst.GWL_EXSTYLE);
             //SetWindowLong(Handle, (int)MasterForm.GetWindowLongConst.GWL_EXSTYLE, Convert.ToInt32(oldWindowLong | (uint)MasterForm.WindowStyles.WS_EX_LAYERED | (uint)MasterForm.WindowStyles.WS_EX_TRANSPARENT));
 

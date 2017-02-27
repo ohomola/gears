@@ -62,7 +62,37 @@ namespace Gears.Interpreter.Library
             Text = instruction.With;
             Order = instruction.Order;
             _instruction = instruction;
-        }  
+        }
+        #endregion
+
+        #region Documentation
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Fills a text input element (or dropdown) located by a visible text on the screen. The input parameter is a query instruction passed as a string to parameter **What**. 
+
+>The Fill understands simple instructions differently than Click , which means you do not need to specify 'input next to login' each time you are looking for input labelled 'login'. Instead you can ask just for 'login' - Fill assumes you're looking for something that has a label next to it somewhere.
+
+**Text** parameter is the text to be filled into the element.
+
+#### Scenario usages
+| Discriminator | What  | Text  |
+| ------------- | ----- | ----- |
+| Fill          | login | user1 |
+| Fill          | input right from login | password |
+
+#### Console usages
+    fill login with user1
+    fill input right from login with password
+    show fill login with user1
+
+### Additional properties
+* [Common Keyword properties](Documentation#common-keyword-properties)  
+";
+        }
+
         #endregion
 
         public Fill()

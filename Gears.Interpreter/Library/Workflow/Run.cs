@@ -11,6 +11,17 @@ namespace Gears.Interpreter.Library.Workflow
     {
         public int Count { get; set; }
 
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Executes selected number of steps of your scenario. Use this if you want to run your plan up to given step.
+
+#### Console usages
+    run 4
+";
+        }
+
         public override object DoRun()
         {
             List<IAnswer> answers = new List<IAnswer>();

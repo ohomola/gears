@@ -15,6 +15,19 @@ namespace Gears.Interpreter.Library.Workflow
     [UserDescription("stop \t\t-\t stops execution, saves results and exits application.")]
     public class Stop : Keyword
     {
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Stops the scenario execution and closes the application.
+
+#### Console usages
+    stop
+";
+        }
+
+
         public override object DoRun()
         {
             Interpreter.IsAlive = false;

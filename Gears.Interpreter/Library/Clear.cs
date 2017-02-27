@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Library.Documentations;
 using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
@@ -16,6 +17,28 @@ namespace Gears.Interpreter.Library
         [Wire]
         [XmlIgnore]
         public IOverlay Overlay { get; set; }
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Clears a text input element (or dropdown) located by a visible text on the screen. The input parameter is a query instruction passed as a string to parameter **What**. 
+
+See [Fill](#fill) for more info.
+
+#### Scenario usages
+| Discriminator | What  | 
+| ------------- | ----- | 
+| Clear          | login |     
+| Clear          | input right from login |
+
+#### Console usages
+    clear
+
+### Additional properties
+* [Common Keyword properties](Documentation#common-keyword-properties)  
+";
+        }
 
         public Clear()
         {

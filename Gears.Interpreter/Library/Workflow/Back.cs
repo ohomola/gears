@@ -1,4 +1,5 @@
 ﻿using Gears.Interpreter.Applications;
+using Gears.Interpreter.Library.Documentations;
 
 namespace Gears.Interpreter.Library.Workflow
 {
@@ -7,6 +8,16 @@ namespace Gears.Interpreter.Library.Workflow
     public class Back : Keyword
     {
         public int Count { get; set; }
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return
+                $@"{base.CreateDocumentationMarkDown()}
+Moves selected keyword one step back. You can also add a number parameter to specify the numer of steps.
+#### Console usages
+    back
+    back 4";
+        }
 
         public override object DoRun()
         {

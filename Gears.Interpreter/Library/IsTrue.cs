@@ -1,6 +1,8 @@
-﻿namespace Gears.Interpreter.Library
+﻿using Gears.Interpreter.Library.Workflow;
+
+namespace Gears.Interpreter.Library
 {
-    public class IsTrue : Keyword
+    public class IsTrue : Keyword, IProtected
     {
         public bool Predicate { get; }
 

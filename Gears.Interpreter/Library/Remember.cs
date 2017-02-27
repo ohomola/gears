@@ -43,6 +43,30 @@ namespace Gears.Interpreter.Library
             What = what;
         }
 
+
+        #region Documentation
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Saves a specified value to a variable for later use. Your currently memorized variables are displayed in the console status.
+#### Scenario usages
+| Discriminator | What               | Variable     |
+| ------------- | -----              | -----        |
+| Remember      | user1              | myLogin      |
+| Fill          | login              | [myLogin]    |
+| Remember      | {{Generate.Word(3)}} | randomWord   |
+| Fill          | password           | [randomWord] |
+
+#### Console usages
+     remember myUser John
+";
+        }
+
+        #endregion
+
+
         public override IKeyword FromString(string textInstruction)
         {
             var args = ExtractTwoParametersFromTextInstruction(textInstruction);

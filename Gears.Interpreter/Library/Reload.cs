@@ -10,6 +10,15 @@ namespace Gears.Interpreter.Library
     [UserDescription("reload \t\t-\t re-reads all input files")]
     public class Reload : Keyword
     {
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return base.CreateDocumentationMarkDown() +
+                   $@"Reloads the scenario. Use this along with a shared xls document to build automated tests on-the-fly.
+#### Console usage
+    reload";
+        }
+
         public override object DoRun()
         {
             foreach (var dataAccess1 in Interpreter.Data.DataAccesses.OfType<FileObjectAccess>())
@@ -25,19 +34,6 @@ namespace Gears.Interpreter.Library
             }
 
             return new SuccessAnswer("Reload completed.");
-        }
-    }
-
-    [NotLogged]
-    [UserDescription("forget \t\t-\t erases all remembered text values from memory")]
-    public class Forget : Keyword
-    {
-        public override object DoRun()
-        {
-            var items = Interpreter.Data.GetAll<RememberedText>();
-            Interpreter.Data.RemoveAll<RememberedText>();
-            
-            return new SuccessAnswer($"Forgot {items.Count()} items.");
         }
     }
 }

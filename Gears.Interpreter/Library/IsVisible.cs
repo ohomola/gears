@@ -53,6 +53,31 @@ namespace Gears.Interpreter.Library
             }
         }
 
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Checks the presence of a web element or text in the browser window. The input parameter is a query instruction passed as a string to parameter 'What'. See [Web element instructions](#web-element-instructions) for more info.
+
+#### Scenario usages
+| Discriminator | What | Expect |
+| ------------- | ---- | ----|
+| IsVisible     | Save | true |
+| IsVisible     | 1st button 'save customer' below 'New Customer'| false |
+| IsVisible     | 4th button from right| true |
+
+#### Console usages
+    IsVisible save
+    IsVisible 4th button from right
+
+> Note: console usages always Expect true result (you cannot specify Expect parameter when calling the keyword from console)
+
+### Additional properties
+* [Common Keyword properties](Documentation#common-keyword-properties)  
+";
+        }
+
         public IsVisible()
         {
         }

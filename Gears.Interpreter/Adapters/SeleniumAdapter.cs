@@ -89,7 +89,6 @@ namespace Gears.Interpreter.Adapters
                 var handle = this.GetChromeHandle();
                 var rect = new UserBindings.RECT();
                 UserBindings.GetWindowRect(handle, ref rect);
-
                 return rect;
             }
         }

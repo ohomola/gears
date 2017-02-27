@@ -35,6 +35,20 @@ namespace Gears.Interpreter.Library
         public const string SuccessMessage = "Page loaded.";
         public virtual string Url { get; set;  }
 
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return base.CreateDocumentationMarkDown() +
+                   $@"Navigates browser to specified URL. Note that the url must be fully formated, (e.g. beginning with http://).
+#### Scenario usage
+| Discriminator | URL  | 
+| ------------- | ----- | 
+| GoToUrl       | https://github.com/ohomola/gears/wiki/Documentation |     
+
+#### Console usage
+    gotourl https://github.com/ohomola/gears/wiki/Documentation";
+        }
+
         [Wire]
         [XmlIgnore]
         public IOverlay Overlay { get; set; }

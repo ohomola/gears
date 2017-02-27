@@ -89,7 +89,33 @@ namespace Gears.Interpreter.Library
             _instruction = instruction;
         }
 
-        
+        #endregion
+
+
+        #region Documentation
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Clicks an element identified by a visible text on the screen. The input parameter is a query instruction passed as a string to parameter 'What'. See [Web element instructions](#web-element-instructions) for more info.
+
+#### Scenario usages
+| Discriminator | What |
+| ------------- | ---- |
+| Click         | Save |
+| Click         | 1st button 'save customer' below 'New Customer'|
+| Click         | 4th button from right|
+
+#### Console usages
+    click save
+    click 4th button from right
+    show click save
+
+### Additional properties
+* [Common Keyword properties](Documentation#common-keyword-properties)  
+";
+        }
 
         #endregion
 

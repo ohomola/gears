@@ -17,6 +17,24 @@ namespace Gears.Interpreter.Library
         private int _x;
         private int _y;
 
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Prompts user to indicate a webelement of interest to the application. The application will then attempt to figure out the simplest instruction how to describe this element.
+
+The generated instruction will be saved in [it] variable so it can be immediatelly tested in a followup 'click [it]' command.
+
+> Note: This is a concept version only. Currently only works on Buttons and Links and not all instructions are guaranteed to work at all circumstances.
+
+#### Console usage
+    whatisit
+
+> Note: Your browser will be overlayed by a highlight form window. This will make your browser content unaccessible until you click the overlay.
+
+";
+        }
+
         private WhatIsIt(int x, int y)
         {
             _x = x;

@@ -14,5 +14,11 @@ namespace Gears.Interpreter.Library
             return arg.TagName.ToLower() == "button" || arg.GetAttribute("type") == "button" ||
                    arg.TagName.ToLower() == "a";
         }
+
+        public static bool IsFillable(this IWebElement arg)
+        {
+            return arg.TagName.ToLower() == "input" ||
+                   arg.TagName.ToLower() == "textArea";
+        }
     }
 }

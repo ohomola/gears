@@ -15,6 +15,14 @@ namespace Gears.Interpreter.Library.Workflow
             _language = new Lazy<ILanguage>(()=>interpreterProvider.Invoke().Language);
         }
 
+        public override string CreateDocumentationMarkDown()
+        {
+            return base.CreateDocumentationMarkDown() +
+                   $@"Displays console help with the list of common keywords.
+#### Console usages
+    help";
+        }
+
         public override object DoRun()
         {
             var consoleCommands = "\n--- Help ---\nConsole commands: \n";
