@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
 using OpenQA.Selenium;
@@ -151,11 +152,20 @@ namespace Gears.Interpreter.Adapters
 
         public void ConvertFromPageToWindow(ref Point p)
         {
-            var scrollOffset =
-                (int)
-                Math.Abs(
-                    (long)
-                    WebDriver.RunLibraryScript("return window.pageYOffset || document.documentElement.scrollTop"));
+            int scrollOffset;
+            try
+            {
+                var scriptResult = WebDriver.RunLibraryScript("return window.pageYOffset || document.documentElement.scrollTop");
+                scrollOffset = (int)
+                        Math.Abs(
+                            (long)
+                            scriptResult);
+            }
+            catch (Exception)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Yellow, "Warning, error");
+                scrollOffset = 0;
+            }
 
             p.X += ContentOffsetX();
             p.Y += ContentOffsetY() - scrollOffset;

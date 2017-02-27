@@ -187,7 +187,7 @@ namespace Gears.Interpreter.Library
                    $"{nameof(Direction)} = {Direction}\n" +
                    $"{nameof(Locale)} = {Locale}\n" +
                    $"{nameof(With)} = {With}\n" +
-                   $"{nameof(TagNames)} = {TagNames}\n";
+                   $"{nameof(TagNames)} = {string.Join(", ",TagNames)}\n";
             ;
 
         }

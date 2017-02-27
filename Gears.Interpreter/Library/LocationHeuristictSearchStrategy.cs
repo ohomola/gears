@@ -461,6 +461,11 @@ namespace Gears.Interpreter.Library
         }
 
         public string TagName { get; set; }
+
+        public override string ToString()
+        {
+            return $"Tag = {TagName}";
+        }
     }
 
     class AttributeSelector : ITagSelector
@@ -469,6 +474,11 @@ namespace Gears.Interpreter.Library
         {
             Name = name;
             Value = value;
+        }
+
+        public override string ToString()
+        {
+            return $"{Name} = {Value}";
         }
 
         public string Name { get; set; }
