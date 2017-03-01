@@ -263,6 +263,7 @@
     <Compile Include="Tests\Pages\Iteration5Tests.cs" />
     <Compile Include="Tests\Pages\Iteration4Tests.cs" />
     <Compile Include="Library\Reports\JUnitScenarioReport.cs" />
+    <Compile Include="Tests\Pages\Iteration7Tests.cs" />
     <Compile Include="Tests\Pages\Iteration6Tests.cs" />
   </ItemGroup>
   <ItemGroup>

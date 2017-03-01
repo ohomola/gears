@@ -26,7 +26,19 @@ namespace Gears.Interpreter.Applications.Registrations
         {
             var objectDataAccess = new ObjectDataAccess();
 
-            foreach (var argument in arguments)
+
+            var nonparametricArguments = arguments.Where(x => !x.Contains("=")).ToList();
+            var parametricArguments = arguments.Where(x => x.Contains("=")).ToList();
+
+            foreach (var parametricArgument in parametricArguments)
+            {
+                var name = parametricArgument.Substring(1, parametricArgument.IndexOf('=')-1);
+                var value = parametricArgument.Substring(parametricArgument.IndexOf('=')+1);
+                var rememberedText = new RememberedText(name, value);
+                SharedObjectDataAccess.Instance.Value.Add(rememberedText);
+            }
+
+            foreach (var argument in nonparametricArguments)
             {
                 var dtoTypes = _registry.GetDTOTypes();
                 var type =

@@ -18,6 +18,12 @@ namespace Gears.Interpreter.Library
         [XmlIgnore]
         public IOverlay Overlay { get; set; }
 
+
+        public override IKeyword FromString(string textInstruction)
+        {
+            return new Clear(ExtractSingleParameterFromTextInstruction(textInstruction));
+        }
+
         public override string CreateDocumentationMarkDown()
         {
             return $@"

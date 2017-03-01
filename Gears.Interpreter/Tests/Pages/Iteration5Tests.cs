@@ -377,7 +377,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldRecallRememberedValues3()
         {
-            var click = new Click("1st button [var1] [var2] from left") {Skip=true.ToString()};
+            var click = new Click("1st button [var1] [var2] from left");
             RunApplicationLoop(
                 new Remember("var1", "{\"Hello\"}"),
                 new Remember("var2", "{\"World\"}"),

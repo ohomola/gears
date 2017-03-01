@@ -197,6 +197,10 @@ namespace Gears.Interpreter
             {
                 Add(ConsoleColor.Magenta, "Expression", returnValue);
             }
+            if (selectedKeyword!= null && selectedKeyword.Skip)
+            {
+                Add(ConsoleColor.Green, " (Skip)", returnValue);
+            }
             Add(ConsoleColor.DarkGray, "\n", returnValue);
 
             //10 after
@@ -237,9 +241,13 @@ namespace Gears.Interpreter
             {
                 Add(ConsoleColor.Yellow, keyword.Status, returnValue);
             }
-            if (keyword.Status == KeywordStatus.Skipped.ToString())
+            if (keyword.Skip && keyword.Status != KeywordStatus.Skipped.ToString())
             {
-                Add(ConsoleColor.DarkGray, keyword.Status, returnValue);
+                Add(ConsoleColor.DarkGreen, " (Skip)", returnValue);
+            }
+            else if (keyword.Status == KeywordStatus.Skipped.ToString())
+            {
+                Add(ConsoleColor.DarkGreen, keyword.Status, returnValue);
             }
             if (keyword.IsLazy() && !keyword.IsLazyHydrated())
             {

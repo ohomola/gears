@@ -18,10 +18,10 @@ namespace Gears.Interpreter.Library
 
         public override object DoRun()
         {
-            var items = Interpreter.Data.GetAll<RememberedText>();
+            var items = Interpreter.Data.GetAll<RememberedText>().ToList();
             Interpreter.Data.RemoveAll<RememberedText>();
             
-            return new SuccessAnswer($"Forgot {items.Count()} items.");
+            return new SuccessAnswer($"Forgot {items.Count()} item{(items.Count!=1?"s":"")}.");
         }
     }
 }

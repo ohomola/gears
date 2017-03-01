@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Gears.Interpreter.Applications.Debugging;
 using Microsoft.CSharp;
 
 namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
@@ -18,9 +19,20 @@ namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
 
         public object Resolve(string originalValue)
         {
-            var codeStub = CreateCodeStub(originalValue.Substring(1,originalValue.Length-2));
+            var codeStub = CreateCodeStub(ExtractCodeExpression(originalValue));
+
+            if (codeStub == null)
+            {
+                return originalValue;
+            }
+
 
             return CallGetValueMethod(codeStub);
+        }
+
+        private static string ExtractCodeExpression(string originalValue)
+        {
+            return originalValue.Substring(1,originalValue.Length-2);
         }
 
         public bool CanResolve(object obj)
@@ -32,7 +44,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
                 return false;
             }
 
-            return (s.Contains("{") && s.Contains("}"));
+            return (s.StartsWith("{") && s.EndsWith("}"));
         }
 
         private Assembly CreateCodeStub(string codeExpression)
@@ -93,6 +105,7 @@ namespace Gears.Interpreter.Data.Serialization.Mapping.LazyResolving
 
 
                 throw new ApplicationException("Code Stub expression is invalid: \n\t" + message.ToString());
+                //return null;
             }
 
             return results.CompiledAssembly;

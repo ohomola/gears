@@ -78,8 +78,7 @@ namespace Gears.Interpreter.Library
         [XmlIgnore]
         public virtual IInterpreter Interpreter { get; set; }
 
-        [XmlIgnore]
-        public virtual string Skip { get; set; }
+        public virtual bool Skip { get; set; }
 
         public virtual string Status { get; set; } = KeywordStatus.NotExecuted.ToString();
 
@@ -137,7 +136,7 @@ namespace Gears.Interpreter.Library
 
                 keyword.Status = KeywordStatus.Ok.ToString();
 
-                if (!string.IsNullOrEmpty(keyword.Skip))
+                if (keyword.Skip)
                 {
                     keyword.Status = KeywordStatus.Skipped.ToString();
                     return KeywordResultSpecialCases.Skipped;

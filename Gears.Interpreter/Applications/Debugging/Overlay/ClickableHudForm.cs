@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace Gears.Interpreter.Applications.Debugging.Overlay
 {
-    internal class ClickableHudForm : Form
+    public class ClickableHudForm : Form
     {
         public ClickableHudForm()
         {
@@ -54,8 +54,5 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 
         [DllImport("user32.dll")]
         static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
-
-
-
     }
 }
