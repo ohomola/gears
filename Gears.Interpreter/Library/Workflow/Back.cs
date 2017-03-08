@@ -1,4 +1,5 @@
-﻿using Gears.Interpreter.Applications;
+﻿using System.Linq;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Library.Documentations;
 
 namespace Gears.Interpreter.Library.Workflow
@@ -21,6 +22,12 @@ Moves selected keyword one step back. You can also add a number parameter to spe
 
         public override object DoRun()
         {
+            if (Interpreter.Iterator.Index == 0 && Interpreter.Plan.OfType<StepOut>().Any())
+            {
+                Interpreter.Plan.OfType<StepOut>().First().Execute();
+                return new InformativeAnswer("Returning back to master scenario");
+            }
+
             var moved = Interpreter.Iterator.MoveBack(Count);
 
             return new SuccessAnswer($"Backed {moved} step{(moved == 1 ? "" : "s")}.");

@@ -6,10 +6,11 @@ using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
+using NUnit.Framework.Constraints;
 
 namespace Gears.Interpreter.Library
 {
-    public class RunScenario : Keyword
+    public class RunScenario : Keyword, IHasTechnique
     {
         public virtual string FileName { get; set; }
 
@@ -56,6 +57,11 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
 
         private void LoadKeywords()
         {
+            if (Keywords.Any())
+            {
+                return;
+            }
+
             if (!ServiceLocator.IsInitialised() || !ServiceLocator.Instance.Kernel.HasComponent(typeof(ITypeRegistry)))
             {
                 throw new InvalidOperationException("Cannot construct RunScenario from file without Registered ITypeRegistry");
@@ -72,6 +78,11 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
         public override object DoRun()
         {
             LoadKeywords();
+
+            if (Technique == Technique.HighlightOnly && Interpreter.IsDebugMode)
+            {
+                return StepIntoScenario();
+            }
 
             if (Keywords.Any(x => x is RunScenario))
             {
@@ -98,10 +109,25 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
             return null;
         }
 
+        private object StepIntoScenario()
+        {
+            var list = new List<IKeyword>(Keywords);
+
+            list.Add(new StepOut(Interpreter.Plan, Interpreter.Iterator.Index, FileName));
+
+            Interpreter.Plan = list;
+
+            Interpreter.Iterator.Index = 0;
+
+            return new InformativeAnswer("Stepping into Sub-Scenario");
+        }
+
         public override string ToString()
         {
             //return $"Run Scenario {FileName ?? ""} ({Keywords.Count}) steps: \n\t{string.Join("\n\t", Keywords.Take(Math.Min(Keywords.Count, 5)))} {(Keywords.Count>5?"\n\t...("+(Keywords.Count-5)+" more)...":"")}";
             return $"Run Scenario {FileName ?? ""}";
         }
+
+        public Technique Technique { get; set; }
     }
 }

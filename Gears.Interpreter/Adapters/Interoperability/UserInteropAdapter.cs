@@ -77,6 +77,42 @@ namespace Gears.Interpreter.Adapters.Interoperability
             Cursor.Position = oldPosition;
         }
 
+        public static void PressOnPoint(IntPtr wndHandle, Point clientPoint)
+        {
+            var oldPosition = Cursor.Position;
+            UserBindings.ClientToScreen(wndHandle, ref clientPoint);
+            Cursor.Position = new Point(clientPoint.X, clientPoint.Y);
+
+            var inputMouseDown = new UserBindings.INPUT { Type = 0 };
+            inputMouseDown.Data.Mouse.Flags = 0x0002;
+
+            var inputMouseUp = new UserBindings.INPUT { Type = 0 };
+            inputMouseUp.Data.Mouse.Flags = 0x0004;
+
+            var inputs = new[] { inputMouseDown };
+            UserBindings.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(UserBindings.INPUT)));
+
+            Cursor.Position = oldPosition;
+        }
+
+        public static void ReleaseOnPoint(IntPtr wndHandle, Point clientPoint)
+        {
+            var oldPosition = Cursor.Position;
+            UserBindings.ClientToScreen(wndHandle, ref clientPoint);
+            Cursor.Position = new Point(clientPoint.X, clientPoint.Y);
+
+            var inputMouseDown = new UserBindings.INPUT { Type = 0 };
+            inputMouseDown.Data.Mouse.Flags = 0x0002;
+
+            var inputMouseUp = new UserBindings.INPUT { Type = 0 };
+            inputMouseUp.Data.Mouse.Flags = 0x0004;
+
+            var inputs = new[] { inputMouseUp };
+            UserBindings.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(UserBindings.INPUT)));
+
+            Cursor.Position = oldPosition;
+        }
+
         public static void SendText(IntPtr wndHandle,string s, Point clientPoint)
         {
             UserBindings.ClientToScreen(wndHandle, ref clientPoint);

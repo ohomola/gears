@@ -88,9 +88,21 @@ namespace Gears.Interpreter.Tests.Pages
         public void ShouldParseInstructionCorrectly6()
         {
             var instruction = new Instruction("4 textfield blah left from Password with 'Hello'");
-            Assert.AreEqual(3, instruction.Order);
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual(SubjectType.Any, instruction.SubjectType);
+            Assert.AreEqual("4 textfield blah", instruction.SubjectName);
+            Assert.AreEqual(SearchDirection.LeftFromAnotherElement, instruction.Direction);
+            Assert.AreEqual("Password", instruction.Locale);
+            Assert.AreEqual("Hello", instruction.With);
+        }
+
+        [Test]
+        public void ShouldParseInstructionCorrectly6b()
+        {
+            var instruction = new Instruction("2nd textfield 4 blah 4 left from Password with 'Hello'");
+            Assert.AreEqual(1, instruction.Order);
             Assert.AreEqual(SubjectType.Input, instruction.SubjectType);
-            Assert.AreEqual("blah", instruction.SubjectName);
+            Assert.AreEqual("4 blah 4", instruction.SubjectName);
             Assert.AreEqual(SearchDirection.LeftFromAnotherElement, instruction.Direction);
             Assert.AreEqual("Password", instruction.Locale);
             Assert.AreEqual("Hello", instruction.With);

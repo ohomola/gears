@@ -162,6 +162,7 @@
     <Compile Include="Data\Serialization\Mapping\LazyResolving\LazyExpressionResolver.cs" />
     <Compile Include="Data\Serialization\Mapping\DataObjectInterceptor.cs" />
     <Compile Include="Data\Serialization\Mapping\LazyResolving\RememberedDataResolver.cs" />
+    <Compile Include="Library\DragAndDrop.cs" />
     <Compile Include="Library\Config\DebugMode.cs" />
     <Compile Include="Adapters\SeleniumAdapter.cs" />
     <Compile Include="Applications\Debugging\ConsoleDebuggerActionHook.cs" />
@@ -203,7 +204,9 @@
     <Compile Include="Library\Documentations\Documentation.cs" />
     <Compile Include="Library\Forget.cs" />
     <Compile Include="Library\Reload.cs" />
+    <Compile Include="Library\Resize.cs" />
     <Compile Include="Library\Show.cs" />
+    <Compile Include="Library\StepOut.cs" />
     <Compile Include="Library\WebElementExtensions.cs" />
     <Compile Include="Library\WhatIsIt.cs" />
     <Compile Include="Library\Workflow\Analysis.cs" />

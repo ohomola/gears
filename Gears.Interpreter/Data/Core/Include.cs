@@ -23,9 +23,36 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Library;
+using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Data.Core
 {
+    public class IncludeFakeToHackDocumentGenerator : Keyword
+    {
+        public override object DoRun()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return @"
+## Include
+| Discriminator | FileName | 
+| -------- | ----- | 
+| Include | C:/myTest.Csv |   
+| Include | ./../mytests/myTest.Csv |   
+
+Path can be relative to the Interpreter applicaion location";
+        }
+
+        public override string CreateDocumentationTypeName()
+        {
+            return "Include";
+        }
+    }
+
     public class Include
     {
         public Include(string fileName)

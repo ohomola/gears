@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Remoting;
@@ -101,6 +102,56 @@ namespace Gears.Interpreter.Tests.Pages
 
             Assert.AreEqual("url", rem.Variable);
             Assert.AreEqual("http://www.google.com", rem.What);
+        }
+
+        [Test]
+        public void ShouldBeAbleToAskIsivisibleForANumber()
+        {
+            var url = "file:///" + FileFinder.Find("Iteration5TestPage.html");
+
+            Bootstrapper.Register(new Keyword[]
+            {
+                new GoToUrl(url), 
+                new IsVisible("Hello 102") {Expect = true},
+                new IsVisible("103 hello") {Expect = true},
+            });
+
+            var selenium = ServiceLocator.Instance.Resolve<ISeleniumAdapter>();
+
+            var interpreter = Bootstrapper.ResolveInterpreter();
+            var response = interpreter.Please("start");
+
+            response = interpreter.Please("");
+            response = interpreter.Please("");
+            Assert.IsInstanceOf<SuccessAnswer>(response);
+            response = interpreter.Please("");
+            Assert.IsInstanceOf<SuccessAnswer>(response, response.Text);
+
+        }
+
+        [Test]
+        public void ShouldCloseBrowserReliably()
+        {
+            var url = "file:///" + FileFinder.Find("Iteration5TestPage.html");
+
+            Bootstrapper.Register(new Keyword[]
+            {
+                new GoToUrl(url),
+            });
+
+            var selenium = ServiceLocator.Instance.Resolve<ISeleniumAdapter>();
+
+            var interpreter = Bootstrapper.ResolveInterpreter();
+            var response = interpreter.Please("start");
+            response = interpreter.Please("");
+            var processes = Process.GetProcesses();
+            var isChromeDriverRunning = processes.Any(x => x.ProcessName.StartsWith("chromedriver"));
+            Assert.IsTrue(isChromeDriverRunning);
+            
+
+            selenium.TerminateProcess("chromedriver");
+            isChromeDriverRunning = Process.GetProcesses().Any(x => x.ProcessName.StartsWith("chromedriver"));
+            Assert.IsFalse(isChromeDriverRunning);
         }
 
         private DirectoryInfo _outputFolder;

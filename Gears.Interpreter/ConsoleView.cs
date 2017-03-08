@@ -164,6 +164,8 @@ namespace Gears.Interpreter
 
             Keyword selectedKeyword = null;
 
+            
+
             if (status.Keywords.Any() && status.Keywords.Count()> status.Index && 0 <= status.Index)
             {
                 selectedKeyword = status.Keywords.ElementAt(Math.Max(0,status.Index)) as Keyword;
@@ -178,21 +180,37 @@ namespace Gears.Interpreter
                 }
             }
 
-            AddLine(ConsoleColor.Gray, $"Scenario with {keywords.Count} steps: ", returnValue);
+
+            var isSteppedIn = false;
+            if (keywords.Any(x => x is StepOut))
+            {
+                AddLine(ConsoleColor.DarkCyan, HorizontalLine, returnValue);
+                AddLine(ConsoleColor.Cyan, $"Stepped in RunScenario {keywords.OfType<StepOut>().First().FileName}",
+                    returnValue);
+                AddLine(ConsoleColor.DarkCyan, HorizontalLine, returnValue);
+                isSteppedIn = true;
+            }
+            else
+            {
+                AddLine(ConsoleColor.Gray, $"Scenario with {keywords.Count} steps: ", returnValue);
+            }
+
+            var indent = isSteppedIn ? "\t---\t" : "";
 
             //10 before
             if (status.Index > 10)
             {
-                AddLine(ConsoleColor.DarkGray, (status.Index - 10) + " additional steps...", returnValue);
+                AddLine(ConsoleColor.DarkGray, indent+(status.Index - 10) + " additional steps...", returnValue);
             }
             for (int i = Math.Max(0, status.Index - 10); i < status.Index; i++)
             {
                 
-                WriteKeywordLine(keywords, i, returnValue);
+                WriteKeywordLine(keywords, i, returnValue, indent);
             }
 
             //Selected
-            Add(ConsoleColor.Cyan, " >" + (status.Index + 1) + ") " + (selectedKeyword?.ToString() ?? " --- end of scenario ---"), returnValue);
+            Add(ConsoleColor.Cyan,
+                $"{indent} >{(status.Index + 1)}) {(selectedKeyword?.ToString() ?? " --- end of scenario ---")}", returnValue);
             if (selectedKeyword != null && selectedKeyword.IsLazy() && !selectedKeyword.IsLazyHydrated())
             {
                 Add(ConsoleColor.Magenta, "Expression", returnValue);
@@ -207,7 +225,7 @@ namespace Gears.Interpreter
             for (int i = Math.Min(keywords.Count(), status.Index + 1); i < Math.Min(status.Index + 10, keywords.Count()); i++)
             {
                 //Console.Out.WriteColoredLine(ConsoleColor.DarkGray, "  " + (1 + i) + ") " + keywords.ElementAt(i).ToString());
-                WriteKeywordLine(keywords, i, returnValue);
+                WriteKeywordLine(keywords, i, returnValue, indent);
             }
 
             if (keywords.Count() - status.Index > 10)
@@ -228,11 +246,11 @@ namespace Gears.Interpreter
             returnValue.Add(new ConsoleOutput(color, text+"\n"));
         }
 
-        private static void WriteKeywordLine(List<IKeyword> keywords, int i, List<ConsoleOutput> returnValue)
+        private static void WriteKeywordLine(List<IKeyword> keywords, int i, List<ConsoleOutput> returnValue, string indent)
         {
             var keyword = (Keyword)keywords.ElementAt(i);
 
-            Add(ConsoleColor.DarkGray, $"  {(i + 1)}) {keyword} ", returnValue);
+            Add(ConsoleColor.DarkGray, $"{indent}  {(i + 1)}) {keyword} ", returnValue);
             if (keyword.Status == KeywordStatus.Ok.ToString())
             {
                 Add(ConsoleColor.Green, keyword.Status, returnValue);

@@ -56,7 +56,7 @@ namespace Gears.Interpreter.Library
             HighlightElements(() => Thread.Sleep(wait), seleniumAdapter, elements, innerColor, outerColor, selectionIndex, selectionColor);
         }
 
-        public static void HighlightElements(Action action, ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor, int selectionIndex, Color selectionColor)
+        public static void HighlightElements(Action action, ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor, int selectionIndex, Color selectionColor ,int xOffset = 0, int yOffset =0)
         {
 
 
@@ -77,6 +77,15 @@ namespace Gears.Interpreter.Library
                         overlay.Graphics, element.Rectangle.Width, element.Rectangle.Height,
                         i == (1 + selectionIndex) ? selectionColor : innerColor,
                         outerColor);
+
+                    if (xOffset != 0 || yOffset != 0)
+                    {
+                        overlay.Graphics.DrawLine(Pens.Red, 
+                            p.X+ element.Rectangle.Width/2,
+                            p.Y + element.Rectangle.Height/2,
+                            p.X + element.Rectangle.Width / 2 + xOffset,
+                            p.Y + element.Rectangle.Height / 2 + yOffset);
+                    }
                 }
 
                 Console.Out.WriteColoredLine(ConsoleColor.White,

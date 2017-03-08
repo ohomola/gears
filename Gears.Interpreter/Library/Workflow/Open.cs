@@ -9,10 +9,11 @@ namespace Gears.Interpreter.Library.Workflow
 {
     [NotLogged]
     [UserDescription("open <file> \t-\t loads steps from a scenario file")]
-    public class Open : Keyword
+    public class Open : Keyword, IHasTechnique
     {
         public string File { get; set; }
 
+        public Technique Technique { get; set; }
 
         public override string CreateDocumentationMarkDown()
         {
@@ -52,5 +53,7 @@ namespace Gears.Interpreter.Library.Workflow
                 File = ExtractSingleParameterFromTextInstruction(textInstruction)
             };
         }
+
+        
     }
 }

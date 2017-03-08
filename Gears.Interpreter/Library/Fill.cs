@@ -167,35 +167,35 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
         #region Backward compatibility
 
-        [Obsolete("Backward compatibility")]
-        public Fill(string what, string where, string text) : this(what, text)
-        {
-            where = @where.ToLower().Trim();
-            switch (@where)
-            {
-                case ("right"):
-                    Direction = SearchDirection.LeftFromRightEdge;
-                    break;
-                case ("top"):
-                case ("up"):
-                    Direction = SearchDirection.DownFromTopEdge;
-                    break;
-                case ("down"):
-                case ("bottom"):
-                    Direction = SearchDirection.UpFromBottomEdge;
-                    break;
-                default:
-                    Direction = SearchDirection.RightFromLeftEdge;
-                    break;
-            }
-        }
+        //[Obsolete("Backward compatibility")]
+        //public Fill(string what, string where, string text) : this(what, text)
+        //{
+        //    where = @where.ToLower().Trim();
+        //    switch (@where)
+        //    {
+        //        case ("right"):
+        //            Direction = SearchDirection.LeftFromRightEdge;
+        //            break;
+        //        case ("top"):
+        //        case ("up"):
+        //            Direction = SearchDirection.DownFromTopEdge;
+        //            break;
+        //        case ("down"):
+        //        case ("bottom"):
+        //            Direction = SearchDirection.UpFromBottomEdge;
+        //            break;
+        //        default:
+        //            Direction = SearchDirection.RightFromLeftEdge;
+        //            break;
+        //    }
+        //}
 
-        [Obsolete("Backward compatibility")]
-        public virtual bool Javascript
-        {
-            get { return Technique == Technique.Javascript; }
-            set { Technique = value == true ? Technique.Javascript : Technique.MouseAndKeyboard; }
-        }
+        //[Obsolete("Backward compatibility")]
+        //public virtual bool Javascript
+        //{
+        //    get { return Technique == Technique.Javascript; }
+        //    set { Technique = value == true ? Technique.Javascript : Technique.MouseAndKeyboard; }
+        //}
 
         #endregion
     }

@@ -51,6 +51,7 @@ namespace Gears.Interpreter.Adapters
         int ContentOffsetX();
         int ContentOffsetY();
         void BringToFront();
+        bool TerminateProcess(string name);
     }
 
     public class SeleniumAdapter : ISeleniumAdapter, IDisposable
@@ -118,6 +119,34 @@ namespace Gears.Interpreter.Adapters
             catch (Exception)
             {
             }
+
+            TerminateProcess("chromedriver");
+        }
+
+        public bool TerminateProcess(string name)
+        {
+            foreach (Process clsProcess in Process.GetProcesses())
+            {
+                if (!clsProcess.ProcessName.StartsWith(name))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    Console.Out.Write($"Terminating {name}");
+                    clsProcess.CloseMainWindow();
+                    clsProcess.WaitForExit();
+                }
+                catch
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         public IntPtr GetChromeHandle()

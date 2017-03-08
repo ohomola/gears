@@ -13,7 +13,8 @@ namespace Gears.Interpreter.Library
         private static string AnythingExceptQuote = "[^']";
         private static string UnquotedWord = $"(({NotPrecedingAnyControlWord}{AnythingExceptQuote})*)";
         private static string DefaultCapturingGroupForValues = $"{UnquotedWord}|{QuotedWord}";
-        private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+))(\\S*\\s?";
+        private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+[a-zA-Z\\.]+)\\s?";
+        //private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+))(\\S*\\s?";
 
         public string With { get; set; }
 
@@ -64,6 +65,7 @@ namespace Gears.Interpreter.Library
             else
             {
                 var orderString = GetCapturedValue(result, "Order")??string.Empty;
+                orderString = ParseNumber(orderString);
                 Order = string.IsNullOrEmpty(orderString)?0: int.Parse(orderString) - 1;
                 Direction = ParseDirection(GetCapturedValue(result, "Direction"));
                 Locale = GetCapturedValue(result, "Locale");
@@ -72,6 +74,15 @@ namespace Gears.Interpreter.Library
                 SubjectName = GetCapturedValue(result, "Subject");
                 this.SubjectType= MapToSubjectTypeAndAddTagnamesRange(GetCapturedValue(result, "SubjectTagName"), TagNames);
             }
+        }
+
+        private string ParseNumber(string orderString)
+        {
+            var regex = new Regex("^(\\d+).*$");
+
+            var result = regex.Match(orderString);
+
+            return result.Groups[1].Value;
         }
 
         public Instruction()
