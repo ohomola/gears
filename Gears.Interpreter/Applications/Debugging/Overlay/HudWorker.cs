@@ -176,5 +176,10 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
         public int HoverY { get; set; }
 
         public int HoverX { get; set; }
+
+        public object RunPingAnimation(int x, int y)
+        {
+            return null;
+        }
     }
 }

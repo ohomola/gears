@@ -113,5 +113,13 @@ namespace Gears.Interpreter.Library
                 Thread.Sleep(wait);
             }
         }
+
+        public static void PingScreen(int x, int y)
+        {
+            using (var hud = Hud.CreateNonClickable())
+            {
+                var point = hud.Ping(x, y);
+            }
+        }
     }
 }

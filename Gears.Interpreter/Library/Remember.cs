@@ -20,7 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
 using System;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Library.Workflow;

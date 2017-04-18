@@ -120,7 +120,20 @@ namespace Gears.Interpreter.Adapters.Interoperability
             var inputs = new List<UserBindings.INPUT>();
             foreach (var c in s.ToCharArray())
             {
-                inputs.AddRange(GetCharacterInputs(c));
+                if (c == '\t')
+                {
+                    inputs.Add(CreateInput(KeyPressInputType.Down, keyCode: 0x09));
+                    inputs.Add(CreateInput(KeyPressInputType.Up, keyCode: 0x09));
+                }
+                else if (c == '\n')
+                {
+                    inputs.Add(CreateInput(KeyPressInputType.Down, keyCode: 0x0D));
+                    inputs.Add(CreateInput(KeyPressInputType.Up, keyCode: 0x0D));
+                }
+                else
+                {
+                    inputs.AddRange(GetCharacterInputs(c));
+                }
             }
             UserBindings.SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf(typeof(UserBindings.INPUT)));
         }
@@ -153,7 +166,7 @@ namespace Gears.Interpreter.Adapters.Interoperability
         private static UserBindings.INPUT CreateInput(KeyPressInputType upOrDown, ushort scanCode=0, ushort keyCode=0)
         {
             uint flags = 0x0000; // Flag input as 'sending basic key'
-            if (keyCode == 0x11)//Control
+            if (keyCode == 0x11 || keyCode == 0x09 || keyCode == 0x0D)//Control or Tab
             {
                 flags = 0x0001; // Flag input as 'sending extended key'
             }

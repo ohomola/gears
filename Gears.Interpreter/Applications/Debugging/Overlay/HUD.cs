@@ -11,6 +11,7 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
     public interface IHud : IDisposable
     {
         Point ReadClick();
+        object Ping(int x, int y);
     }
 
     public class Hud : IDisposable, IHud
@@ -47,6 +48,13 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
             var worker = new HudWorker(() => new ClickableHudForm());
 
             return worker.RunUntilClicked(_selenium);
+        }
+
+        public object Ping(int x, int y)
+        {
+            var worker = new HudWorker(() => new ClickableHudForm());
+
+            return worker.RunPingAnimation(x,y);
         }
     }
 }

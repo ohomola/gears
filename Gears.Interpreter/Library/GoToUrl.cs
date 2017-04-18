@@ -81,6 +81,7 @@ namespace Gears.Interpreter.Library
         public override object DoRun()
         {
             Selenium.WebDriver.Navigate().GoToUrl(Url);
+
             return new SuccessAnswer(SuccessMessage);
         }
 

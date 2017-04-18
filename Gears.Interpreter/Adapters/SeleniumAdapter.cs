@@ -100,7 +100,11 @@ namespace Gears.Interpreter.Adapters
             {
                 var path = FileFinder.Find("chromedriver.exe");
                 var existingChromes = AllChromeHandles();
-                _webDriver = new ChromeDriver(Path.GetDirectoryName(path), new ChromeOptions());
+                
+                var options = new ChromeOptions();
+                options.AddArguments("enable-automation");
+                options.AddArguments("--disable-infobars");
+                _webDriver = new ChromeDriver(Path.GetDirectoryName(path), options);
                 _handle = FindChromeHandle(existingChromes);
             }
         }
@@ -236,6 +240,8 @@ namespace Gears.Interpreter.Adapters
 
             var location = GetLocation(element);
 
+            var size = element.Size;
+
             var browserBox = new UserBindings.RECT();
             UserBindings.GetWindowRect(GetChromeHandle(), ref browserBox);
 
@@ -246,8 +252,8 @@ namespace Gears.Interpreter.Adapters
             var browserBarHeight = ContentOffsetY();
             var bb = ContentOffsetX();
             location.Y += (int)Math.Abs(browserBarHeight);
-            location.Y += 8;
-            location.X += 8;
+            location.Y += Math.Min(size.Height/2,8);
+            location.X += Math.Min(size.Width/2, 8);
             return location;
         }
 

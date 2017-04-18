@@ -174,6 +174,12 @@ namespace Gears.Interpreter.Tests.Pages
             interpreter.Please("clear TextArea 1");
         }
 
+        [Test]
+        public void ShouldBeAbleToResize()
+        {
+            //TBC
+        }
+
         [SetUp]
         public void SetUp()
         {
