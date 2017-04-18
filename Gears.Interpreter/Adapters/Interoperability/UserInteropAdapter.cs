@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 
@@ -71,7 +72,12 @@ namespace Gears.Interpreter.Adapters.Interoperability
             var inputMouseUp = new UserBindings.INPUT {Type = 0};
             inputMouseUp.Data.Mouse.Flags = 0x0004;
 
-            var inputs = new [] { inputMouseDown, inputMouseUp };
+            var inputs = new [] { inputMouseDown };
+            UserBindings.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(UserBindings.INPUT)));
+
+            Thread.Sleep(5);
+
+            inputs = new[] { inputMouseUp };
             UserBindings.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(UserBindings.INPUT)));
 
             Cursor.Position = oldPosition;
