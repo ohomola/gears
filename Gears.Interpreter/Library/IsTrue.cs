@@ -2,7 +2,7 @@
 
 namespace Gears.Interpreter.Library
 {
-    public class IsTrue : Keyword, IProtected
+    public class IsTrue : Keyword, IProtected, IAssertion
     {
         public bool Predicate { get; }
 

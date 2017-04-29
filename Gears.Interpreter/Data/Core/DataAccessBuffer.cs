@@ -129,5 +129,10 @@ namespace Gears.Interpreter.Data.Core
         {
             _list.RemoveAll(x => x is T);
         }
+
+        internal void RemoveAll(Type t)
+        {
+            _list.RemoveAll(t.IsInstanceOfType);
+        }
     }
 }

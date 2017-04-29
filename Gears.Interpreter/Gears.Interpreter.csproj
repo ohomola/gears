@@ -203,6 +203,7 @@
     <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Documentations\Documentation.cs" />
     <Compile Include="Library\Forget.cs" />
+    <Compile Include="Library\IAssertion.cs" />
     <Compile Include="Library\Login.cs" />
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Resize.cs" />
@@ -240,6 +241,7 @@
     <Compile Include="Library\Workflow\GoTo.cs" />
     <Compile Include="Library\Workflow\Help.cs" />
     <Compile Include="Library\Workflow\NotLoggedAttribute.cs" />
+    <Compile Include="Library\Workflow\Off.cs" />
     <Compile Include="Library\Workflow\Open.cs" />
     <Compile Include="Library\Workflow\LastPlan.cs" />
     <Compile Include="Library\Workflow\Run.cs" />
@@ -247,7 +249,7 @@
     <Compile Include="Library\Workflow\Start.cs" />
     <Compile Include="Library\Workflow\Status.cs" />
     <Compile Include="Library\Workflow\Stop.cs" />
-    <Compile Include="Library\Workflow\Take.cs" />
+    <Compile Include="Library\Workflow\Use.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Applications\Registrations\Bootstrapper.cs" />

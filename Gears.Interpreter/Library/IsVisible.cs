@@ -32,7 +32,7 @@ using Gears.Interpreter.Library.Workflow;
 namespace Gears.Interpreter.Library
 {
     [UserDescription("isvisible <i>\t-\t checks if an element is visible on screen")]
-    public class IsVisible : Keyword
+    public class IsVisible : Keyword, IAssertion
     {
         private  Instruction spec;
         public virtual List<ITagSelector> TagNames { get; set; }

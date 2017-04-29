@@ -142,14 +142,19 @@ namespace Gears.Interpreter.Data
 
         public void RemoveAll<T>()
         {
+            RemoveAll(typeof(T));
+        }
+
+        public void RemoveAll(Type t)
+        {
             foreach (var oda in DataAccesses.OfType<ObjectDataAccess>())
             {
-                oda.RemoveAll<T>();
+                oda.RemoveAll(t);
             }
 
             foreach (var oda in DataAccesses.OfType<SharedObjectDataAccess>())
             {
-                oda.RemoveAll<T>();
+                oda.RemoveAll(t);
             }
         }
 

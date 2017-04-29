@@ -12,7 +12,7 @@ namespace Gears.Interpreter.Library.Workflow
     {
         public override object DoRun()
         {
-            return new StatusAnswer(Interpreter.Plan, Interpreter.Iterator.Index, Interpreter.Data);
+            return new StatusAnswer(Interpreter.Plan, Interpreter.Iterator.Index, Interpreter.Data, Interpreter);
         }
     }
 

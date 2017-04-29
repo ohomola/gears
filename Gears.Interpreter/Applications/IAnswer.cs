@@ -17,6 +17,15 @@ namespace Gears.Interpreter.Applications
 
     public interface IFollowupQuestion : IAnswer
     {
+        IEnumerable<IKeyword> Options { get; set; }
+    }
+
+    public abstract class FollowupQuestion : IFollowupQuestion
+    {
+        public abstract object Body { get; }
+        public List<IAnswer> Children { get; set; } = new List<IAnswer>();
+        public string Text => Body?.ToString();
+        public IEnumerable<IKeyword> Options { get; set; }
     }
 
     public interface IAnswerChoice
@@ -158,16 +167,18 @@ namespace Gears.Interpreter.Applications
     }
     public class StatusAnswer : IAnswer
     {
-        public StatusAnswer(IEnumerable<IKeyword> keywords, int index, IDataContext data)
+        public StatusAnswer(IEnumerable<IKeyword> keywords, int index, IDataContext data, IInterpreter interpreter)
         {
             Keywords = keywords;
             Index = index;
             Data = data;
+            Interpreter = interpreter;
         }
 
         public IEnumerable<IKeyword> Keywords { get; set; }
         public int Index { get; set; }
         public IDataContext Data { get; set; }
+        public IInterpreter Interpreter { get; set; }
         public object Body { get; }
         public List<IAnswer> Children { get; }
         public string Text { get; }

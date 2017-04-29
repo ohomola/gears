@@ -21,7 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Xml.Serialization;
+using Castle.Core.Internal;
 using Gears.Interpreter.Adapters;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
@@ -29,11 +31,18 @@ using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Library.Config;
 using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
-    public interface IKeyword
+    public interface IHaveDocumentation
+    {
+        string CreateDocumentationMarkDown();
+        string CreateDocumentationTypeName();
+    }
+
+    public interface IKeyword : IHaveDocumentation
     {
         bool Matches(string textInstruction);
         IKeyword FromString(string textInstruction);
@@ -41,8 +50,6 @@ namespace Gears.Interpreter.Library
         string Status { get; set; }
         object Expect { get; set; }
         string GetUserDescription();
-        string CreateDocumentationMarkDown();
-        string CreateDocumentationTypeName();
     }
 
     public enum KeywordResultSpecialCases
@@ -102,12 +109,28 @@ namespace Gears.Interpreter.Library
 
         public virtual object Expect { get; set; }
 
+        public virtual int WaitAfter { get; set; }
+
+        public virtual int WaitBefore { get; set; }
+
         [XmlIgnore]
         public virtual double Time { get; set; }
 
         public virtual bool Matches(string textInstruction)
         {
-            return textInstruction.ToLower().Trim().StartsWith(this.GetType().Name.ToLower());
+            if (textInstruction.ToLower().Trim().StartsWith(this.GetType().Name.ToLower()))
+            {
+                var rest = textInstruction.ToLower().Replace(GetType().Name.ToLower(), string.Empty);
+                return rest.IsNullOrEmpty() || rest.StartsWith(" ");
+            }
+
+            if (textInstruction.ToLower().Trim().EndsWith(this.GetType().Name.ToLower()))
+            {
+                var rest = textInstruction.ToLower().Replace(GetType().Name.ToLower(), string.Empty);
+                return rest.IsNullOrEmpty() || rest.EndsWith(" ");
+            }
+
+            return false;
         }
 
         public virtual IKeyword FromString(string textInstruction)
@@ -140,12 +163,23 @@ namespace Gears.Interpreter.Library
                     ServiceLocator.Instance.Resolve(keyword);
                 }
 
+                if (keyword is IAssertion && Data != null &&  Data.Contains<SkipAssertions>())
+                {
+                    keyword.Status = KeywordStatus.Skipped.ToString();
+                    return new InformativeAnswer($"Assertions are turned off.\nSkipping:\n\t {keyword}");
+                }
+
                 keyword.Status = KeywordStatus.Ok.ToString();
 
                 if (keyword.Skip)
                 {
                     keyword.Status = KeywordStatus.Skipped.ToString();
                     return KeywordResultSpecialCases.Skipped;
+                }
+
+                if (WaitBefore != default(int))
+                {
+                    Thread.Sleep(WaitBefore);
                 }
 
                 DateTime start = DateTime.Now;
@@ -155,6 +189,11 @@ namespace Gears.Interpreter.Library
                 DateTime end = DateTime.Now;
 
                 keyword.Result = result;
+
+                if (WaitAfter != default(int))
+                {
+                    Thread.Sleep(WaitAfter);
+                }
 
                 //TODO : this will need more thought - result triage is a totally separate concern
                 if (keyword.Expect != null && keyword.Result != null &&
@@ -230,6 +269,13 @@ namespace Gears.Interpreter.Library
             var strings = textInstruction.Split(' ');
 
             return string.Join(" ", strings.Skip(1));
+        }
+
+        protected static string ReverseExtractSingleParameterFromTextInstruction(string textInstruction)
+        {
+            var strings = textInstruction.Split(' ');
+
+            return string.Join(" ", strings.Take(strings.Length-1));
         }
 
         protected static string []ExtractTwoParametersFromTextInstruction(string textInstruction)

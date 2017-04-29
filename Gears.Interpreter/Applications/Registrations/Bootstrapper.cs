@@ -98,6 +98,9 @@ namespace Gears.Interpreter.Applications.Registrations
             Container.Register(Classes.FromAssemblyContaining<IKeyword>()
                 .BasedOn<Keyword>().WithServiceSelf().WithServiceAllInterfaces());
 
+            Container.Register(Classes.FromAssemblyContaining<IKeyword>()
+                .BasedOn<IHaveDocumentation>().WithServiceSelf().WithServiceAllInterfaces());
+
 
             Container.Register(Component.For<IDataObjectAccess>().Named("SharedObjectDataAccess").Instance(SharedObjectDataAccess.Instance.Value).LifestyleSingleton());
 

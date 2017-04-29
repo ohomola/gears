@@ -30,7 +30,12 @@ Executes selected number of steps of your scenario. Use this if you want to run 
             int count = Math.Min(remainingSteps, Count);
             for (int i = 0; i < count; i++)
             {
-                answers.Add(Interpreter.Please(string.Empty));
+                ConsoleView.Render(ConsoleColor.DarkGray, $"Starting step {Interpreter.Iterator.Index + 1})\t{Interpreter.Iterator.Current}");
+
+                var answer = Interpreter.Please(string.Empty);
+                answers.Add(answer);
+
+                ConsoleView.Render(ConsoleColor.DarkGray, $"Finished step {Interpreter.Iterator.Index })\t{Interpreter.Iterator.Previous}\n{Interpreter.Iterator.Previous.Status}");
             }
 
 

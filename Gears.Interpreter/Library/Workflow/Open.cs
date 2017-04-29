@@ -31,7 +31,7 @@ namespace Gears.Interpreter.Library.Workflow
             }
 
             var fileObjectAccess = new FileObjectAccess(File, ServiceLocator.Instance.Resolve<ITypeRegistry>());
-            var data = fileObjectAccess.ReadAllObjects();
+            var data = fileObjectAccess.GetAll();
 
             Interpreter.Data.Include(fileObjectAccess);
 

@@ -403,7 +403,7 @@ namespace Gears.Interpreter.Tests.Pages
         public void ShouldCreateDocumentation()
         {
             Bootstrapper.Register();
-            var doc = new Documentation(ServiceLocator.Instance.ResolveAll<IKeyword>().Where(x=>!(x is IProtected)));
+            var doc = new Documentation(ServiceLocator.Instance.ResolveAll<IHaveDocumentation>().Where(x=>!(x is IProtected)));
 
             var cotent = doc.CreateContentMarkDown();
             var sidemenu = doc.CreateSideMenuMarkDown();

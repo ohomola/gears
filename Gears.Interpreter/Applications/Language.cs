@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using Castle.Core;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
@@ -17,11 +18,18 @@ namespace Gears.Interpreter.Applications
         bool HasKeywordFor(string command);
         IKeyword ResolveKeyword(string command);
         IEnumerable<IKeyword> Keywords { get; set; }
+        IEnumerable<IKeyword> Options { get; set; }
+        void AddOptions(IEnumerable<IKeyword> options);
+        void ResetOptions();
+        void AddOption(IKeyword keyword);
     }
 
     public class Language : ILanguage
     {
         private ILazyExpressionResolver _lazyExpressionResolver;
+
+        [DoNotWire]
+        public IEnumerable<IKeyword> Options { get; set; } = new List<IKeyword>();
 
         public Language(IEnumerable<IKeyword> keywords, ILazyExpressionResolver lazyExpressionResolver)
         {
@@ -30,14 +38,34 @@ namespace Gears.Interpreter.Applications
         }
 
         public IEnumerable<IKeyword> Keywords { get; set; }
+        public void AddOptions(IEnumerable<IKeyword> options)
+        {
+            Options = options;
+        }
+
+        public void ResetOptions()
+        {
+            Options = new List<IKeyword>();
+        }
+
+        public void AddOption(IKeyword keyword)
+        {
+            AddOptions(new List<IKeyword>() { keyword });
+        }
 
         public bool HasKeywordFor(string command)
         {
             return Keywords.Any(hook => hook.Matches(Normalize(command)));
         }
-
+        
         public IKeyword ResolveKeyword(string command)
         {
+            var option = Options.FirstOrDefault(x => x.Matches(command));
+            if (option != null)
+            {
+                return option;
+            }
+
             command = command.Trim();
             var template = Keywords.First(x => x.Matches(command));
             if (ServiceLocator.IsInitialised())

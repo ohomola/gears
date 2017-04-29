@@ -130,7 +130,37 @@ namespace Gears.Interpreter.Tests.Pages
         }
 
         [Test]
-        public void ShouldCloseBrowserReliably()
+        public void ShouldBeAbleTo_SkipAssertions()
+        {
+            var url = "file:///" + FileFinder.Find("Iteration5TestPage.html");
+
+            Bootstrapper.Register(new Keyword[]
+            {
+                new GoToUrl(url),
+                new IsVisible("Hello 102") {Expect = true},
+                new Use("SkipAssertions"), 
+                new IsVisible("103 hello") {Expect = true},
+                new IsVisible("Hello 102") {Expect = true},
+            });
+
+            var interpreter = Bootstrapper.ResolveInterpreter();
+            var response = interpreter.Please("start");
+
+            response = interpreter.Please(string.Empty);
+            response = interpreter.Please(string.Empty);
+            Assert.IsInstanceOf<SuccessAnswer>(response);
+            response = interpreter.Please(string.Empty);
+            response = interpreter.Please(string.Empty);
+            Assert.IsNotInstanceOf<SuccessAnswer>(response, response.Text);
+            response = interpreter.Please("SkipAssertions off");
+            response = interpreter.Please(string.Empty);
+            Assert.IsInstanceOf<SuccessAnswer>(response, response.Text);
+
+        }
+
+
+        [Test]
+        public void Should_CloseBrowserReliably()
         {
             var url = "file:///" + FileFinder.Find("Iteration5TestPage.html");
 

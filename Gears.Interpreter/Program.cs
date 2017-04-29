@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -27,10 +28,12 @@ using System.Threading;
 using System.Windows.Forms;
 using Castle.Core.Internal;
 using Gears.Interpreter.Adapters;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Applications.Registrations;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Library;
 using Gears.Interpreter.Library.Config;
 
 namespace Gears.Interpreter
@@ -88,6 +91,17 @@ namespace Gears.Interpreter
                     
                     var answer = interpreter.Please(interpreter.Continue());
 
+                    if (answer is IFollowupQuestion)
+                    {
+                        var options = ((IFollowupQuestion) answer).Options;
+
+                        interpreter.Language.AddOptions(options);
+                    }
+                    else
+                    {
+                        interpreter.Language.ResetOptions();
+                    }
+
                     ConsoleView.Render(answer);
                 }
 
@@ -105,7 +119,10 @@ namespace Gears.Interpreter
                 Bootstrapper.Release();
             }
         }
+
+        
     }
+
 
     internal class TestCaseDefinition
     {

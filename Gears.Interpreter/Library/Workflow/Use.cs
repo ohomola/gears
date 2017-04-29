@@ -9,11 +9,17 @@ using Microsoft.Office.Interop.Excel;
 namespace Gears.Interpreter.Library.Workflow
 {
     [NotLogged]
-    [UserDescription("take (X)\t-\t adds Keyword X to context. (e.g. 'Take junitscenarioreport' to register ScenarioReport.")]
-    public class Take : Keyword, IProtected
+    [UserDescription("use (X)\t-\t adds Keyword X to context. (e.g. 'use junitscenarioreport' to register ScenarioReport.")]
+    public class Use : Keyword
     {
-      [Wire]
-        public ITypeRegistry TypeRegistry { get; set; }
+        public Use(string what)
+        {
+            What = what;
+        }
+
+        public Use()
+        {
+        }
 
         public override object DoRun()
         {
@@ -48,7 +54,7 @@ namespace Gears.Interpreter.Library.Workflow
 
         public override IKeyword FromString(string textInstruction)
         {
-            var goTo = new Take();
+            var goTo = new Use();
 
             var param = ExtractSingleParameterFromTextInstruction(textInstruction);
 

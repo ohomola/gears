@@ -9,17 +9,18 @@ namespace Gears.Interpreter.Applications
     {
         public int Index { get; set; } =0;
 
-        private readonly IInterpreter _interpreter;
-        private readonly Func<IInterpreter, IEnumerable<TItem>> _func;
+        private readonly IHavePlan _interpreter;
+        private readonly Func<IHavePlan, IEnumerable<TItem>> _func;
 
-        public Iterator(IInterpreter interpreter, Func<IInterpreter, IEnumerable<TItem>> func)
+        public Iterator(IHavePlan interpreter, Func<IHavePlan, IEnumerable<TItem>> func)
         {
             _interpreter = interpreter;
             _func = func;
         }
 
         public TItem Current => _func.Invoke(_interpreter).ElementAt(Index);
-        
+        public TItem Previous => _func.Invoke(_interpreter).ElementAt(Math.Max(0,Index-1));
+
 
         public bool MoveNext()
         {

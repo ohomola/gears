@@ -10,9 +10,9 @@ namespace Gears.Interpreter.Library.Documentations
 
         public const string ConsoleKeywordNote =
             "\n> Console control Keyword - use directly in console to control application (not recommended as part of scenario).\n\n";
-        private readonly List<IKeyword> _keywords;
+        private readonly List<IHaveDocumentation> _keywords;
 
-        public Documentation(IEnumerable<IKeyword> keywords)
+        public Documentation(IEnumerable<IHaveDocumentation> keywords)
         {
             _keywords = keywords.ToList();
         }
@@ -39,6 +39,12 @@ namespace Gears.Interpreter.Library.Documentations
 # Common Keyword properties
 ### SKIP
 Any keyword can be tagged to be always skipped (not executed) by adding column called 'Skip' with value equal to TRUE (case insensitive).
+
+### WaitAfter
+You can specify the amount of miliseconds to wait after execution of a keyword with this field. Purpose is to save cluttering your scenario with Wait steps if your website is timeout sensitive.
+
+### WaitBefore
+You can specify the amount of miliseconds to wait before execution of a keyword with this field. Purpose is to save cluttering your scenario with Wait steps if your website is timeout sensitive.
 
 # Web element instructions
 Web element instruction is a text passed to all web-based keywords to specify the query for the keyword. Instruction must follow a simplified english expression syntax. The syntax structure effectivelly breaks the text into several components by it's structural position. There total of 5 different elements:
@@ -98,6 +104,8 @@ You can instruct the application to automatically add a variable on start time b
 The following example will add a variable _myVariable_ with value ""HelloWorld"".
 
     Gears.Interpreter.exe -myVariable=HelloWorld
+
+Sample usage is to specify base url for your application tests and control them from outer scope.
 ";
 
         public string CreateSideMenuMarkDown()

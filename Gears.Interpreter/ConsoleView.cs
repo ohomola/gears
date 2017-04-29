@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Internal;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
+using Gears.Interpreter.Library.Config;
 
 namespace Gears.Interpreter
 {
@@ -46,6 +48,7 @@ namespace Gears.Interpreter
 
                 { typeof(SuccessAnswer), ConsoleColor.Green},
                 { typeof(IInformativeAnswer), ConsoleColor.White},
+                { typeof(IFollowupQuestion), ConsoleColor.White},
             };
 
             ChildColors = new Dictionary<Type, ConsoleColor>()
@@ -58,6 +61,7 @@ namespace Gears.Interpreter
 
                 { typeof(SuccessAnswer), ConsoleColor.DarkGreen},
                 { typeof(IInformativeAnswer), ConsoleColor.White},
+                { typeof(IFollowupQuestion), ConsoleColor.White},
             };
 
             var returnValue = new List<ConsoleOutput>();
@@ -156,21 +160,20 @@ namespace Gears.Interpreter
         {
             var keywords = status.Keywords.ToList();
 
-            AddLine(ConsoleColor.DarkGray, $"\n{HorizontalLine}", returnValue);
-            AddLine(ConsoleColor.DarkGray, "Gears Scenario Debugger", returnValue);
-            AddLine(ConsoleColor.DarkGray, HorizontalLine, returnValue);
+            //AddLine(ConsoleColor.DarkGray, $"\n{HorizontalLine}", returnValue);
+            //AddLine(ConsoleColor.DarkGray, "Gears Scenario Debugger", returnValue);
+            //AddLine(ConsoleColor.DarkGray, HorizontalLine, returnValue);
 
             WriteErrorsForCorruptObjects(status.Data, returnValue);
 
             Keyword selectedKeyword = null;
-
-            
 
             if (status.Keywords.Any() && status.Keywords.Count()> status.Index && 0 <= status.Index)
             {
                 selectedKeyword = status.Keywords.ElementAt(Math.Max(0,status.Index)) as Keyword;
             }
 
+            // Memory variables
             if (status.Data.Contains<RememberedText>())
             {
                 foreach (var rememberedText in status.Data.GetAll<RememberedText>())
@@ -180,12 +183,19 @@ namespace Gears.Interpreter
                 }
             }
 
+            if (status.Data.Contains<SkipAssertions>())
+            {
+                foreach (var setting in status.Data.GetAll<SkipAssertions>().Distinct())
+                {
+                    Add(ConsoleColor.DarkMagenta, $"{setting}\n", returnValue);
+                }
+            }
 
             var isSteppedIn = false;
             if (keywords.Any(x => x is StepOut))
             {
                 AddLine(ConsoleColor.DarkCyan, HorizontalLine, returnValue);
-                AddLine(ConsoleColor.Cyan, $"Stepped in RunScenario {keywords.OfType<StepOut>().First().FileName}",
+                AddLine(ConsoleColor.Cyan, $"Stepped in RunScenario {/*keywords.OfType<StepOut>().First()*/StepOut.FileName}",
                     returnValue);
                 AddLine(ConsoleColor.DarkCyan, HorizontalLine, returnValue);
                 isSteppedIn = true;
@@ -233,7 +243,17 @@ namespace Gears.Interpreter
                 AddLine(ConsoleColor.DarkGray, "  ...(" + (keywords.Count() - status.Index - 10) + ") more steps...", returnValue);
             }
 
+            if (isSteppedIn)
+            {
+                Add(ConsoleColor.Cyan, "\nUse 'StepOut' to return to main scenario.\n", returnValue);
+            }
             Add(ConsoleColor.White, "\nEnter command, type 'help', or press <enter> to continue:", returnValue);
+            //if (selectedKeyword != null && !status.Interpreter.Language.Options.IsNullOrEmpty())
+            //{
+            //    Add(ConsoleColor.DarkGray,
+            //        $"\n\tAdditional Options: {string.Join(", ", selectedKeyword.Interpreter.Language.Options.Select(x => x.GetType().Name))}",
+            //        returnValue);
+            //}
         }
 
         private static void Add(ConsoleColor color, string text, List<ConsoleOutput> returnValue)

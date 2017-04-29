@@ -10,12 +10,20 @@ using NUnit.Framework.Constraints;
 
 namespace Gears.Interpreter.Library
 {
-    public class RunScenario : Keyword, IHasTechnique
+    public class RunScenario : Keyword, IHasTechnique, IHavePlan
     {
+        
         public virtual string FileName { get; set; }
 
+        public Iterator<IKeyword> Iterator { get; set; }
+
         [DoNotWire]
-        public virtual List<IKeyword> Keywords { get; set; } = new List<IKeyword>();
+        public virtual IEnumerable<IKeyword> Plan
+        {
+            get { return _plan; }
+            set { _plan = value.ToList(); }
+        }
+        private List<IKeyword> _plan = new List<IKeyword>();
 
         public override IKeyword FromString(string textInstruction)
         {
@@ -24,16 +32,19 @@ namespace Gears.Interpreter.Library
 
         public RunScenario()
         {
+            Iterator = new Iterator<IKeyword>(this, x => Plan);
         }
 
         public RunScenario(params IKeyword[] keywords)
         {
-            Keywords = keywords.ToList();
+            Plan = keywords.ToList();
+            Iterator = new Iterator<IKeyword>(this, x => Plan);
         }
 
         public RunScenario(string fileName)
         {
             FileName = fileName;
+            Iterator = new Iterator<IKeyword>(this, x => Plan);
         }
 
         #region Documentation
@@ -57,7 +68,7 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
 
         private void LoadKeywords()
         {
-            if (Keywords.Any())
+            if (Plan.Any())
             {
                 return;
             }
@@ -69,7 +80,7 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
 
             if (FileName != null)
             {
-                Keywords.AddRange(
+                _plan.AddRange(
                     new DataContext(new FileObjectAccess(FileFinder.Find(FileName),
                         ServiceLocator.Instance.Resolve<ITypeRegistry>())).GetAll<Keyword>());
             }
@@ -84,50 +95,158 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
                 return StepIntoScenario();
             }
 
-            if (Keywords.Any(x => x is RunScenario))
+            if (_plan.Any(x => x is RunScenario))
             {
                 throw new ArgumentException("RunScenario cannot call underlying RunScenario keywords.");
             }
 
-            try
+            while (!Iterator.IsEndOfList())
             {
-                foreach (var keyword in Keywords)
+                var keyword = Iterator.Current;
+                
+                try
                 {
+                    ConsoleView.Render(ConsoleColor.DarkGray, $"RunScenario: Starting step {Iterator.Index+1})\t{Iterator.Current}");
+
                     var result = (keyword).Execute();
 
                     if (result != null && result.Equals(KeywordResultSpecialCases.Skipped))
                     {
                         Console.WriteLine("Skipping " + keyword);
                     }
+
+                    ConsoleView.Render(ConsoleColor.DarkGray, $"RunScenario: Finished step {Iterator.Index+1})\t{Iterator.Current}\n{Iterator.Current.Status}");
+
+                    if (result is IAnswer)
+                    {
+                        ConsoleView.Render((IAnswer) result);
+                    }
+                    else
+                    {
+                        ConsoleView.Render(new InformativeAnswer(result));
+                    }
+
+                    Iterator.MoveNext();
                 }
+                catch (Exception e)
+                {
+                    if (Interpreter.IsDebugMode)
+                    {
+                        Interpreter.Iterator.MoveBack(1);
+                        Iterator.MoveNext();
+                        return new CanIContinueRunScenarioEvenThoughIFoundError(this) { Children = new List<IAnswer>() {new ExceptionAnswer(e)} };
+                    }
+
+                    Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Plan.ToList(), FileName));
+                    Iterator.Index = 0;
+                    throw;
+                }
+
             }
-            finally
-            {
-                Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Keywords.ToList(), FileName));
-            }
-            
+
+            Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Plan.ToList(), FileName));
+
+            Iterator.Index = 0;
+
             return null;
         }
 
         private object StepIntoScenario()
         {
-            var list = new List<IKeyword>(Keywords);
+            var list = new List<IKeyword>(Plan);
 
             list.Add(new StepOut(Interpreter.Plan, Interpreter.Iterator.Index, FileName));
 
             Interpreter.Plan = list;
 
-            Interpreter.Iterator.Index = 0;
+            Interpreter.Iterator.Index = this.Iterator.Index;
 
-            return new InformativeAnswer("Stepping into Sub-Scenario");
+            return new InformativeAnswer("Stepping into Sub-Scenario. Call 'StepOut' to return to main scenario.");
         }
 
         public override string ToString()
         {
-            //return $"Run Scenario {FileName ?? ""} ({Keywords.Count}) steps: \n\t{string.Join("\n\t", Keywords.Take(Math.Min(Keywords.Count, 5)))} {(Keywords.Count>5?"\n\t...("+(Keywords.Count-5)+" more)...":"")}";
+            //return $"Run Scenario {FileName ?? ""} ({Keywords.Count}) steps: \n\t{string.Join("\n\t", Keywords.Use(Math.Min(Keywords.Count, 5)))} {(Keywords.Count>5?"\n\t...("+(Keywords.Count-5)+" more)...":"")}";
             return $"Run Scenario {FileName ?? ""}";
         }
 
         public Technique Technique { get; set; }
+    }
+
+    public class CanIContinueRunScenarioEvenThoughIFoundError : FollowupQuestion
+    {
+        private string _message;
+
+        public CanIContinueRunScenarioEvenThoughIFoundError(RunScenario runScenario)
+        {
+            Options = new List<IKeyword>()
+            {
+                new Yes(() => runScenario.Execute()),
+                new No(() =>
+                {
+                    runScenario.Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(runScenario.Plan.ToList(), runScenario.FileName));
+                    runScenario.Iterator.Index = 0;
+                    return "OK.";
+                }), 
+            };
+
+            _message =
+                $"Error occured in RunScenario step {runScenario.Iterator.Index}:\n\t{runScenario.Iterator.Current}.\n Should I continue with step {runScenario.Iterator.Index + 1}? (Yes / No / Show)\n";
+        }
+
+        public override object Body {
+            get
+            {
+                return _message;
+            }
+        }
+    }
+
+    public class Yes : Keyword
+    {
+        private readonly Func<object> _func;
+
+        public Yes()
+        {
+        }
+
+        public Yes(Func<object> func)
+        {
+            _func = func;
+        }
+
+        public override object DoRun()
+        {
+            if (_func == null)
+            {
+                return "Sorry, not understood";
+            }
+
+            return _func.Invoke();
+        }
+    }
+
+    public class No : Keyword
+    {
+        private readonly Func<object> _func;
+
+        public No()
+        {
+        }
+
+        public No(Func<object> func)
+        {
+            _func = func;
+        }
+
+        public override object DoRun()
+        {
+            if (_func == null)
+            {
+                return "Sorry, not understood";
+            }
+
+            return _func.Invoke();
+        }
     }
 }

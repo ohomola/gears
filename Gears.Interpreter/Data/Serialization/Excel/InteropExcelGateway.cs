@@ -62,13 +62,15 @@ namespace Gears.Interpreter.Data.Serialization.Excel
         public DataSet Read()
         {
             var dataSet = new DataSet();
-            var excelApp = new Application {DisplayAlerts = false};
+
+            
+            var excelApp = new Application {Visible = false, DisplayFullScreen = false, DisplayAlerts = false};
             var workBooks = excelApp.Workbooks;
             Workbook book = null;
 
             try
             {
-                book = workBooks.Open(_path);
+                book = workBooks.Open(_path, ReadOnly: true);
                 foreach (Worksheet sheet in book.Sheets)
                 {
                     dataSet.Tables.Add(ReadTable(sheet));
@@ -97,6 +99,8 @@ namespace Gears.Interpreter.Data.Serialization.Excel
             var columns = lastCell.Column;
             var rows = lastCell.Row;
 
+            var wholeSheet = sheet.Range["A1", lastCell].Value;
+
             var resultTable = CreateDataTable(columns, sheet.Name);
 
             for (int i = 1; i <= rows; i++)
@@ -105,7 +109,8 @@ namespace Gears.Interpreter.Data.Serialization.Excel
 
                 for (int j = 1; j <= columns; j++)
                 {
-                    row[j - 1] = GetValue(sheet, i, j);
+                    row[j - 1] = (wholeSheet[i, j]);//GetValue(sheet, i, j);
+
                 }
 
                 resultTable.Rows.Add(row);

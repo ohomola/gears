@@ -16,7 +16,7 @@ using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Applications
 {
-    public interface IInterpreter
+    public interface IInterpreter : IHavePlan
     {
         bool IsAlive { get; set; }
         bool IsRunningSuite { get; }
@@ -41,6 +41,11 @@ namespace Gears.Interpreter.Applications
         string Continue();
         IEnumerable<IKeyword> GetLog();
         void AddToPlan(IKeyword keyword);
+    }
+
+    public interface IHavePlan
+    {
+        IEnumerable<IKeyword> Plan { get; set; }
     }
 
     public class Interpreter : IInterpreter, IDisposable

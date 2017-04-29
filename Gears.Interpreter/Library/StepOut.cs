@@ -7,9 +7,9 @@ namespace Gears.Interpreter.Library
 {
     public class StepOut : Keyword, IProtected
     {
-        public IEnumerable<IKeyword> InterpreterPlan { get; set; }
-        public int IteratorIndex { get; set; }
-        public string FileName { get; set; }
+        public static IEnumerable<IKeyword> InterpreterPlan { get; set; }
+        public static int IteratorIndex { get; set; }
+        public static string FileName { get; set; }
 
         public StepOut()
         {
