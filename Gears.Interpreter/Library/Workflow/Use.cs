@@ -64,5 +64,10 @@ namespace Gears.Interpreter.Library.Workflow
         }
 
         public string What { get; set; }
+
+        public override string ToString()
+        {
+            return $"Use '{What}'";
+        }
     }
 }

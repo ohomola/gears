@@ -36,6 +36,11 @@ Removes all objects of specified Type from Context. Use this keyword to turn off
 ";
         }
 
+        public override string ToString()
+        {
+            return $"Off '{What}'";
+        }
+
         public override object DoRun()
         {
             var type = TypeRegistry.GetDTOTypes(false).FirstOrDefault(x => x.Name.ToLower() == What.ToLower());

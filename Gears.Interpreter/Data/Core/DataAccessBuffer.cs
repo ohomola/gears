@@ -134,5 +134,10 @@ namespace Gears.Interpreter.Data.Core
         {
             _list.RemoveAll(t.IsInstanceOfType);
         }
+
+        public void Remove(object obj)
+        {
+            _list.Remove(obj);
+        }
     }
 }

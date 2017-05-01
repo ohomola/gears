@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Gears.Interpreter.Applications;
-using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
 {
-    public class StepOut : Keyword, IProtected
+    public class StepOut : Keyword
     {
         public static IEnumerable<IKeyword> InterpreterPlan { get; set; }
         public static int IteratorIndex { get; set; }
@@ -20,6 +19,17 @@ namespace Gears.Interpreter.Library
             InterpreterPlan = interpreterPlan;
             IteratorIndex = iteratorIndex;
             FileName = fileName;
+        }
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Steps out of a scenario. Used only when currently inside a scenario (via Show RunScenario).
+
+#### Console usages
+    stepout
+";
         }
 
         public override object DoRun()

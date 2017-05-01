@@ -202,6 +202,7 @@
     <Compile Include="Data\Serialization\SerializerFactory.cs" />
     <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Documentations\Documentation.cs" />
+    <Compile Include="Library\HasText.cs" />
     <Compile Include="Library\Forget.cs" />
     <Compile Include="Library\IAssertion.cs" />
     <Compile Include="Library\IsSelected.cs" />

@@ -24,6 +24,7 @@ using System.Linq;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Library;
 
 namespace Gears.Interpreter.Data
 {
@@ -157,6 +158,20 @@ namespace Gears.Interpreter.Data
                 oda.RemoveAll(t);
             }
         }
+
+        public void Remove(object obj)
+        {
+            foreach (var oda in DataAccesses.OfType<ObjectDataAccess>())
+            {
+                oda.Remove(obj);
+            }
+
+            foreach (var oda in DataAccesses.OfType<SharedObjectDataAccess>())
+            {
+                oda.Remove(obj);
+            }
+        }
+
 
         public bool Contains(Type t)
         {

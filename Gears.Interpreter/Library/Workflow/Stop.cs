@@ -44,8 +44,8 @@ Stops the scenario execution and closes the application.
 
             var objectsToBeWritten = Interpreter.GetLog();
 
-            new TempFileObjectAccess(Applications.Interpreter.LastScenarioTempFilePath + ".csv", ServiceLocator.Instance.Resolve<ITypeRegistry>())
-                .Write(objectsToBeWritten);
+            //new TempFileObjectAccess(Applications.Interpreter.LastScenarioTempFilePath + ".csv", ServiceLocator.Instance.Resolve<ITypeRegistry>())
+            //    .Write(objectsToBeWritten);
 
             return new ResultAnswer(Program.OkStatusCode);
         }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using Castle.Core;
+using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
@@ -127,6 +129,12 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
                     }
 
                     Iterator.MoveNext();
+
+                    if (UserInteropAdapter.IsKeyDown(Keys.Escape))
+                    {
+                        Interpreter.IsDebugMode = true;
+                        return "Escape pressed. Interrupting...";
+                    }
                 }
                 catch (Exception e)
                 {

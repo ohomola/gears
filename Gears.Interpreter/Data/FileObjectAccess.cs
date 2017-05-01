@@ -166,6 +166,11 @@ namespace Gears.Interpreter.Data
             throw new NotImplementedException();
         }
 
+        public void Remove(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool CanAdd<T>() where T : class
         {
             return true;

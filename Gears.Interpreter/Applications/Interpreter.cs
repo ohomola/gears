@@ -5,7 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Castle.Core;
+using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Applications.Registrations;
@@ -109,6 +111,11 @@ namespace Gears.Interpreter.Applications
 
         public string Continue()
         {
+            if (UserInteropAdapter.IsKeyDown(Keys.Escape))
+            {
+                IsDebugMode = true;
+            }
+
             if (IsDebugMode)
             {
                 UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());

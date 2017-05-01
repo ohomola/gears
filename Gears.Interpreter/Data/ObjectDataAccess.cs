@@ -96,6 +96,11 @@ namespace Gears.Interpreter.Data
             _buffer.RemoveAll(t);
         }
 
+        public void Remove(object obj)
+        {
+            _buffer.Remove(obj);
+        }
+
         public void AddRange(IEnumerable<object> objects)
         {
             foreach (var o in objects)
@@ -182,6 +187,11 @@ namespace Gears.Interpreter.Data
         public void RemoveAll(Type t)
         {
             _buffer.RemoveAll(t);
+        }
+
+        public void Remove(object obj)
+        {
+            _buffer.Remove(obj);
         }
 
         public void AddRange(IEnumerable<object> objects)

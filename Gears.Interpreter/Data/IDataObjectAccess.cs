@@ -40,5 +40,6 @@ namespace Gears.Interpreter.Data
         IEnumerable<object> GetAll();
         void RemoveAll<T>();
         void RemoveAll(Type t);
+        void Remove(object obj);
     }
 }

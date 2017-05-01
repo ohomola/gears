@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
+using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Applications;
 
 namespace Gears.Interpreter.Library.Workflow
@@ -35,7 +37,14 @@ Executes selected number of steps of your scenario. Use this if you want to run 
                 var answer = Interpreter.Please(string.Empty);
                 answers.Add(answer);
 
-                ConsoleView.Render(ConsoleColor.DarkGray, $"Finished step {Interpreter.Iterator.Index })\t{Interpreter.Iterator.Previous}\n{Interpreter.Iterator.Previous.Status}");
+                //ConsoleView.Render(ConsoleColor.DarkGray, $"Finished step {Interpreter.Iterator.Index })\t{Interpreter.Iterator.Previous}\n{Interpreter.Iterator.Previous.Status}");
+                ConsoleView.Render(Interpreter.Please("status"));
+
+                if (UserInteropAdapter.IsKeyDown(Keys.Escape))
+                {
+                    Interpreter.IsDebugMode = true;
+                    return "Escape pressed. Interrupting...";
+                }
             }
 
 

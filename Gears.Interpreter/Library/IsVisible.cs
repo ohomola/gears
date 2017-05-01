@@ -147,7 +147,7 @@ Checks the presence of a web element or text in the browser window. The input pa
                     {
                         if (Interpreter?.IsDebugMode == true)
                         {
-                            Highlighter.HighlightElements(750, Selenium, lookupResult.OtherValidResults,
+                            Highlighter.HighlightElements(1250, Selenium, lookupResult.OtherValidResults,
                             (Expect.ToString().ToLower().Equals(true.ToString().ToLower())
                                 ? Color.GreenYellow
                                 : Color.Red), Color.Yellow, -1, Color.Black);

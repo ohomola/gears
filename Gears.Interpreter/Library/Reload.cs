@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Castle.Core.Internal;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Library.Workflow;
@@ -7,24 +8,65 @@ using Gears.Interpreter.Library.Workflow;
 namespace Gears.Interpreter.Library
 {
     [NotLogged]
-    [UserDescription("reload \t\t-\t re-reads all input files")]
+    [UserDescription("reload (x) \t-\t re-reads all input files. Specify X to only reload file with specified text in it's path.")]
     public class Reload : Keyword
     {
+        public Reload()
+        {
+        }
+
+        public Reload(string what)
+        {
+            What = what;
+        }
+
+        public string What { get; set; }
+
+        public override IKeyword FromString(string textInstruction)
+        {
+            return new Reload(ExtractSingleParameterFromTextInstruction(textInstruction));
+        }
+
 
         public override string CreateDocumentationMarkDown()
         {
             return base.CreateDocumentationMarkDown() +
-                   $@"Reloads the scenario. Use this along with a shared xls document to build automated tests on-the-fly.
+                   $@"Reloads the scenario. Use this along with a shared xls document to build automated tests on-the-fly. Specify a text parameter to only reload a specific file which contains the parameter in it's path.
 #### Console usage
-    reload";
+    reload
+    open c:/myfile_withTest123.xlsx
+    reload myfile
+";
         }
 
         public override object DoRun()
         {
-            foreach (var dataAccess1 in Interpreter.Data.DataAccesses.OfType<FileObjectAccess>())
+            var response = "Reload completed.";
+
+            if (What.IsNullOrEmpty())
             {
-                dataAccess1.ForceReload();
+                var fileObjectAccesses = Interpreter.Data.DataAccesses.OfType<FileObjectAccess>();
+                foreach (var dataAccess1 in fileObjectAccesses)
+                {
+                    dataAccess1.ForceReload();
+                }
+                response += $"\n{fileObjectAccesses.Count()} files reloaded.";
             }
+            else
+            {
+                var foa = Interpreter.Data.DataAccesses.OfType<FileObjectAccess>()
+                    .FirstOrDefault(x => x.Path.ToLower().Contains(What.ToLower()));
+
+                if (foa == null)
+                {
+                    return new ExceptionAnswer("File with name '{What}' is not registered. You must specify a full name or a substring of a loaded file (case-insensitive).");
+                }
+
+                foa?.ForceReload();
+
+                response += $"\n File reloaded: {foa.Path}";
+            }
+
 
             Interpreter.Plan = Interpreter.Data.GetAll<Keyword>().ToList();
 
@@ -33,7 +75,9 @@ namespace Gears.Interpreter.Library
                 Interpreter.Iterator.Index = 0;
             }
 
-            return new SuccessAnswer("Reload completed.");
+
+            
+            return new SuccessAnswer(response);
         }
     }
 }

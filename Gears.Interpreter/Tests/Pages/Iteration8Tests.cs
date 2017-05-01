@@ -77,6 +77,15 @@ namespace Gears.Interpreter.Tests.Pages
         }
 
         [Test]
+        public void ShouldParseInstruction_Bug2()
+        {
+            var instruction = new Instruction("'7 dwarfs' from top");
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual("7 dwarfs", instruction.SubjectName);
+            Assert.AreEqual(SearchDirection.DownFromTopEdge, instruction.Direction);
+        }
+
+        [Test]
         public void ShouldParseInstruction_WithAccuracySpecified2()
         {
             var instruction = new Instruction("1st button like submit like");

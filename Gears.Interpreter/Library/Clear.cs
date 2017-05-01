@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml.Serialization;
+using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
@@ -8,7 +9,7 @@ using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
 {
-    public class Clear : Keyword
+    public class Clear : Keyword, IHasTechnique
     {
         public virtual string LabelText { get; set; }
         public virtual SearchDirection Direction { get; set; }
@@ -18,6 +19,7 @@ namespace Gears.Interpreter.Library
         [XmlIgnore]
         public IOverlay Overlay { get; set; }
 
+        public Technique Technique { get; set; }
 
         public override IKeyword FromString(string textInstruction)
         {
@@ -79,9 +81,18 @@ See [Fill](#fill) for more info.
                     throw new LookupFailureException(lookupResult, "Input not found");
                 }
 
-                lookupResult.Result.WebElement.SendKeys(Keys.LeftControl + "a");
-                lookupResult.Result.WebElement.SendKeys(Keys.Delete);
-                return lookupResult.Result.WebElement;
+                switch (Technique)
+                {
+                    case Technique.HighlightOnly:
+                        Highlighter.HighlightElements(Selenium, lookupResult.OtherValidResults);
+                        return new InformativeAnswer("Highlighting complete.");
+                    case Technique.MouseAndKeyboard:
+                        lookupResult.Result.WebElement.SendKeys(Keys.LeftControl + "a");
+                        lookupResult.Result.WebElement.SendKeys(Keys.Delete);
+                        return "Erased";
+                }
+
+                return "";
             }
             catch (Exception)
             {
@@ -93,5 +104,6 @@ See [Fill](#fill) for more info.
         {
             return $"Clear '{LabelText}'";
         }
+
     }
 }
