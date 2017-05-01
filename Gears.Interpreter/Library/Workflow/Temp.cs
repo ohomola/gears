@@ -10,7 +10,7 @@ using Gears.Interpreter.Data.Core;
 namespace Gears.Interpreter.Library.Workflow
 {
     [NotLogged]
-    public class LastPlan : Keyword, IHasTechnique, IProtected
+    public class Temp : Keyword, IHasTechnique, IProtected
     {
         public override object DoRun()
         {
@@ -22,7 +22,7 @@ namespace Gears.Interpreter.Library.Workflow
                 return new InformativeAnswer($"Opening folder {foa.Path}");
             }
 
-            Interpreter.Plan = foa.ReadAllObjects().OfType<Keyword>();
+            Interpreter.Data.Include(foa);
 
             return true;
         }

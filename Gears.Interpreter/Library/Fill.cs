@@ -47,6 +47,8 @@ namespace Gears.Interpreter.Library
 
         public virtual Technique Technique { get; set; }
 
+        public bool ExactMatch { get; set; }
+
         public void MapSyntaxToSemantics(Instruction instruction)
         {
             if (string.IsNullOrEmpty(instruction.Locale))
@@ -62,7 +64,9 @@ namespace Gears.Interpreter.Library
             Text = instruction.With;
             Order = instruction.Order;
             _instruction = instruction;
+            ExactMatch = instruction.Accuracy != Accuracy.Partial;
         }
+
         #endregion
 
         #region Documentation
@@ -122,9 +126,21 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
             if (Interpreter?.IsAnalysis == true)
             {
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, _instruction?.ToAnalysisString());
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (exact matches): " + _instruction?.ToAnalysisString());
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
             }
+
+            if (ExactMatch == false && lookupResult.Success == false)
+            {
+                lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order, false);
+
+                if (Interpreter?.IsAnalysis == true)
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (all matches): " + _instruction?.ToAnalysisString());
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
+                }
+            }
+
 
             if (lookupResult.Success == false)
             {
@@ -162,7 +178,7 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
         public override string ToString()
         {
-            return $"Fill '{LabelText}' with '{Text}'";
+            return $"Fill {Order}. '{LabelText}' with '{Text}'";
         }
 
         #region Backward compatibility

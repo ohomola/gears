@@ -82,11 +82,6 @@ namespace Gears.Interpreter
 
                 while (interpreter.IsAlive)
                 {
-                    if (interpreter.IsAnalysis)
-                    {
-                        ConsoleView.Render(interpreter.Please("AnalyseData"));
-                    }
-
                     ConsoleView.Render(interpreter.Please("status"));
                     
                     var answer = interpreter.Please(interpreter.Continue());

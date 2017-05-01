@@ -144,7 +144,7 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
         {
             var query = new LocationHeuristictSearchStrategy(Selenium);
 
-            var result = query.DirectLookup(SearchedTagNames, VisibleTextOfTheButton, NeighbourToLookFrom, Direction, Order, LookForOrthogonalNeighboursOnly);
+            var result = query.DirectLookup(SearchedTagNames, VisibleTextOfTheButton, NeighbourToLookFrom, Direction, Order, LookForOrthogonalNeighboursOnly, exactMatchOnly:true);
 
             if (Interpreter?.IsAnalysis == true)
             {

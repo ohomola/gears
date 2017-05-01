@@ -12,10 +12,10 @@ namespace Gears.Interpreter.Library
 {
     public interface IElementSearchStrategy
     {
-        LookupResult DirectLookup(List<ITagSelector> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int Order, bool orthogonalOnly);
+        LookupResult DirectLookup(List<ITagSelector> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int Order, bool orthogonalOnly, bool exactMatchOnly);
 
         IElementSearchStrategy Elements(IEnumerable<string> searchedTagNames);
-        IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild);
+        IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild, bool exactMatchOnly);
         IElementSearchStrategy RelativeTo(string text, SearchDirection specDirection, bool orthogonalOnly, int xTolerance = 5, int yTolerance = 5);
         IElementSearchStrategy RelativeTo(IWebElement relative, SearchDirection specDirection, bool orthogonalOnly, int xTolerance = 5, int yTolerance = 5);
         IElementSearchStrategy SortBy(SearchDirection specDirection);
@@ -23,7 +23,7 @@ namespace Gears.Interpreter.Library
         bool Any();
         IElementSearchStrategy Elements();
 
-        LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order);
+        LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order, bool exactMatchOnly);
     }
 
     public class LookupResult
@@ -63,13 +63,13 @@ namespace Gears.Interpreter.Library
         }
 
         private static int _staleElementCounter = 0;
-        public LookupResult DirectLookup(List<ITagSelector> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int order, bool orthogonalOnly)
+        public LookupResult DirectLookup(List<ITagSelector> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int order, bool orthogonalOnly, bool exactMatchOnly = true)
         {
             try
             {
                 var lookingForSpecificElements = searchedTagNames.Any();
 
-                var query = Elements(searchedTagNames).WithText(subjectName, lookingForSpecificElements);
+                var query = Elements(searchedTagNames).WithText(subjectName, lookingForSpecificElements, exactMatchOnly);
 
                 var xTolerance = (searchDirection == SearchDirection.AboveAnotherElement ||
                                   searchDirection == SearchDirection.BelowAnotherElement)
@@ -106,7 +106,7 @@ namespace Gears.Interpreter.Library
                 _staleElementCounter++;
                 if (_staleElementCounter < 10)
                 {
-                    return DirectLookup(searchedTagNames, subjectName, locale, searchDirection, order, orthogonalOnly);
+                    return DirectLookup(searchedTagNames, subjectName, locale, searchDirection, order, orthogonalOnly, exactMatchOnly);
                 }
                 throw;
             }
@@ -118,15 +118,16 @@ namespace Gears.Interpreter.Library
         /// <param name="labelText"></param>
         /// <param name="searchDirection"></param>
         /// <param name="order"></param>
+        /// <param name="b"></param>
         /// <returns></returns>
-        public LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order)
+        public LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order, bool exactMatchOnly = true)
         {
             try
             {
                 IEnumerable<IBufferedElement> validResults;
                 var allInputs = Elements(new[] { "input", "textArea" });
 
-                var allInputsWithText = allInputs.WithText(labelText, matchWhenTextIsInChild: false);
+                var allInputsWithText = allInputs.WithText(labelText, matchWhenTextIsInChild: false, exactMatchOnly: exactMatchOnly);
 
                 if (allInputsWithText.Any())
                 {
@@ -217,13 +218,21 @@ namespace Gears.Interpreter.Library
             return new LocationHeuristictSearchStrategy(_seleniumAdapter, new ReadOnlyCollection<IWebElement>(newQuery));
         }
 
-        public IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild)
+        public IElementSearchStrategy WithText(string text, bool matchWhenTextIsInChild, bool exactMatchOnly = true)
         {
             var newQuery = _query;
-
+            
             if (!string.IsNullOrEmpty(text))
             {
-                newQuery = _seleniumAdapter.WebDriver.FilterElementsByText(text, _query, matchWhenTextIsInChild);
+                if (exactMatchOnly)
+                {
+                    newQuery = _seleniumAdapter.WebDriver.FilterElementsByText(text, _query, matchWhenTextIsInChild);
+                }
+                else
+                {
+                    newQuery = _seleniumAdapter.WebDriver.FilterElementsByPartialText(text, _query, matchWhenTextIsInChild);
+                }
+                
             }
 
             return new LocationHeuristictSearchStrategy(_seleniumAdapter, newQuery);

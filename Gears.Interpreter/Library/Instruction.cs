@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Castle.Core.Internal;
 using Gears.Interpreter.Core.Extensions;
 
 namespace Gears.Interpreter.Library
@@ -10,9 +11,10 @@ namespace Gears.Interpreter.Library
     {
         private static string QuotedWord = "(\\s?'[^']+'\\s?)";
         private static string NotPrecedingAnyControlWord = "(?!((with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
+        private static string FollowingAnyControlWord = "(?<=((with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
         private static string AnythingExceptQuote = "[^']";
         private static string UnquotedWord = $"(({NotPrecedingAnyControlWord}{AnythingExceptQuote})*)";
-        private static string DefaultCapturingGroupForValues = $"{UnquotedWord}|{QuotedWord}";
+        private static string DefaultCapturingGroupForValues = $"{QuotedWord}|{UnquotedWord}";// NOTE: order defines preference (reverting causes incorrect match of empty string as unquoted word, instead for capturing quoted word)
         private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+[a-zA-Z\\.]+)\\s?";
         //private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+))(\\S*\\s?";
 
@@ -30,12 +32,15 @@ namespace Gears.Interpreter.Library
 
         public List<ITagSelector> TagNames { get; set; }
 
+        public Accuracy Accuracy { get; set; }
+
         public Instruction(string what) : this()
         {
             what = " " + what + " ";
             var regex = new Regex("^"+
                     Optional(CapturingGroup("Order", NumberStrippingOffNthTextSuffix))+
                     Optional(CapturingGroup("SubjectTagName", $"\\s?{NotPrecedingAnyControlWord}(button)|(link)|(input)|(textfield)|(textarea)\\s?")) +
+                    Optional(CapturingGroup("Accuracy", $"\\s?{NotPrecedingAnyControlWord}(like)\\s?")) +
                     CapturingGroup("Subject") +
                     Optional(
                         CapturingGroup("Direction",
@@ -70,6 +75,7 @@ namespace Gears.Interpreter.Library
                 Direction = ParseDirection(GetCapturedValue(result, "Direction"));
                 Locale = GetCapturedValue(result, "Locale");
                 With = GetCapturedValue(result, "Text");
+                Accuracy = GetCapturedValue(result, "Accuracy")?.ToLower() == "like"?Accuracy.Partial : Accuracy.Exact;
 
                 SubjectName = GetCapturedValue(result, "Subject");
                 this.SubjectType= MapToSubjectTypeAndAddTagnamesRange(GetCapturedValue(result, "SubjectTagName"), TagNames);
@@ -216,5 +222,11 @@ namespace Gears.Interpreter.Library
 
             return enumValue.ToString();
         }
+    }
+
+    public enum Accuracy
+    {
+        Exact,
+        Partial,
     }
 }

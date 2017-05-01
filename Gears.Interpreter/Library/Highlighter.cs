@@ -58,11 +58,12 @@ namespace Gears.Interpreter.Library
 
         public static void HighlightElements(Action action, ISeleniumAdapter seleniumAdapter, IEnumerable<IBufferedElement> elements, Color innerColor, Color outerColor, int selectionIndex, Color selectionColor ,int xOffset = 0, int yOffset =0)
         {
-
-
-
             using (var overlay = new Overlay())
             {
+                if (selectionIndex != -1)
+                {
+                    seleniumAdapter.PutElementOnScreen(elements.ElementAt(selectionIndex).WebElement);
+                }
                 var handle = seleniumAdapter.GetChromeHandle();
                 overlay.Init();
                 int i = 0;

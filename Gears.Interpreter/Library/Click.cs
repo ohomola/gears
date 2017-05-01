@@ -62,7 +62,7 @@ namespace Gears.Interpreter.Library
         public virtual bool LookForOrthogonalNeighboursOnly { get; set; }
         //TODO parse from instruction
         public virtual Technique Technique { get; set; }
-
+        public bool ExactMatch { get; set; }
         private Instruction _instruction;
 
         public void MapSyntaxToSemantics(Instruction instruction)
@@ -73,6 +73,7 @@ namespace Gears.Interpreter.Library
             VisibleTextOfTheButton = instruction.SubjectName;
             Direction = instruction.Direction;
             NeighbourToLookFrom = instruction.Locale;
+            ExactMatch = instruction.Accuracy != Accuracy.Partial;
 
             if (new[]
             {
@@ -88,6 +89,8 @@ namespace Gears.Interpreter.Library
 
             _instruction = instruction;
         }
+
+        
 
         #endregion
 
@@ -105,6 +108,7 @@ Clicks an element identified by a visible text on the screen. The input paramete
 | ------------- | ---- |
 | Click         | Save |
 | Click         | 1st button 'save customer' below 'New Customer'|
+| Click         | 1st button like 'save' below 'New Customer'|
 | Click         | 4th button from right|
 
 #### Console usages
@@ -137,12 +141,23 @@ Clicks an element identified by a visible text on the screen. The input paramete
         {
             var query = new LocationHeuristictSearchStrategy(Selenium);
 
-            var result = query.DirectLookup(SearchedTagNames, VisibleTextOfTheButton, NeighbourToLookFrom, Direction, Order, LookForOrthogonalNeighboursOnly);
+            var result = query.DirectLookup(SearchedTagNames, VisibleTextOfTheButton, NeighbourToLookFrom, Direction, Order, LookForOrthogonalNeighboursOnly, exactMatchOnly:true);
 
             if (Interpreter?.IsAnalysis == true)
             {
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, _instruction?.ToAnalysisString());
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (exact matches): " + _instruction?.ToAnalysisString());
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.Result}\nAll results:\n\t{string.Join("\n\t", result.OtherValidResults)}");
+            }
+
+            if (ExactMatch == false && result.Success == false)
+            {
+                result = query.DirectLookup(SearchedTagNames, VisibleTextOfTheButton, NeighbourToLookFrom, Direction, Order, LookForOrthogonalNeighboursOnly, exactMatchOnly: false);
+
+                if (Interpreter?.IsAnalysis == true)
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (all matches): " + _instruction?.ToAnalysisString());
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.Result}\nAll results:\n\t{string.Join("\n\t", result.OtherValidResults)}");
+                }
             }
 
             if (result.Success == false)
@@ -153,7 +168,7 @@ Clicks an element identified by a visible text on the screen. The input paramete
             switch (Technique)
             {
                 case Technique.HighlightOnly:
-                    Highlighter.HighlightElements(Selenium, result.OtherValidResults, Order);
+                    Highlighter.HighlightElements(Selenium, result.OtherValidResults.ToList(), Order);
                     return new InformativeAnswer("Highlighting complete.");
                 case Technique.Javascript:
                     Selenium.WebDriver.Click(result.Result.WebElement);

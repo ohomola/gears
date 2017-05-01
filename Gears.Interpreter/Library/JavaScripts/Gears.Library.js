@@ -119,6 +119,35 @@ function FilterElementsByText(searchedText, allElements, matchWhenTextIsInChild)
 }
 
 //WrappedByWebdriverExtension
+function FilterElementsByPartialText(searchedText, allElements, matchWhenTextIsInChild) {
+
+    var matches = [];
+
+    for (var i = 0; i < allElements.length; i++) {
+
+        var element = allElements[i];
+
+        if (isHidden(element)) {
+            continue;
+        }
+
+        if (matchWhenTextIsInChild) {
+            if (isPartialMatchOrChild(element, searchedText.toLowerCase())) {
+                matches.push(element);
+            }
+        } else {
+            if (isPartialMatch(element, searchedText.toLowerCase())) {
+                matches.push(element);
+            }
+        }
+    }
+
+    console.log("GetElementsByText: " + matches.length);
+
+    return matches;
+}
+
+//WrappedByWebdriverExtension
 function FilterOrthogonalElements(allElements, element, xTolerance, yTolerance) {
     var matches = [];
     
@@ -276,6 +305,45 @@ function isExactMatch(element, searchedText) {
     return false;
 }
 
+function isPartialMatchOrChild(element, searchedText) {
+
+    if (isPartialMatch(element, searchedText)) {
+        return true;
+    }
+    var childNodes = element.childNodes;
+    for (var n = 0; n < childNodes.length; n++) {
+        var curNode = childNodes[n];
+        if (curNode.nodeType === 1 && !isHidden(curNode) && isPartialMatchOrChild(curNode, searchedText)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isPartialMatch(element, searchedText) {
+
+    var childNodes = element.childNodes;
+    for (var n = 0; n < childNodes.length; n++) {
+        var curNode = childNodes[n];
+        if (curNode.nodeName === "#text") {
+            if (curNode.nodeValue.toLowerCase().indexOf(searchedText) !== -1) {
+                return true;
+            }
+        }
+    }
+
+    var allAttributes = element.attributes;
+    for (var a = 0; a < allAttributes.length; a++) {
+        var attributeValue = allAttributes[a].nodeValue.toLowerCase();
+
+        if (attributeValue.indexOf(searchedText) !== -1) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function areOrthogonal(input, element, xTolerance, yTolerance) {
     var dif = Math.abs(input.getBoundingClientRect().bottom - element.getBoundingClientRect().bottom);
     if (dif < yTolerance) return true;
@@ -287,6 +355,11 @@ function areOrthogonal(input, element, xTolerance, yTolerance) {
 }
 
 function isHidden(el) {
+
+    if (el.tagName.toLowerCase() == 'code') {
+        return true;
+    }
+
     if (el.offsetParent === null) {
         return true;
     }

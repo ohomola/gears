@@ -204,6 +204,7 @@
     <Compile Include="Library\Documentations\Documentation.cs" />
     <Compile Include="Library\Forget.cs" />
     <Compile Include="Library\IAssertion.cs" />
+    <Compile Include="Library\IsSelected.cs" />
     <Compile Include="Library\Login.cs" />
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Resize.cs" />
@@ -243,7 +244,7 @@
     <Compile Include="Library\Workflow\NotLoggedAttribute.cs" />
     <Compile Include="Library\Workflow\Off.cs" />
     <Compile Include="Library\Workflow\Open.cs" />
-    <Compile Include="Library\Workflow\LastPlan.cs" />
+    <Compile Include="Library\Workflow\Temp.cs" />
     <Compile Include="Library\Workflow\Run.cs" />
     <Compile Include="Library\Workflow\Skip.cs" />
     <Compile Include="Library\Workflow\Start.cs" />
@@ -266,6 +267,7 @@
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />
     <Compile Include="Tests\Pages\Iteration2Tests.cs" />
     <Compile Include="Tests\Pages\Iteration1Tests.cs" />
+    <Compile Include="Tests\Pages\Iteration8Tests.cs" />
     <Compile Include="Tests\Pages\Iteration5Tests.cs" />
     <Compile Include="Tests\Pages\Iteration4Tests.cs" />
     <Compile Include="Library\Reports\JUnitScenarioReport.cs" />

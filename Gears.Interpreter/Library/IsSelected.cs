@@ -29,11 +29,12 @@ using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Library.Workflow;
+using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
 {
-    [UserDescription("isvisible <i>\t-\t checks if an element is visible on screen")]
-    public class IsVisible : Keyword, IAssertion
+    [UserDescription("isselected <i>\t-\t checks if a checkbox or similar input is selected")]
+    public class IsSelected : Keyword, IAssertion
     {
         private  Instruction spec;
         public virtual List<ITagSelector> TagNames { get; set; }
@@ -45,8 +46,6 @@ namespace Gears.Interpreter.Library
         public virtual SearchDirection Direction { get; set; }
 
         public virtual int Order { get; set; }
-
-
 
         public virtual string What
         {
@@ -61,18 +60,15 @@ namespace Gears.Interpreter.Library
         {
             return $@"
 {base.CreateDocumentationMarkDown()}
-Checks the presence of a web element or text in the browser window. The input parameter is a query instruction passed as a string to parameter 'What'. See [Web element instructions](#web-element-instructions) for more info.
+Checks if a checkbox or similar input is selected
 
 #### Scenario usages
 | Discriminator | What | Expect |
 | ------------- | ---- | ----|
-| IsVisible     | Save | true |
-| IsVisible     | 1st button 'save customer' below 'New Customer'| false |
-| IsVisible     | 4th button from right| true |
+| IsSelected     | Accept Terms and Conditions | true |
 
 #### Console usages
-    IsVisible save
-    IsVisible 4th button from right
+    IsEnabled Accept Terms and Conditions
 
 > Note: console usages always Expect true result (you cannot specify Expect parameter when calling the keyword from console)
 
@@ -81,11 +77,11 @@ Checks the presence of a web element or text in the browser window. The input pa
 ";
         }
 
-        public IsVisible()
+        public IsSelected()
         {
         }
 
-        public IsVisible(string what)
+        public IsSelected(string what)
         {
             MapSyntaxToSemantics(new Instruction(what));
         }
@@ -98,69 +94,54 @@ Checks the presence of a web element or text in the browser window. The input pa
             Order = instruction.Order;
             TagNames = instruction.TagNames;
             spec = instruction;
-            ExactMatch = instruction.Accuracy != Accuracy.Partial;
         }
-
-        public bool ExactMatch { get; set; }
 
 
         public override IKeyword FromString(string textInstruction)
         {
-            return new IsVisible() {What = ExtractSingleParameterFromTextInstruction(textInstruction), Expect = true};
+            return new IsSelected() {What = ExtractSingleParameterFromTextInstruction(textInstruction), Expect = true};
         }
 
         public override object DoRun()
         {
             var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
-            var lookupResult = searchStrategy.DirectLookup(TagNames, SubjectName, Locale, Direction, Order, false, ExactMatch);
+            var lookupResult = searchStrategy.DirectLookup(TagNames, SubjectName, Locale, Direction, Order, false);
 
             if (Interpreter?.IsAnalysis == true)
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
             }
 
-            if (Order == 0)
+            var chromeHandle = Selenium.GetChromeHandle();
+            var browserBox = new UserBindings.RECT();
+            UserBindings.GetWindowRect(chromeHandle, ref browserBox);
+
+            var e = lookupResult.OtherValidResults.ElementAt(Order);
+
+            Selenium.PutElementOnScreen(e.WebElement);
+
+            var refreshedPosition = e.WebElement.AsBufferedElement().Rectangle;
+
+            var centerX = refreshedPosition.X + refreshedPosition.Width/2;
+            var centerY = refreshedPosition.Y + refreshedPosition.Height/2;
+
+            var p = new Point(centerX, centerY);
+            Selenium.ConvertFromPageToWindow(ref p);
+
+            if (p.X < 0 || p.X > browserBox.Right || p.Y < 0 || p.Y> browserBox.Bottom)
             {
-                var chromeHandle = Selenium.GetChromeHandle();
-                var browserBox = new UserBindings.RECT();
-                UserBindings.GetWindowRect(chromeHandle, ref browserBox);
-
-                for (int index = 0; index < lookupResult.OtherValidResults.Count(); index++)
-                {
-                    var e = lookupResult.OtherValidResults.ElementAt(index);
-
-                    Selenium.PutElementOnScreen(e.WebElement);
-
-                    var refreshedPosition = e.WebElement.AsBufferedElement().Rectangle;
-
-                    var centerX = refreshedPosition.X + refreshedPosition.Width/2;
-                    var centerY = refreshedPosition.Y + refreshedPosition.Height/2;
-
-                    var p = new Point(centerX, centerY);
-                    Selenium.ConvertFromPageToWindow(ref p);
-
-                    if (p.X < 0 || p.X > browserBox.Right || p.Y < 0 || p.Y > browserBox.Bottom)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        if (Interpreter?.IsDebugMode == true)
-                        {
-                            Highlighter.HighlightElements(750, Selenium, lookupResult.OtherValidResults,
-                            (Expect.ToString().ToLower().Equals(true.ToString().ToLower())
-                                ? Color.GreenYellow
-                                : Color.Red), Color.Yellow, -1, Color.Black);
-                        }
-                        return true;
-                    }
-                }
-                return false;
+                throw new NotFoundException("Element not found");
             }
             else
             {
-                return lookupResult.OtherValidResults.Count() > Order;
+                if (Interpreter?.IsDebugMode == true)
+                {
+                    Highlighter.HighlightElements(750, Selenium, lookupResult.OtherValidResults, (Expect.ToString().ToLower().Equals(true.ToString().ToLower()) ? Color.GreenYellow : Color.Red), Color.Yellow, -1, Color.Black);
+                }
+                return lookupResult.OtherValidResults.ElementAt(Order).WebElement.Selected;
             }
+
+            throw new NotFoundException("Element not found");
 
             throw new NotImplementedException($"Checking visibility of nth ({Order}) elements is not implemented.");
         }

@@ -85,7 +85,15 @@ namespace Gears.Interpreter.Library
 
             return ToCollection(result);
         }
-        
+
+        [JavascriptFunctionWrapper]
+        public static ReadOnlyCollection<IWebElement> FilterElementsByPartialText(this IWebDriver webDriver, string text, IEnumerable<IWebElement> elements, bool matchWhenTextIsInChild)
+        {
+            var result = webDriver.RunLibraryScript($"return {MethodBase.GetCurrentMethod().Name}(\"{text}\",arguments[0],arguments[1])", elements, matchWhenTextIsInChild);
+
+            return ToCollection(result);
+        }
+
         [JavascriptFunctionWrapper]
         public static ReadOnlyCollection<IWebElement> FilterOrthogonalElements(this IWebDriver webDriver, ReadOnlyCollection<IWebElement> elements, IWebElement element, int xTolerance, int yTolerance)
         {

@@ -58,6 +58,7 @@ Web element instruction is a text passed to all web-based keywords to specify th
   - input
   - textArea _(treated same as input)_
   - textfield _(treated same as input)_
+1. **Accuracy** - use word 'like' before indicating **Subject name** to allow partial text matches. Skip this to match only entire text of element.
 1. **Subject name** - visible name of what you are looking for. This must be full - no partial matches are considered.
 1. **Direction** - indicates where you are looking for the element. Default is 'Near' which is generic enough although not reliable when multiple occurences of the seached element exist. This can be also one of the following values:
   - left from - only takes elements left from another element (must provide Locale)
@@ -78,13 +79,15 @@ The query is interpreted in the following manner:
 
 Note that none of the parts is mandatory, so the following samples are all valid (if perhaps not all sensible):
 
-| Whole instruction                 | Order | Subject Type | Subject Name | Direction | Locale | 
-|---                                | ----- | ----         | -------      | --------- | ----   | 
-| button                            | 1     | Button       |   _Anything_ | _Anywhere_|        |
-| login                             | 1     | _Anything_   |   Login      | _Anywhere_|        |
-| 1st                               | 1     | _Anything_   |   Login      | _Anywhere_|        |
-| above login                       | 1     | _Anything_   |   _Anything_ | Above     | Login  |
-| 2th login                         | 2     | _Anything_   |   _Anything_ | Above     |        |
+| Whole instruction                 | Order | Subject Type | Subject Name | Direction | Locale | Accuracy |
+|---                                | ----- | ----         | -------      | --------- | ----   | Exact |
+| button                            | 1     | Button       |   _Anything_ | _Anywhere_|        | Exact |
+| login                             | 1     | _Anything_   |   Login      | _Anywhere_|        | Exact |
+| 1st                               | 1     | _Anything_   |   Login      | _Anywhere_|        | Exact |
+| above login                       | 1     | _Anything_   |   _Anything_ | Above     | Login  | Exact |
+| 2th login                         | 2     | _Anything_   |   Login      | _Anywhere_|        | Exact |
+| 2nd button like log               | 2     | Button       |   Log        | _Anywhere_|        | Partial |
+| like 'log'                        | 0     | _Anything_   |   Log        | _Anywhere_|        | Partial |
 
 > Nothing is case-sensitive.
 

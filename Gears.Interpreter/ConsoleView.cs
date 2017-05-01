@@ -160,7 +160,7 @@ namespace Gears.Interpreter
         {
             var keywords = status.Keywords.ToList();
 
-            //AddLine(ConsoleColor.DarkGray, $"\n{HorizontalLine}", returnValue);
+            AddLine(ConsoleColor.DarkGray, $"\n{HorizontalLine}", returnValue);
             //AddLine(ConsoleColor.DarkGray, "Gears Scenario Debugger", returnValue);
             //AddLine(ConsoleColor.DarkGray, HorizontalLine, returnValue);
 

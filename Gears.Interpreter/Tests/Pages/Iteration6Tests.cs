@@ -24,30 +24,7 @@ namespace Gears.Interpreter.Tests.Pages
         private string _filePath;
         private string _clickScenarioFilePath;
 
-        [Test]
-        public void CanRememberHistory()
-        {
-            Bootstrapper.Register();
-            var interpreter = Bootstrapper.ResolveInterpreter();
-
-            var step1 = interpreter.Please("DoWhatYouWant");
-            var step2 = interpreter.Please("DoWhatYouWant");
-            var step3 = interpreter.Please("DoWhatYouWant");
-
-            var step4 = interpreter.Please("stop");
-
-            Bootstrapper.Release();
-
-            Bootstrapper.Register();
-
-            var newInterpreter = Bootstrapper.ResolveInterpreter();
-
-            var step5 = newInterpreter.Please("lastPlan");
-
-            Assert.AreEqual(3, newInterpreter.Plan.Count());
-        }
-
-        [Test]
+       [Test]
         public void CanOpenFile()
         {
             Bootstrapper.Register();
