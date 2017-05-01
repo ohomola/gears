@@ -109,8 +109,7 @@ namespace Gears.Interpreter.Data.Serialization.Excel
 
                 for (int j = 1; j <= columns; j++)
                 {
-                    row[j - 1] = (wholeSheet[i, j]);//GetValue(sheet, i, j);
-
+                    row[j - 1] = (GetValue(wholeSheet[i, j]));
                 }
 
                 resultTable.Rows.Add(row);
@@ -119,10 +118,8 @@ namespace Gears.Interpreter.Data.Serialization.Excel
             return resultTable;
         }
 
-        private static dynamic GetValue(Worksheet sheet, int i, int j)
+        private static dynamic GetValue(object value)
         {
-            var value = ((Range) sheet.Cells[i, j]).Value ?? "";
-
             if (value is string)
             {
                 value = ((string)value).Trim();

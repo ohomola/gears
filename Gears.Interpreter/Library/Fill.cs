@@ -178,7 +178,7 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
         public override string ToString()
         {
-            return $"Fill {Order}. '{LabelText}' with '{Text}'";
+            return $"Fill {Order+1}. '{LabelText}' with '{Text}'";
         }
 
         #region Backward compatibility
