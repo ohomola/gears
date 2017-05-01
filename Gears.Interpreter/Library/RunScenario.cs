@@ -8,6 +8,7 @@ using Gears.Interpreter.Applications;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Data;
 using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Library.Workflow;
 using NUnit.Framework.Constraints;
 
 namespace Gears.Interpreter.Library
@@ -210,7 +211,7 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
         }
     }
 
-    public class Yes : Keyword
+    public class Yes : Keyword, IProtected
     {
         private readonly Func<object> _func;
 
@@ -234,7 +235,7 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
         }
     }
 
-    public class No : Keyword
+    public class No : Keyword, IProtected
     {
         private readonly Func<object> _func;
 

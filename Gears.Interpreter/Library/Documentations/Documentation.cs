@@ -46,6 +46,12 @@ You can specify the amount of miliseconds to wait after execution of a keyword w
 ### WaitBefore
 You can specify the amount of miliseconds to wait before execution of a keyword with this field. Purpose is to save cluttering your scenario with Wait steps if your website is timeout sensitive.
 
+#### Scenario usages
+| Discriminator | What  | WaitAfter |
+| ------------- | ----- | ------ |
+| Click         | login | 250    |
+
+
 # Web element instructions
 Web element instruction is a text passed to all web-based keywords to specify the query for the keyword. Instruction must follow a simplified english expression syntax. The syntax structure effectivelly breaks the text into several components by it's structural position. There total of 5 different elements:
 

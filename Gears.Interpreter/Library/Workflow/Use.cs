@@ -21,6 +21,23 @@ namespace Gears.Interpreter.Library.Workflow
         {
         }
 
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Adds object of specified Type to Context. Use this keyword to turn on a configuration.
+
+#### Console usages
+    use SkipAssertions
+    run
+    SkipAssertions off
+
+### Additional properties
+* [Common Keyword properties](Documentation#common-keyword-properties)  
+";
+        }
+
         public override object DoRun()
         {
             object instance = null;
