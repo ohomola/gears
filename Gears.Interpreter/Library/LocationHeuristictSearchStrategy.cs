@@ -26,30 +26,14 @@ namespace Gears.Interpreter.Library
         LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order, bool exactMatchOnly);
     }
 
-    public class LookupResult
-    {
-        public LookupResult(bool success)
-        {
-            Success = success;
-        }
-
-        public LookupResult(IEnumerable<IBufferedElement> otherValidResults, IBufferedElement result, bool success)
-        {
-            OtherValidResults = otherValidResults;
-            Result = result;
-            Success = success;
-        }
-
-        public IEnumerable<IBufferedElement> OtherValidResults { get; set; }
-        public IBufferedElement Result { get; set; }
-        public bool Success { get; set; }
-    }
 
     public class LocationHeuristictSearchStrategy : IElementSearchStrategy
     {
         private readonly ISeleniumAdapter _seleniumAdapter;
 
         private readonly ReadOnlyCollection<IWebElement> _query;
+
+        private static int _staleElementCounter = 0;
 
         public LocationHeuristictSearchStrategy(ISeleniumAdapter seleniumAdapter)
         {
@@ -62,7 +46,7 @@ namespace Gears.Interpreter.Library
             _query = new ReadOnlyCollection<IWebElement>(new List<IWebElement>(query));
         }
 
-        private static int _staleElementCounter = 0;
+        
         public LookupResult DirectLookup(List<ITagSelector> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int order, bool orthogonalOnly, bool exactMatchOnly = true)
         {
             try
@@ -98,7 +82,7 @@ namespace Gears.Interpreter.Library
                 }
                 catch (Exception)
                 {
-                    return new LookupResult(validResults, result: null, success: false);
+                    return new LookupResult(validResults, mainResult: null, success: false);
                 }
             }
             catch (StaleElementReferenceException)
@@ -163,7 +147,7 @@ namespace Gears.Interpreter.Library
                 }
                 catch (Exception)
                 {
-                    return new LookupResult(validResults, result: null, success: false);
+                    return new LookupResult(validResults, mainResult: null, success: false);
                 }
             }
             catch (StaleElementReferenceException)

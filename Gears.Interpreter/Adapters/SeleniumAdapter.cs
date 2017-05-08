@@ -38,6 +38,7 @@ namespace Gears.Interpreter.Adapters
     {
         IWebDriver WebDriver { get; }
         UserBindings.RECT BrowserWindowScreenRectangle { get; }
+        IFluentElementQuery Query { get; }
         IntPtr GetChromeHandle();
         Point PutElementOnScreen(IWebElement element);
         void ConvertFromPageToWindow(ref Point p);
@@ -152,6 +153,8 @@ namespace Gears.Interpreter.Adapters
 
             return false;
         }
+
+        public IFluentElementQuery Query => new FluentElementQuery(this);
 
         public IntPtr GetChromeHandle()
         {

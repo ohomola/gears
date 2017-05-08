@@ -146,7 +146,7 @@ Clicks an element identified by a visible text on the screen. The input paramete
             if (Interpreter?.IsAnalysis == true)
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (exact matches): " + _instruction?.ToAnalysisString());
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.Result}\nAll results:\n\t{string.Join("\n\t", result.OtherValidResults)}");
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.MainResult}\nAll results:\n\t{string.Join("\n\t", result.AllValidResults)}");
             }
 
             if (ExactMatch == false && result.Success == false)
@@ -156,30 +156,30 @@ Clicks an element identified by a visible text on the screen. The input paramete
                 if (Interpreter?.IsAnalysis == true)
                 {
                     Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (all matches): " + _instruction?.ToAnalysisString());
-                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.Result}\nAll results:\n\t{string.Join("\n\t", result.OtherValidResults)}");
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.MainResult}\nAll results:\n\t{string.Join("\n\t", result.AllValidResults)}");
                 }
             }
 
             if (result.Success == false)
             {
-                throw new LookupFailureException(result, $"Failed {ToString()}.\nCannot find element {(Order > 0 ? (Order + 1).ToString() : "")}({result.OtherValidResults.Count()} results found)");
+                throw new LookupFailureException(result, $"Failed {ToString()}.\nCannot find element {(Order > 0 ? (Order + 1).ToString() : "")}({result.AllValidResults.Count()} results found)");
             }
 
             switch (Technique)
             {
                 case Technique.HighlightOnly:
-                    Highlighter.HighlightElements(Selenium, result.OtherValidResults.ToList(), Order);
+                    Highlighter.HighlightElements(Selenium, result.AllValidResults.ToList(), Order);
                     return new InformativeAnswer("Highlighting complete.");
                 case Technique.Javascript:
-                    Selenium.WebDriver.Click(result.Result.WebElement);
+                    Selenium.WebDriver.Click(result.MainResult.WebElement);
                     break;
                 case Technique.MouseAndKeyboard:
                     Selenium.BringToFront();
-                    var screenLocation = Selenium.PutElementOnScreen(result.Result.WebElement);
+                    var screenLocation = Selenium.PutElementOnScreen(result.MainResult.WebElement);
                     if (Interpreter?.IsAnalysis == true)
                     {
                         //Highlighter.HighlightPoints(750, Selenium, screenLocation);
-                        Highlighter.HighlightElements(750, Selenium, new [] {result.Result}, Color.Aqua, Color.Red,-1,Color.Aqua);
+                        Highlighter.HighlightElements(750, Selenium, new [] {result.MainResult}, Color.Aqua, Color.Red,-1,Color.Aqua);
                     }
                     UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
                     Thread.Sleep(50);

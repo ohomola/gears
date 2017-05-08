@@ -149,12 +149,12 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
             if (Interpreter?.IsAnalysis == true)
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, _instruction?.ToAnalysisString());
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.Result}\nAll results:\n\t{string.Join("\n\t", result.OtherValidResults)}");
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{result.MainResult}\nAll results:\n\t{string.Join("\n\t", result.AllValidResults)}");
             }
 
             if (result.Success == false)
             {
-                throw new LookupFailureException(result, $"Failed {ToString()}.\nCannot find element {(Order > 0 ? (Order + 1).ToString() : "")}({result.OtherValidResults.Count()} results found)");
+                throw new LookupFailureException(result, $"Failed {ToString()}.\nCannot find element {(Order > 0 ? (Order + 1).ToString() : "")}({result.AllValidResults.Count()} results found)");
             }
 
             switch (Technique)
@@ -163,7 +163,7 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
                     Highlighter.HighlightElements(
                         ()=>Console.ReadLine(), 
                         Selenium, 
-                        result.OtherValidResults, 
+                        result.AllValidResults, 
                         Color.FromArgb(255, 0, 150, 255), 
                         Color.FromArgb(255, 255, 0, 255),
                         Order,
@@ -172,15 +172,15 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
                         Y);
                     return new InformativeAnswer("Highlighting complete.");
                 case Technique.Javascript:
-                    Selenium.WebDriver.Click(result.Result.WebElement);
+                    Selenium.WebDriver.Click(result.MainResult.WebElement);
                     break;
                 case Technique.MouseAndKeyboard:
                     Selenium.BringToFront();
-                    var screenLocation = Selenium.PutElementOnScreen(result.Result.WebElement);
+                    var screenLocation = Selenium.PutElementOnScreen(result.MainResult.WebElement);
                     if (Interpreter?.IsAnalysis == true)
                     {
                         //Highlighter.HighlightPoints(750, Selenium, screenLocation);
-                        Highlighter.HighlightElements(750, Selenium, new [] {result.Result}, Color.Aqua, Color.Red,-1,Color.Aqua);
+                        Highlighter.HighlightElements(750, Selenium, new [] {result.MainResult}, Color.Aqua, Color.Red,-1,Color.Aqua);
                     }
                     UserInteropAdapter.PressOnPoint(Selenium.GetChromeHandle(), screenLocation);
                     

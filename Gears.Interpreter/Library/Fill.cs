@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using Gears.Interpreter.Adapters.Interoperability;
@@ -27,6 +28,7 @@ using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
 using Gears.Interpreter.Core;
+using Gears.Interpreter.Library.Lookup;
 using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
@@ -120,50 +122,29 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
         public override object DoRun()
         {
-            var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
+            List<ITagSelector> selectors = new List<ITagSelector>();
+            selectors.Add(new TagNameSelector("input"));
+            selectors.Add(new TagNameSelector("textArea"));
 
-            var lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order);
-
-            if (Interpreter?.IsAnalysis == true)
-            {
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (exact matches): " + _instruction?.ToAnalysisString());
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
-            }
-
-            if (ExactMatch == false && lookupResult.Success == false)
-            {
-                lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order, false);
-
-                if (Interpreter?.IsAnalysis == true)
-                {
-                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (all matches): " + _instruction?.ToAnalysisString());
-                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
-                }
-            }
-
-
-            if (lookupResult.Success == false)
-            {
-                throw new LookupFailureException(lookupResult, "Input not found");
-            }
+            var lookupResult = new TextFieldLookupStrategy(Selenium, ExactMatch, Order, Direction, LabelText, selectors).LookUp();
 
             switch (Technique)
             {
                 case Technique.HighlightOnly:
-                    Highlighter.HighlightElements(Selenium, lookupResult.OtherValidResults);
+                    Highlighter.HighlightElements(Selenium, lookupResult.AllValidResults);
                     return new InformativeAnswer("Highlighting complete.");
                 case Technique.Javascript:
-                    lookupResult.Result.WebElement.SendKeys(Text);
+                    lookupResult.MainResult.WebElement.SendKeys(Text);
                     break;
                 case Technique.MouseAndKeyboard:
                     var handle = Selenium.GetChromeHandle();
 
-                    var screenLocation = Selenium.PutElementOnScreen(lookupResult.Result.WebElement);
+                    var screenLocation = Selenium.PutElementOnScreen(lookupResult.MainResult.WebElement);
 
                     Selenium.BringToFront();
                     if (Interpreter?.IsAnalysis == true)
                     {
-                        Highlighter.HighlightElements(750, Selenium, new[] { lookupResult.Result }, Color.Aqua, Color.Red, -1, Color.Aqua);
+                        Highlighter.HighlightElements(750, Selenium, new[] { lookupResult.MainResult }, Color.Aqua, Color.Red, -1, Color.Aqua);
                     }
 
                     UserInteropAdapter.ClickOnPoint(handle, screenLocation);
@@ -174,6 +155,40 @@ Fills a text input element (or dropdown) located by a visible text on the screen
             }
 
             return new SuccessAnswer("Fill successful.");
+        }
+
+        private LookupResult Lookup()
+        {
+            var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
+
+            var lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order);
+
+            if (Interpreter?.IsAnalysis == true)
+            {
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta,
+                    "DirectLookup (exact matches): " + _instruction?.ToAnalysisString());
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta,
+                    $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
+            }
+
+            if (ExactMatch == false && lookupResult.Success == false)
+            {
+                lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order, false);
+
+                if (Interpreter?.IsAnalysis == true)
+                {
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta,
+                        "DirectLookup (all matches): " + _instruction?.ToAnalysisString());
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta,
+                        $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
+                }
+            }
+
+            if (lookupResult.Success == false)
+            {
+                throw new LookupFailureException(lookupResult, "Input not found");
+            }
+            return lookupResult;
         }
 
         public override string ToString()

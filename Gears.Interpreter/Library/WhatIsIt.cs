@@ -117,7 +117,7 @@ The generated instruction will be saved in [it] variable so it can be immediatel
 
                 if (result.Success)
                 {
-                    if (result.Result.WebElement.Equals(element))
+                    if (result.MainResult.WebElement.Equals(element))
                     {
                         new Remember("it", instruction.ToString()).Execute();
                         return new SuccessAnswer(instruction.ToString());

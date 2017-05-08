@@ -116,7 +116,7 @@ Checks the presence of a web element or text in the browser window. The input pa
 
             if (Interpreter?.IsAnalysis == true)
             {
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
             }
 
             if (Order == 0)
@@ -125,9 +125,9 @@ Checks the presence of a web element or text in the browser window. The input pa
                 var browserBox = new UserBindings.RECT();
                 UserBindings.GetWindowRect(chromeHandle, ref browserBox);
 
-                for (int index = 0; index < lookupResult.OtherValidResults.Count(); index++)
+                for (int index = 0; index < lookupResult.AllValidResults.Count(); index++)
                 {
-                    var e = lookupResult.OtherValidResults.ElementAt(index);
+                    var e = lookupResult.AllValidResults.ElementAt(index);
 
                     Selenium.PutElementOnScreen(e.WebElement);
 
@@ -147,7 +147,7 @@ Checks the presence of a web element or text in the browser window. The input pa
                     {
                         if (Interpreter?.IsDebugMode == true)
                         {
-                            Highlighter.HighlightElements(1250, Selenium, lookupResult.OtherValidResults,
+                            Highlighter.HighlightElements(1250, Selenium, lookupResult.AllValidResults,
                             (Expect.ToString().ToLower().Equals(true.ToString().ToLower())
                                 ? Color.GreenYellow
                                 : Color.Red), Color.Yellow, -1, Color.Black);
@@ -159,7 +159,7 @@ Checks the presence of a web element or text in the browser window. The input pa
             }
             else
             {
-                return lookupResult.OtherValidResults.Count() > Order;
+                return lookupResult.AllValidResults.Count() > Order;
             }
 
             throw new NotImplementedException($"Checking visibility of nth ({Order}) elements is not implemented.");

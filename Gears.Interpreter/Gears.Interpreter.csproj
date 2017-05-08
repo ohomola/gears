@@ -162,6 +162,8 @@
     <Compile Include="Data\Serialization\Mapping\LazyResolving\LazyExpressionResolver.cs" />
     <Compile Include="Data\Serialization\Mapping\DataObjectInterceptor.cs" />
     <Compile Include="Data\Serialization\Mapping\LazyResolving\RememberedDataResolver.cs" />
+    <Compile Include="Library\Lookup\DirectLookupStrategyWithNeighbours.cs" />
+    <Compile Include="Library\Lookup\DirectLookupStrategy.cs" />
     <Compile Include="Library\DragAndDrop.cs" />
     <Compile Include="Library\Config\DebugMode.cs" />
     <Compile Include="Adapters\SeleniumAdapter.cs" />
@@ -202,11 +204,15 @@
     <Compile Include="Data\Serialization\SerializerFactory.cs" />
     <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Documentations\Documentation.cs" />
+    <Compile Include="Library\Lookup\FluentElementQuery.cs" />
+    <Compile Include="Library\Lookup\TextFieldLookupStrategy.cs" />
     <Compile Include="Library\HasText.cs" />
     <Compile Include="Library\Forget.cs" />
     <Compile Include="Library\IAssertion.cs" />
+    <Compile Include="Library\Lookup\ILookupStrategy.cs" />
     <Compile Include="Library\IsSelected.cs" />
     <Compile Include="Library\Login.cs" />
+    <Compile Include="Library\LookupResult.cs" />
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Resize.cs" />
     <Compile Include="Library\Show.cs" />

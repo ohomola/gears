@@ -126,7 +126,7 @@ Checks a text input element (or dropdown) located by a visible text on the scree
             if (Interpreter?.IsAnalysis == true)
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (exact matches): " + _instruction?.ToAnalysisString());
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
             }
 
             if (ExactMatch == false && lookupResult.Success == false)
@@ -136,7 +136,7 @@ Checks a text input element (or dropdown) located by a visible text on the scree
                 if (Interpreter?.IsAnalysis == true)
                 {
                     Console.Out.WriteColoredLine(ConsoleColor.Magenta, "DirectLookup (all matches): " + _instruction?.ToAnalysisString());
-                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
+                    Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
                 }
             }
 
@@ -149,17 +149,17 @@ Checks a text input element (or dropdown) located by a visible text on the scree
             switch (Technique)
             {
                 case Technique.HighlightOnly:
-                    Highlighter.HighlightElements(Selenium, lookupResult.OtherValidResults);
+                    Highlighter.HighlightElements(Selenium, lookupResult.AllValidResults);
                     return new InformativeAnswer("Highlighting complete.");
                 case Technique.MouseAndKeyboard:
 
                     Selenium.BringToFront();
                     if (Interpreter?.IsDebugMode == true)
                     {
-                        Highlighter.HighlightElements(750, Selenium, new[] { lookupResult.Result }, Color.Aqua, Color.Red, -1, Color.Aqua);
+                        Highlighter.HighlightElements(750, Selenium, new[] { lookupResult.MainResult }, Color.Aqua, Color.Red, -1, Color.Aqua);
                     }
 
-                    Actual = lookupResult.Result.WebElement.Text;
+                    Actual = lookupResult.MainResult.WebElement.Text;
                     return Actual?.ToLower() == Text.ToLower();
 
             }

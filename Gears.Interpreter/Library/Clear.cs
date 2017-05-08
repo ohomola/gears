@@ -84,11 +84,11 @@ See [Fill](#fill) for more info.
                 switch (Technique)
                 {
                     case Technique.HighlightOnly:
-                        Highlighter.HighlightElements(Selenium, lookupResult.OtherValidResults);
+                        Highlighter.HighlightElements(Selenium, lookupResult.AllValidResults);
                         return new InformativeAnswer("Highlighting complete.");
                     case Technique.MouseAndKeyboard:
-                        lookupResult.Result.WebElement.SendKeys(Keys.LeftControl + "a");
-                        lookupResult.Result.WebElement.SendKeys(Keys.Delete);
+                        lookupResult.MainResult.WebElement.SendKeys(Keys.LeftControl + "a");
+                        lookupResult.MainResult.WebElement.SendKeys(Keys.Delete);
                         return "Erased";
                 }
 

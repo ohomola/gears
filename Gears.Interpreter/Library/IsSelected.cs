@@ -109,14 +109,14 @@ Checks if a checkbox or similar input is selected
 
             if (Interpreter?.IsAnalysis == true)
             {
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.Result}\nAll results:\n\t{string.Join("\n\t", lookupResult.OtherValidResults)}");
+                Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
             }
 
             var chromeHandle = Selenium.GetChromeHandle();
             var browserBox = new UserBindings.RECT();
             UserBindings.GetWindowRect(chromeHandle, ref browserBox);
 
-            var e = lookupResult.OtherValidResults.ElementAt(Order);
+            var e = lookupResult.AllValidResults.ElementAt(Order);
 
             Selenium.PutElementOnScreen(e.WebElement);
 
@@ -136,9 +136,9 @@ Checks if a checkbox or similar input is selected
             {
                 if (Interpreter?.IsDebugMode == true)
                 {
-                    Highlighter.HighlightElements(750, Selenium, lookupResult.OtherValidResults, (Expect.ToString().ToLower().Equals(true.ToString().ToLower()) ? Color.GreenYellow : Color.Red), Color.Yellow, -1, Color.Black);
+                    Highlighter.HighlightElements(750, Selenium, lookupResult.AllValidResults, (Expect.ToString().ToLower().Equals(true.ToString().ToLower()) ? Color.GreenYellow : Color.Red), Color.Yellow, -1, Color.Black);
                 }
-                return lookupResult.OtherValidResults.ElementAt(Order).WebElement.Selected;
+                return lookupResult.AllValidResults.ElementAt(Order).WebElement.Selected;
             }
 
             throw new NotFoundException("Element not found");
