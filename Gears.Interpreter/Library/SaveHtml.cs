@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.IO;
 using Gears.Interpreter.Library.Workflow;
+using Gears.Interpreter.Applications;
 
 namespace Gears.Interpreter.Library
 {
@@ -54,7 +55,7 @@ Saves current webpage in browser to a file. This file might be different to what
                 fw.Write(Selenium.WebDriver.PageSource);
             }
 
-            return null;
+            return new SuccessAnswer("Saved file "+outputFile);
         }
     }
 }

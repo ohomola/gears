@@ -24,6 +24,8 @@ namespace Gears.Interpreter.Library.Workflow
 
             Interpreter.Data.Include(foa);
 
+            Interpreter.Plan = Interpreter.Plan.Union(foa.GetAll<IKeyword>().ToList()).ToList();
+
             return true;
         }
 
