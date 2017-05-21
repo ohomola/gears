@@ -142,8 +142,12 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
                     if (Interpreter.IsDebugMode)
                     {
                         Interpreter.Iterator.MoveBack(1);
-                        Iterator.MoveNext();
-                        return new CanIContinueRunScenarioEvenThoughIFoundError(this) { Children = new List<IAnswer>() {new ExceptionAnswer(e)} };
+                        
+                        var error = new CanIContinueRunScenarioEvenThoughIFoundError(this) { Children = new List<IAnswer>() {new ExceptionAnswer(e)} };
+
+                        this.Iterator.MoveNext();
+
+                        return error;
                     }
 
                     Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Plan.ToList(), FileName));
@@ -190,7 +194,11 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
         {
             Options = new List<IKeyword>()
             {
-                new Yes(() => runScenario.Execute()),
+                new Yes(() =>
+                {
+                    runScenario.Interpreter.Iterator.MoveNext();
+                    return runScenario.Execute();
+                }),
                 new No(() =>
                 {
                     runScenario.Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(runScenario.Plan.ToList(), runScenario.FileName));

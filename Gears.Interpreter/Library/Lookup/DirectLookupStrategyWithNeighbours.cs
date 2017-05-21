@@ -10,7 +10,7 @@ namespace Gears.Interpreter.Library
     public class DirectLookupStrategyWithNeighbours : ILookupStrategy
     {
         private readonly ISeleniumAdapter _seleniumAdapter;
-        private static int _staleElementCounter = 0;
+        private int _staleElementCounter = 0;
         private SearchDirection _searchDirection;
         private string _labelText;
         private bool _exactMatchOnly;
@@ -74,14 +74,14 @@ namespace Gears.Interpreter.Library
                     return new LookupResult(validResults, mainResult: null, success: false);
                 }
             }
-            catch (StaleElementReferenceException)
+            catch (StaleElementReferenceException e)
             {
                 _staleElementCounter++;
                 if (_staleElementCounter < 10)
                 {
                     return LookUp();
                 }
-                throw;
+                throw new SeleniumException(e);
             }
         }
     }

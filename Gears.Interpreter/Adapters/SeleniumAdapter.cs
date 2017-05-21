@@ -40,6 +40,8 @@ namespace Gears.Interpreter.Adapters
         UserBindings.RECT BrowserWindowScreenRectangle { get; }
         IFluentElementQuery Query { get; }
         IntPtr GetChromeHandle();
+        UserBindings.RECT GetChromeBox();
+
         Point PutElementOnScreen(IWebElement element);
         void ConvertFromPageToWindow(ref Point p);
         void ConvertFromWindowToScreen(ref Point point);
@@ -161,6 +163,13 @@ namespace Gears.Interpreter.Adapters
             LazyInitialize();
             
             return _handle;
+        }
+
+        public UserBindings.RECT GetChromeBox()
+        {
+            var browserBox = new UserBindings.RECT();
+            UserBindings.GetWindowRect(GetChromeHandle(), ref browserBox);
+            return browserBox;
         }
 
         private IntPtr FindChromeHandle(IEnumerable<Process> oldChromes)

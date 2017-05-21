@@ -59,7 +59,8 @@ namespace Gears.Interpreter.Library
 
                 if (foa == null)
                 {
-                    return new ExceptionAnswer("File with name '{What}' is not registered. You must specify a full name or a substring of a loaded file (case-insensitive).");
+                    return new ExceptionAnswer(
+                        $"File with '{What}' is not registered. You must specify a full name or a substring of a loaded file (case-insensitive, no spaces). The following files are registered: \n\t"+string.Join("\n\t", Interpreter.Data.DataAccesses.OfType<FileObjectAccess>().Select(x=>x.Path)));
                 }
 
                 foa?.ForceReload();
@@ -74,8 +75,6 @@ namespace Gears.Interpreter.Library
             {
                 Interpreter.Iterator.Index = 0;
             }
-
-
             
             return new SuccessAnswer(response);
         }

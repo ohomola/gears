@@ -16,7 +16,7 @@ namespace Gears.Interpreter.Library.Lookup
         private readonly int _order;
         private readonly bool _orthogonalOnly;
         private readonly bool _exactMatchOnly;
-        private static int _staleElementCounter = 0;
+        private int _staleElementCounter = 0;
 
         public DirectLookupStrategy(ISeleniumAdapter seleniumAdapter, 
             List<ITagSelector> searchedTagNames, 
@@ -75,14 +75,15 @@ namespace Gears.Interpreter.Library.Lookup
                     return new LookupResult(validResults, mainResult: null, success: false);
                 }
             }
-            catch (StaleElementReferenceException)
+            catch (StaleElementReferenceException e)
             {
                 _staleElementCounter++;
                 if (_staleElementCounter < 10)
                 {
                     LookUp();
                 }
-                throw;
+
+                throw new SeleniumException(e);
             }
         }
     }

@@ -144,7 +144,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Applications\Debugging\Overlay\HUD.cs" />
-    <Compile Include="Applications\Debugging\Overlay\HudWorker.cs" />
+    <Compile Include="Applications\Debugging\Overlay\ClickableHudWorker.cs" />
     <Compile Include="Applications\Debugging\Overlay\OverlayForm2.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -162,6 +162,7 @@
     <Compile Include="Data\Serialization\Mapping\LazyResolving\LazyExpressionResolver.cs" />
     <Compile Include="Data\Serialization\Mapping\DataObjectInterceptor.cs" />
     <Compile Include="Data\Serialization\Mapping\LazyResolving\RememberedDataResolver.cs" />
+    <Compile Include="Library\Config\ErrorLogging.cs" />
     <Compile Include="Library\Lookup\DirectLookupStrategyWithNeighbours.cs" />
     <Compile Include="Library\Lookup\DirectLookupStrategy.cs" />
     <Compile Include="Library\DragAndDrop.cs" />
@@ -205,6 +206,7 @@
     <Compile Include="Library\Clear.cs" />
     <Compile Include="Library\Documentations\Documentation.cs" />
     <Compile Include="Library\Lookup\FluentElementQuery.cs" />
+    <Compile Include="Library\Lookup\SeleniumException.cs" />
     <Compile Include="Library\Lookup\TextFieldLookupStrategy.cs" />
     <Compile Include="Library\HasText.cs" />
     <Compile Include="Library\Forget.cs" />
@@ -215,6 +217,7 @@
     <Compile Include="Library\LookupResult.cs" />
     <Compile Include="Library\Reload.cs" />
     <Compile Include="Library\Resize.cs" />
+    <Compile Include="Library\SaveScreenshot.cs" />
     <Compile Include="Library\Show.cs" />
     <Compile Include="Library\StepOut.cs" />
     <Compile Include="Library\WebElementExtensions.cs" />

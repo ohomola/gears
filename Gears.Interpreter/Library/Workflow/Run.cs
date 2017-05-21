@@ -17,10 +17,11 @@ namespace Gears.Interpreter.Library.Workflow
         {
             return $@"
 {base.CreateDocumentationMarkDown()}
-Executes selected number of steps of your scenario. Use this if you want to run your plan up to given step.
+Executes selected number of steps of your scenario. Use this if you want to run your plan up to given step. Use 'all' instead of a number to execute from current step to end of scenario.
 
 #### Console usages
     run 4
+    run all
 ";
         }
 
@@ -47,7 +48,6 @@ Executes selected number of steps of your scenario. Use this if you want to run 
                 }
             }
 
-
             if (answers.Any(x => x is INegativeAnswer))
             {
                 var baseAnswer = new ExceptionAnswer($"Ran {count} step{(count == 1 ? "" : "s")}.");
@@ -70,7 +70,14 @@ Executes selected number of steps of your scenario. Use this if you want to run 
 
             if (!string.IsNullOrEmpty(param))
             {
-                run.Count = int.Parse(param);
+                if (param.ToLower() == "all")
+                {
+                    run.Count = int.MaxValue;
+                }
+                else
+                {
+                    run.Count = int.Parse(param);
+                }
             }
             else
             {
@@ -78,8 +85,6 @@ Executes selected number of steps of your scenario. Use this if you want to run 
             }
 
             return run;
-
-
         }
     }
 }

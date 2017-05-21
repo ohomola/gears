@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Registrations;
 using Gears.Interpreter.Library.Documentations;
+using Gears.Interpreter.Library.Lookup;
 using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
@@ -66,15 +68,17 @@ See [Fill](#fill) for more info.
 
             Direction = spec.Direction;
             Order = spec.Order;
+            ExactMatch = spec.Accuracy != Accuracy.Partial;
         }
+
+        public bool ExactMatch { get; set; }
 
         public override object DoRun()
         {
             try
             {
-                var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
-
-                var lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order);
+                //var lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order);
+                var lookupResult = new TextFieldLookupStrategy(Selenium, ExactMatch, Order, Direction, LabelText).LookUp();
 
                 if (lookupResult.Success == false)
                 {

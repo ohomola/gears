@@ -3,7 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="ScenarioOutputPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">./Scenario Output {0}.csv</Value>
+      <Value Profile="(Default)">./Output/Scenario_Output_{0}.csv</Value>
+    </Setting>
+    <Setting Name="ScreenshotOutputPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">./Images/{0}.screenshot.jpeg</Value>
     </Setting>
   </Settings>
 </SettingsFile>

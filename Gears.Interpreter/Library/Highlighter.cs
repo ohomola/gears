@@ -117,7 +117,7 @@ namespace Gears.Interpreter.Library
 
         public static void PingScreen(int x, int y)
         {
-            using (var hud = Hud.CreateNonClickable())
+            using (var hud = Hud.CreateFor(750))
             {
                 var point = hud.Ping(x, y);
             }

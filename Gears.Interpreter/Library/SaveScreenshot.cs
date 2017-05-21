@@ -19,45 +19,67 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
+using System.Drawing.Imaging;
 using System.IO;
 using Gears.Interpreter.Library.Workflow;
 using Gears.Interpreter.Applications;
+using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library
 {
     [NotLogged]
     [UserDescription("savehtml \t-\t save current page source to a new HTML file")]
-    public class SaveHtml:Keyword
+    public class SaveScreenshot:Keyword
     {
+        public string What { get; set; }
+
+        public SaveScreenshot()
+        {
+        }
+
+        public SaveScreenshot(string what)
+        {
+            What = what;
+        }
+
         public override string CreateDocumentationMarkDown()
         {
             return $@"
 {base.CreateDocumentationMarkDown()}
-Saves current webpage in browser to a file. This file might be different to what your browser would save. Use this to create HTML snapshots as attachments for bugs.
+Saves current browser screen to an image file. 
+What parameter indicates a filename prefix to the created file. Suffix of the file name will be generated.
+
 
 #### Scenario usage
-| Discriminator | 
-| ------------- | 
-| SaveHtml   | 
+| Discriminator  | What |
+| -------------  | ---- |
+| SaveScreenshot | Screen1 |
+| SaveScreenshot |  |
 
 #### Console usage
-    savehtml
+    SaveScreenshot
+    SaveScreenshot test1
 
 > Note: File will be created to the same Output folder as your scenario reports and will have a unique generated name. You can configure the default path in Gears.Interpreter.exe.config
+
+
 ";
         }
 
         public override object DoRun()
         {
-            var outputFile = string.Format(Properties.Settings.Default.ScenarioOutputPath, DateTime.Now.ToString("s").Replace(":", "_"))+".html";
-            Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
+            var outputFile = string.Format(Properties.Settings.Default.ScreenshotOutputPath, What + DateTime.Now.ToString("s").Replace(":", "_"));
 
-            using (var fw = new StreamWriter(outputFile))
-            {
-                fw.Write(Selenium.WebDriver.PageSource);
-            }
+            var ss = ((ITakesScreenshot) Selenium.WebDriver).GetScreenshot();
+            Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
+            ss.SaveAsFile(outputFile, ImageFormat.Jpeg);
 
             return new SuccessAnswer("Saved file "+outputFile);
+        }
+
+        public override IKeyword FromString(string textInstruction)
+        {
+            return new SaveScreenshot(ExtractSingleParameterFromTextInstruction(textInstruction));
         }
     }
 }

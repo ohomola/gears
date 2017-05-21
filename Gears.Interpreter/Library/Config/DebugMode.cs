@@ -24,7 +24,7 @@ using Gears.Interpreter.Applications.Configuration;
 
 namespace Gears.Interpreter.Library.Config
 {
-    public class SkipAssertions : IHaveDocumentation
+    public class SkipAssertions : IHaveDocumentation, IConfig
     {
         public string CreateDocumentationMarkDown()
         {
@@ -58,6 +58,10 @@ Configuration Type used to turn off assertions executions.
         {
             return "SkipAssertions (any assertions keyword is automatically skipped)";
         }
+    }
+
+    public interface IConfig
+    {
     }
 
     public class DebugMode : IAutoRegistered

@@ -209,27 +209,30 @@ namespace Gears.Interpreter.Library
 
         public IEnumerable<IBufferedElement> OnScreen(IEnumerable<IBufferedElement> bufferedElements)
         {
-            var chromeHandle = _seleniumAdapter.GetChromeHandle();
-            var browserBox = new UserBindings.RECT();
-            UserBindings.GetWindowRect(chromeHandle, ref browserBox);
-            foreach (var e in bufferedElements)
-            {
-                _seleniumAdapter.PutElementOnScreen(e.WebElement);
+            //var chromeHandle = _seleniumAdapter.GetChromeHandle();
+            //var browserBox = new UserBindings.RECT();
+            //UserBindings.GetWindowRect(chromeHandle, ref browserBox);
+            //foreach (var e in bufferedElements)
+            //{
+            //    _seleniumAdapter.PutElementOnScreen(e.WebElement);
 
-                var refreshedPosition = e.WebElement.AsBufferedElement().Rectangle;
+            //    var refreshedPosition = e.WebElement.AsBufferedElement().Rectangle;
 
-                var centerX = refreshedPosition.X + refreshedPosition.Width / 2;
-                var centerY = refreshedPosition.Y + refreshedPosition.Height / 2;
+            //    var centerX = refreshedPosition.X + refreshedPosition.Width / 2;
+            //    var centerY = refreshedPosition.Y + refreshedPosition.Height / 2;
 
-                var p = new Point(centerX, centerY);
-                _seleniumAdapter.ConvertFromPageToWindow(ref p);
+            //    var p = new Point(centerX, centerY);
+            //    _seleniumAdapter.ConvertFromPageToWindow(ref p);
 
-                if (p.X >= 0 && p.X <= browserBox.Right && p.Y >= 0 && p.Y <= browserBox.Bottom)
-                {
-                    yield return e;
-                }
-            }
+            //    if (p.X >= 0 && p.X <= browserBox.Right && p.Y >= 0 && p.Y <= browserBox.Bottom)
+            //    {
+            //        yield return e;
+            //    }
+            //}
+
+            return bufferedElements;
         }
+
 
         private static IEnumerable<IBufferedElement> FilterOtherDirections(SearchDirection direction, IEnumerable<IBufferedElement> bufferedElements,
             IWebElement relative)

@@ -25,13 +25,25 @@ namespace Gears.Interpreter.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("./Scenario Output {0}.csv")]
+        [global::System.Configuration.DefaultSettingValueAttribute("./Output/Scenario_Output_{0}.csv")]
         public string ScenarioOutputPath {
             get {
                 return ((string)(this["ScenarioOutputPath"]));
             }
             set {
                 this["ScenarioOutputPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("./Images/{0}.screenshot.jpeg")]
+        public string ScreenshotOutputPath {
+            get {
+                return ((string)(this["ScreenshotOutputPath"]));
+            }
+            set {
+                this["ScreenshotOutputPath"] = value;
             }
         }
     }

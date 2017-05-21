@@ -183,9 +183,9 @@ namespace Gears.Interpreter
                 }
             }
 
-            if (status.Data.Contains<SkipAssertions>())
+            if (status.Data.Contains<IConfig>())
             {
-                foreach (var setting in status.Data.GetAll<SkipAssertions>().Distinct())
+                foreach (var setting in status.Data.GetAll<IConfig>().Distinct())
                 {
                     Add(ConsoleColor.DarkMagenta, $"{setting}\n", returnValue);
                 }

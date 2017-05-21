@@ -145,6 +145,46 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
         }
 
+        [Test]
+        public void ShouldParseInstruction_WithNumber()
+        {
+            var instruction = new Instruction("12 records");
+            Assert.AreEqual(Accuracy.Exact, instruction.Accuracy);
+            Assert.AreEqual("12 records", instruction.SubjectName);
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
+        }
+
+        [Test]
+        public void ShouldParseInstruction_WithKeyWordSubstring()
+        {
+            var instruction = new Instruction("1st Inputs from left");
+            Assert.AreEqual("Inputs", instruction.SubjectName);
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual(SubjectType.Any, instruction.SubjectType);
+            Assert.AreEqual(SearchDirection.RightFromLeftEdge, instruction.Direction);
+        }
+
+        [Test]
+        public void ShouldParseInstruction_WithKeyWordSubstring3()
+        {
+            var instruction = new Instruction("1st Input s from left");
+            Assert.AreEqual("s", instruction.SubjectName);
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual(SubjectType.Input, instruction.SubjectType);
+            Assert.AreEqual(SearchDirection.RightFromLeftEdge, instruction.Direction);
+        }
+
+        [Test]
+        public void ShouldParseInstruction_WithKeyWordSubstring2()
+        {
+            var instruction = new Instruction("1st Input");
+            Assert.AreEqual("", instruction.SubjectName);
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual(SubjectType.Input, instruction.SubjectType);
+            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
+        }
+
         [Ignore("Not sure how to do this with react checkboxes")]
         [Test]
         public void ShouldBeAbleTo_CheckSelected()

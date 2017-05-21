@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Gears.Interpreter.Adapters;
+using Gears.Interpreter.Library;
 using Point = System.Drawing.Point;
 
 namespace Gears.Interpreter.Applications.Debugging.Overlay
@@ -12,6 +14,7 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
     {
         Point ReadClick();
         object Ping(int x, int y);
+        void Highlight(string text, IBufferedElement bufferedElement, Color color);
     }
 
     public class Hud : IDisposable, IHud
@@ -29,10 +32,20 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
         {
         }
 
-        public static IHud CreateNonClickable()
+        public static IHud CreateFor(int timeout)
         {
-            return new Hud();
+            var worker = new ClickableHudWorker(() => new ClickableHudForm());
+
+            worker.RunFor(timeout);
+
+            var hud = new Hud();
+
+            hud.Worker = worker;
+
+            return hud;
         }
+
+        private ClickableHudWorker Worker { get; set; }
 
         public static IHud CreateClickable(ISeleniumAdapter selenium)
         {
@@ -45,16 +58,21 @@ namespace Gears.Interpreter.Applications.Debugging.Overlay
 
         public Point ReadClick()
         {
-            var worker = new HudWorker(() => new ClickableHudForm());
+            var worker = new ClickableHudWorker(() => new ClickableHudForm());
 
             return worker.RunUntilClicked(_selenium);
         }
 
         public object Ping(int x, int y)
         {
-            var worker = new HudWorker(() => new ClickableHudForm());
+            var worker = new ClickableHudWorker(() => new ClickableHudForm());
 
             return worker.RunPingAnimation(x,y);
+        }
+
+        public void Highlight(string text, IBufferedElement bufferedElement, Color color)
+        {
+            Worker.Highlight(text, bufferedElement.Rectangle, color);
         }
     }
 }

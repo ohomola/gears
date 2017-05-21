@@ -8,7 +8,6 @@ namespace Gears.Interpreter.Library.Lookup
     public class TextFieldLookupStrategy : ILookupStrategy
     {
         private readonly ISeleniumAdapter _seleniumAdapter;
-        private List<ITagSelector> _searchedTagNames;
 
         public bool ExactMatchOnly { get; set; }
 
@@ -20,14 +19,13 @@ namespace Gears.Interpreter.Library.Lookup
 
         public string Locale { get; set; }
 
-        public TextFieldLookupStrategy(ISeleniumAdapter seleniumAdapter, bool exactMatchOnly, int order, SearchDirection direction, string labelText, List<ITagSelector> searchedTagNames)
+        public TextFieldLookupStrategy(ISeleniumAdapter seleniumAdapter, bool exactMatchOnly, int order, SearchDirection direction, string labelText)
         {
             _seleniumAdapter = seleniumAdapter;
             ExactMatchOnly = exactMatchOnly;
             Order = order;
             Direction = direction;
             LabelText = labelText;
-            _searchedTagNames = searchedTagNames;
         }
 
         public ILookupResult LookUp()
@@ -35,7 +33,12 @@ namespace Gears.Interpreter.Library.Lookup
             // Try Direct match first (placeholder text, attribute or anything right inside the input)
             var searchDirectly = new DirectLookupStrategy(
                 _seleniumAdapter,
-                _searchedTagNames,
+                new List<ITagSelector>
+                {
+                    new TagNameSelector("input"),
+                    new TagNameSelector("textArea"),
+                    new TagNameSelector("label")
+                },
                 LabelText,
                 Locale,
                 Direction,
@@ -43,7 +46,9 @@ namespace Gears.Interpreter.Library.Lookup
                 false,
                 true).LookUp();
 
-            if (searchDirectly.Success)
+            // Only match it if it's cursor is input (it reacts focus on user click)
+            var cursorType = GetCursorType(searchDirectly);
+            if (searchDirectly.Success && cursorType.ToLower() == "input" || cursorType.ToLower() == "pointer")
             {
                 return searchDirectly;
             }
@@ -53,7 +58,12 @@ namespace Gears.Interpreter.Library.Lookup
                 _seleniumAdapter, 
                 LabelText, 
                 Direction,
-                Order, _searchedTagNames).LookUp();
+                Order, 
+                new List<ITagSelector>
+                {
+                    new TagNameSelector("input"),
+                    new TagNameSelector("textArea")
+                }).LookUp();
 
             if (nextToLabel.Success)
             {
@@ -67,7 +77,11 @@ namespace Gears.Interpreter.Library.Lookup
                     _seleniumAdapter, 
                     LabelText, 
                     Direction, 
-                    Order, _searchedTagNames, 
+                    Order, new List<ITagSelector>
+                    {
+                        new TagNameSelector("input"),
+                        new TagNameSelector("textArea")
+                    }, 
                     false).LookUp();
             }
 
@@ -79,6 +93,24 @@ namespace Gears.Interpreter.Library.Lookup
             throw new LookupFailureException(nextToLabel, "Input not found");
         }
 
-        
+        private static string GetCursorType(ILookupResult searchDirectly)
+        {
+            if (searchDirectly.Success == false)
+            {
+                return string.Empty;
+            }
+
+            if (searchDirectly.MainResult == null)
+            {
+                return string.Empty;
+            }
+
+            if (searchDirectly.MainResult.WebElement == null)
+            {
+                return string.Empty;
+            }
+
+            return searchDirectly.MainResult.WebElement.GetCssValue("cursor");
+        }
     }
 }

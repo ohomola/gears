@@ -46,6 +46,9 @@ You can specify the amount of miliseconds to wait after execution of a keyword w
 ### WaitBefore
 You can specify the amount of miliseconds to wait before execution of a keyword with this field. Purpose is to save cluttering your scenario with Wait steps if your website is timeout sensitive.
 
+### ScreenshotAfter
+Use True/False to turn on screensaving after execution of the keyword. You can also use specific string instead to give the screenshot a filename prefix (equivalent to giving a What argument to Savescreenshot keyword)
+
 #### Scenario usages
 | Discriminator | What  | WaitAfter |
 | ------------- | ----- | ------ |

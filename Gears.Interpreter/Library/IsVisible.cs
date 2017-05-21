@@ -23,11 +23,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using Gears.Interpreter.Adapters.Interoperability;
 using Gears.Interpreter.Adapters.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Applications;
 using Gears.Interpreter.Applications.Debugging;
+using Gears.Interpreter.Applications.Debugging.Overlay;
+using Gears.Interpreter.Library.Lookup;
 using Gears.Interpreter.Library.Workflow;
 
 namespace Gears.Interpreter.Library
@@ -111,61 +114,67 @@ Checks the presence of a web element or text in the browser window. The input pa
 
         public override object DoRun()
         {
-            var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
-            var lookupResult = searchStrategy.DirectLookup(TagNames, SubjectName, Locale, Direction, Order, false, ExactMatch);
+            var lookupResult = new DirectLookupStrategy(Selenium,TagNames, SubjectName, Locale, Direction, Order, false, ExactMatch).LookUp();
 
             if (Interpreter?.IsAnalysis == true)
             {
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
             }
 
-            if (Order == 0)
+            var visibleArea = Selenium.GetChromeBox();
+            var visibles = lookupResult.AllValidResults.Where(x => IsInsideBoundingBox(x, visibleArea)).ToList();
+
+            if (Interpreter?.IsDebugMode == true && lookupResult.AllValidResults.Any())
             {
-                var chromeHandle = Selenium.GetChromeHandle();
-                var browserBox = new UserBindings.RECT();
-                UserBindings.GetWindowRect(chromeHandle, ref browserBox);
-
-                for (int index = 0; index < lookupResult.AllValidResults.Count(); index++)
-                {
-                    var e = lookupResult.AllValidResults.ElementAt(index);
-
-                    Selenium.PutElementOnScreen(e.WebElement);
-
-                    var refreshedPosition = e.WebElement.AsBufferedElement().Rectangle;
-
-                    var centerX = refreshedPosition.X + refreshedPosition.Width/2;
-                    var centerY = refreshedPosition.Y + refreshedPosition.Height/2;
-
-                    var p = new Point(centerX, centerY);
-                    Selenium.ConvertFromPageToWindow(ref p);
-
-                    if (p.X < 0 || p.X > browserBox.Right || p.Y < 0 || p.Y > browserBox.Bottom)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        if (Interpreter?.IsDebugMode == true)
-                        {
-                            Highlighter.HighlightElements(1250, Selenium, lookupResult.AllValidResults,
-                            (Expect.ToString().ToLower().Equals(true.ToString().ToLower())
-                                ? Color.GreenYellow
-                                : Color.Red), Color.Yellow, -1, Color.Black);
-                        }
-                        return true;
-                    }
-                }
-                return false;
-            }
-            else
-            {
-                return lookupResult.AllValidResults.Count() > Order;
+                var passedExpectations = Expect.ToString().ToLower().Equals(true.ToString().ToLower());
+                Highlighter.HighlightElements(1250, Selenium, lookupResult.AllValidResults,
+                (passedExpectations? Color.Aqua: Color.Chocolate), Color.FromArgb(4,4,4), Order, (passedExpectations ? Color.FromArgb(0,255,0) : Color.Red));
             }
 
-            throw new NotImplementedException($"Checking visibility of nth ({Order}) elements is not implemented.");
+            return visibles.Count > Order;
+
+
+            //for (int index = 0; index < lookupResult.AllValidResults.Count(); index++)
+            //{
+            //    var e = lookupResult.AllValidResults.ElementAt(index);
+
+            //    var isInsideBoundingBox = IsInsideBoundingBox(e, Selenium.GetChromeBox());
+
+            //    if (isInsideBoundingBox)
+            //    {
+            //        if (Interpreter?.IsDebugMode == true)
+            //        {
+            //            Highlighter.HighlightElements(1250, Selenium, lookupResult.AllValidResults,
+            //            (Expect.ToString().ToLower().Equals(true.ToString().ToLower())
+            //                ? Color.GreenYellow
+            //                : Color.Red), Color.Yellow, index, Color.Black);
+            //        }
+            //        return true;
+            //    }
+            //}
+
+
+            //return false;
+
+            //throw new NotImplementedException($"Checking visibility of nth ({Order}) elements is not implemented.");
         }
 
-        
+        private bool IsInsideBoundingBox(IBufferedElement e, UserBindings.RECT browserBox)
+        {
+            Selenium.PutElementOnScreen(e.WebElement);
+
+            var refreshedPosition = e.WebElement.AsBufferedElement().Rectangle;
+
+            var centerX = refreshedPosition.X + refreshedPosition.Width/2;
+            var centerY = refreshedPosition.Y + refreshedPosition.Height/2;
+
+            var p = new Point(centerX, centerY);
+            Selenium.ConvertFromPageToWindow(ref p);
+
+            var isOutsideBoundingBox = p.X < 0 || p.X > browserBox.Right || p.Y < 0 || p.Y > browserBox.Bottom;
+            return !isOutsideBoundingBox;
+        }
+
 
         //private bool CheckTextOnly(string what)
         //{

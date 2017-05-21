@@ -113,6 +113,8 @@ namespace Gears.Interpreter.Library
 
         public virtual int WaitBefore { get; set; }
 
+        public string ScreenshotAfter { get; set; }
+
         [XmlIgnore]
         public virtual double Time { get; set; }
 
@@ -154,10 +156,10 @@ namespace Gears.Interpreter.Library
 
         public virtual object Execute()
         {
+            var keyword = this;
+
             try
             {
-                var keyword = this;
-
                 if (ServiceLocator.IsInitialised())
                 {
                     ServiceLocator.Instance.Resolve(keyword);
@@ -195,6 +197,21 @@ namespace Gears.Interpreter.Library
                     Thread.Sleep(WaitAfter);
                 }
 
+                if (!ScreenshotAfter.IsNullOrEmpty())
+                {
+                    bool isActive = false;
+                    var isBool= bool.TryParse(ScreenshotAfter, out isActive);
+                    if (isBool && isActive)
+                    {
+                        
+                    }
+
+                    if (!isBool)
+                    {
+                        new SaveScreenshot(ScreenshotAfter).Execute();
+                    }
+                }
+
                 //TODO : this will need more thought - result triage is a totally separate concern
                 if (keyword.Expect != null && keyword.Result != null &&
                     keyword.Expect.ToString().ToLower() != keyword.Result.ToString().ToLower())
@@ -213,12 +230,22 @@ namespace Gears.Interpreter.Library
             }
             catch (ApplicationException ae)
             {
+                if (Data.Contains<ErrorLogging>())
+                {
+                    Data.Get<ErrorLogging>().Log(keyword, "ErrorInStep_" +this.Interpreter.Iterator.Index + this.GetType().Name);
+                }
+
                 Status = KeywordStatus.Error.ToString();
                 StatusDetail = ae.Message;
                 throw;
             }
             catch (Exception exception)
             {
+                if (Data.Contains<ErrorLogging>())
+                {
+                    Data.Get<ErrorLogging>().Log(keyword, "ErrorInStep_" + this.Interpreter.Iterator.Index + this.GetType().Name);
+                }
+
                 Status = KeywordStatus.Error.ToString();
                 StatusDetail = exception.Message;
                 throw;
@@ -226,6 +253,8 @@ namespace Gears.Interpreter.Library
 
             return Result;
         }
+
+        
 
         public bool IsLazy()
         {
@@ -238,6 +267,8 @@ namespace Gears.Interpreter.Library
         }
 
         public virtual bool IsHydrated { get; set; }
+
+
 
         [XmlIgnore]
         public virtual Guid Guid { get; set; }

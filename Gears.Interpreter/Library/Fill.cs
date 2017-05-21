@@ -122,11 +122,7 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
         public override object DoRun()
         {
-            List<ITagSelector> selectors = new List<ITagSelector>();
-            selectors.Add(new TagNameSelector("input"));
-            selectors.Add(new TagNameSelector("textArea"));
-
-            var lookupResult = new TextFieldLookupStrategy(Selenium, ExactMatch, Order, Direction, LabelText, selectors).LookUp();
+            var lookupResult = new TextFieldLookupStrategy(Selenium, ExactMatch, Order, Direction, LabelText).LookUp();
 
             switch (Technique)
             {

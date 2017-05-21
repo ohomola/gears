@@ -16,6 +16,7 @@ namespace Gears.Interpreter.Library
         private static string UnquotedWord = $"(({NotPrecedingAnyControlWord}{AnythingExceptQuote})*)";
         private static string DefaultCapturingGroupForValues = $"{QuotedWord}|{UnquotedWord}";// NOTE: order defines preference (reverting causes incorrect match of empty string as unquoted word, instead for capturing quoted word)
         private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+[a-zA-Z\\.]+)\\s?";
+        private static string SpaceOrEnd = "(?:\\s|$)";
         //private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+))(\\S*\\s?";
 
         public string With { get; set; }
@@ -39,7 +40,7 @@ namespace Gears.Interpreter.Library
             what = " " + what + " ";
             var regex = new Regex("^"+
                     Optional(CapturingGroup("Order", NumberStrippingOffNthTextSuffix))+
-                    Optional(CapturingGroup("SubjectTagName", $"\\s?{NotPrecedingAnyControlWord}(button)|(link)|(input)|(textfield)|(textarea)\\s?")) +
+                    Optional(CapturingGroup("SubjectTagName", $"\\s?{NotPrecedingAnyControlWord}(button){SpaceOrEnd}|(link){SpaceOrEnd}|(input){SpaceOrEnd}|(textfield){SpaceOrEnd}|(textarea){SpaceOrEnd}")) +
                     Optional(CapturingGroup("Accuracy", $"\\s?{NotPrecedingAnyControlWord}(like)\\s?")) +
                     CapturingGroup("Subject") +
                     Optional(
