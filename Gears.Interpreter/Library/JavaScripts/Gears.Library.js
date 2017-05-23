@@ -118,6 +118,8 @@ function FilterElementsByText(searchedText, allElements, matchWhenTextIsInChild)
     return matches;
 }
 
+
+
 //WrappedByWebdriverExtension
 function FilterElementsByPartialText(searchedText, allElements, matchWhenTextIsInChild) {
 
