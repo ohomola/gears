@@ -1,13 +1,20 @@
 ## Synopsis
 
-Gears provides keyword-driven framework for web-browser test automation. The objective of Gears is to allow non-programmers do enterprise-level test automation with a simplistic scenario language specification, test execution/debugging engine and CI-friendly reporting. It is built so that it's parts can also be individually plugged into continuous integration or even to anothe automated-test tool. Gears is based on Selenium WebDriver as well as a number of other open-source tools. 
+Gears is a tool for keyword-driven test automation for enterprise applications usable by non-technical people as well as automation specialists. The key quality of Gears is to allow test engineeds to compose their tests solely out ot human readable commands, using no programmatic descriptors but instead use intuitive english instructions based on visible screen text and relative positions of application elements.
+
+As result, tests written with Gears are far less prone to application web source code changes, as well to technical maintenance issues related to complex changing test-ware design.
+
+Gears works as a standalone application serving as test interpreter/debugger. Tests themselves are written in a plain document format (Excel, CSV, HTML) and can be run on server (Gears being a console application hosted by conventional integration server), and can also be debugged locally using a simple console user interface.
+
 The program itself is written in Microsoft .NET and is licenced under GNU GENERAL PUBLIC LICENSE.
 
 ## Motivation
 
-This project's task is to bring automation capability out from technical world, so that non-programmer teams can become effective at building and maintaining automated scenarios. Our objective is to give users fully intuitive plain-language control over their applications. This idea should be in line with the concept of [ISO-29119-5 draft](http://www.softwaretestingstandard.org/part5.php) to allow usage of one scenario document both for automated and human readers.
+The main goal of Gears is to enable simple automation tasks to be done in simple way with little or no technical skill. Gears automated scenarios are by definition human-readable and can thus be used both for automated execution as well as document the scenarios for manual testers - i.e. there can be only one document for both activities.
 
-The motivation is to provide an end-to-end solution for automating tests of an enterprise application, but at the same time with liberty of not using all parts of the system if not necessary, i.e. using Gears as an extension to existing free/commercial tools capability.
+Gears aims also to minimize maintenance effort for automated tests by avoiding white-box location methods such as xPath or css, and istead use own heuristical algorithms to locate elements based on intuitive descriptions like 'click 1st button under Login'. 
+
+Ultimately the Gears serves as a plain language command interpreter - it can perform what is asked (by the means of test scenario), but at the same time is able to work as live console interface that can process and feedback ad-hoc commands from a user. The vision is to make ordering a pizza more comfortable via asking Gears, than by clicking through the website yourself.
 
 ## Installation
 
