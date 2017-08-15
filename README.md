@@ -12,11 +12,11 @@ The program itself is written in Microsoft .NET and is licenced under GNU GENERA
 
 The main goal of Gears is to enable simple automation tasks to be done in simple way with little or no technical skill. Gears automated scenarios are by definition human-readable and can thus be used both for automated execution as well as document the scenarios for manual testers - i.e. there can be only one document for both activities.
 
-Gears do not require any scripting knowledge and thus do not need users to 'learn Gears' as a separate skill as they would in conventional test automation IDE. Instead Gears simply interpret a short list of english commands so the actual learning process can e managed within a day or less.
+* Gears do not require any scripting knowledge and thus do not need users to 'learn Gears' as a separate skill as they would in conventional test automation IDE. Instead Gears simply interpret a short list of english commands so the actual learning process can be managed within a day or less.
 
-Gears aims also to minimize maintenance effort for automated tests by avoiding white-box location methods such as xPath or css, and instead uses own heuristical algorithms to locate elements based on intuitive descriptions like 'click 1st button under Login'. 
+* Gears aims also to minimize maintenance effort for automated tests by avoiding white-box location methods such as xPath or css, and instead uses own heuristical algorithms to locate elements based on intuitive descriptions like 'click 1st button under Login'. 
 
-Ultimately the Gears serves as a plain language command interpreter - it can perform what is asked (by the means of test scenario), but at the same time is able to reply as live console interface with feedback to ad-hoc commands from a user. The vision is to make ordering a pizza more comfortable via asking Gears, than by clicking through the website yourself.
+* Ultimately the Gears is a command interpreter - which means it can perform what is asked (by the means of test scenario), but at the same time is able to reply as live console interface with feedback to ad-hoc commands from a user, and help the user understand these commands and how to call them correctly. With the capability to recognize plain language it should be usable as a generic voice-operated assistance tool. The vision is to minimize overhead of UI test automation to such degree as to make all simple repetitive operations during software development (or ordering a pizza) more comfortable via asking Gears, than by clicking through a website using mouse.
 
 ## Installation
 
