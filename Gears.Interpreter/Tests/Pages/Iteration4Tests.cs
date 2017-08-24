@@ -1,7 +1,8 @@
 ﻿using System;
-using Gears.Interpreter.Adapters;
-using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Core.Adapters.UI;
+using Gears.Interpreter.Core.Data.Core;
 using Gears.Interpreter.Library;
+using Gears.Interpreter.Library.UI;
 using NUnit.Framework;
 using OpenQA.Selenium;
 

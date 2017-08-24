@@ -1,15 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Applications.Debugging;
-using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Core;
-using JetBrains.Annotations;
-
-namespace Gears.Interpreter.Library.Reports
+﻿namespace Gears.Interpreter.Library.Reports
 {
     //public class JUnitSuiteReport : Keyword, IApplicationEventHandler, IHasTechnique
     //{

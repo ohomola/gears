@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting;
-using System.Text;
-using System.Threading.Tasks;
-using Gears.Interpreter.Adapters;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Applications.Registrations;
+using Gears.Interpreter.App.Registrations;
+using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.Adapters.UI;
+using Gears.Interpreter.Core.Data;
+using Gears.Interpreter.Core.Data.Core;
+using Gears.Interpreter.Core.Interpretation;
 using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Core;
-using Gears.Interpreter.Library;
 using Gears.Interpreter.Library.Documentations;
-using Gears.Interpreter.Library.Workflow;
+using Gears.Interpreter.Library.UI;
 using NUnit.Framework;
 using OpenQA.Selenium;
 

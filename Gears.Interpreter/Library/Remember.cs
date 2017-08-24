@@ -20,13 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
 using System;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Data;
-using Gears.Interpreter.Library.Workflow;
+using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.Data;
+using Gears.Interpreter.Core.Data.Core;
+using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library
 {
@@ -113,27 +111,6 @@ Saves a specified value to a variable for later use. Your currently memorized va
         public override string ToString()
         {
             return $"Remember {What} as variable called '{Variable}'";
-        }
-    }
-
-    public class RememberedText
-    {
-        public virtual string Variable { get; set; }
-        public virtual string What { get; set; }
-
-        public RememberedText(string variable, string what)
-        {
-            Variable = variable;
-            What = what;
-        }
-
-        public RememberedText()
-        {
-        }
-
-        public override string ToString()
-        {
-            return $"Memory text [{Variable}] = '{What}'";
         }
     }
 }

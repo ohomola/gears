@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Core;
 
 namespace Gears.Interpreter.Library.Documentations
 {

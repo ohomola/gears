@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Applications.Debugging;
-using Gears.Interpreter.Applications.Registrations;
+using Gears.Interpreter.App;
+using Gears.Interpreter.App.Registrations;
+using Gears.Interpreter.App.Workflow;
+using Gears.Interpreter.App.Workflow.Library;
+using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.Data;
+using Gears.Interpreter.Core.Data.Core;
+using Gears.Interpreter.Core.Interpretation;
 using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
+using Gears.Interpreter.Library.Assistance;
 using Gears.Interpreter.Library.Reports;
-using Gears.Interpreter.Library.Workflow;
+using Gears.Interpreter.Library.UI;
 using NUnit.Framework;
 
 namespace Gears.Interpreter.Tests.Pages

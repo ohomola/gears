@@ -2,12 +2,15 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Applications.Configuration;
-using Gears.Interpreter.Applications.Debugging;
+using Gears.Interpreter.App;
+using Gears.Interpreter.App.Workflow;
+using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.Data;
+using Gears.Interpreter.Core.Data.Core;
+using Gears.Interpreter.Core.Extensions;
+using Gears.Interpreter.Core.Interpretation;
 using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Core;
+using Gears.Interpreter.Library.UI;
 using JetBrains.Annotations;
 
 namespace Gears.Interpreter.Library.Reports

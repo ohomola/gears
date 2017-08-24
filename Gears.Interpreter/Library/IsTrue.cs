@@ -1,4 +1,4 @@
-﻿using Gears.Interpreter.Library.Workflow;
+﻿using Gears.Interpreter.Core;
 
 namespace Gears.Interpreter.Library
 {

@@ -19,15 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
-using System.IO;
 using System.Linq;
-using Gears.Interpreter.Adapters;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Applications.Registrations;
+using Gears.Interpreter.App.Registrations;
+using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.Adapters.UI;
+using Gears.Interpreter.Core.Data;
+using Gears.Interpreter.Core.Data.Core;
+using Gears.Interpreter.Core.Interpretation;
 using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Core;
 using Gears.Interpreter.Library;
+using Gears.Interpreter.Library.UI;
 using NUnit.Framework;
 using OpenQA.Selenium;
 
@@ -163,9 +164,7 @@ namespace Gears.Interpreter.Tests.Pages
             new Click("Add to my calendar from top") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium}.Execute();
             new Wait(800).Execute();
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = true }.Execute();
-            new Wait(800).Execute();
-            new Click("Add to my calendar from top") { LookForOrthogonalNeighboursOnly = true, Selenium = _selenium}.Execute();
-            new Wait(800).Execute();
+            new Wait(4000).Execute();//Wait til it hides
             new IsVisible("Event added to your calendar") { Selenium = _selenium, Expect = false }.Execute();
         }
 

@@ -1,7 +1,8 @@
 ﻿using System.Linq;
 using Castle.Core.Internal;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Library.Workflow;
+using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.Data.Core;
+using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library
 {

@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
 using System.Threading;
+using Gears.Interpreter.Core;
 
 namespace Gears.Interpreter.Library
 {

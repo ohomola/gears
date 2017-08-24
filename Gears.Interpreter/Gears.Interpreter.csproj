@@ -135,145 +135,169 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Adapters\Interoperability\ExternalMethodBindings\KernelBindings.cs" />
-    <Compile Include="Adapters\Interoperability\KernelInteropAdapter.cs" />
-    <Compile Include="Adapters\Interoperability\UserInteropAdapter.cs" />
-    <Compile Include="Applications\Debugging\ConsoleDebuggerCommand.cs" />
-    <Compile Include="Applications\Configuration\IAutoRegistered.cs" />
-    <Compile Include="Applications\Debugging\Overlay\ClickableHudForm.cs">
+    <Compile Include="Core\Interpretation\CriticalFailure.cs" />
+    <Compile Include="Core\Interpretation\DataDescriptionAnswer.cs" />
+    <Compile Include="Core\Interpretation\ExceptionAnswer.cs" />
+    <Compile Include="Core\Interpretation\ExternalMessageAnswer.cs" />
+    <Compile Include="Core\Interpretation\FollowupQuestion.cs" />
+    <Compile Include="Core\Interpretation\IAnswerChoice.cs" />
+    <Compile Include="Core\Interpretation\IFollowupQuestion.cs" />
+    <Compile Include="Core\Interpretation\IInformativeAnswer.cs" />
+    <Compile Include="Core\Interpretation\INegativeAnswer.cs" />
+    <Compile Include="Core\Interpretation\InformativeAnswer.cs" />
+    <Compile Include="Core\Interpretation\InformativeDetailAnswer.cs" />
+    <Compile Include="Core\Interpretation\ProblemDescriptionAnswer.cs" />
+    <Compile Include="Core\Interpretation\ResultAnswer.cs" />
+    <Compile Include="Core\Interpretation\StatusAnswer.cs" />
+    <Compile Include="Core\Interpretation\SuccessAnswer.cs" />
+    <Compile Include="Core\Interpretation\WarningAnswer.cs" />
+    <Compile Include="Core\IGearsPlugin.cs" />
+    <Compile Include="Core\IProtected.cs" />
+    <Compile Include="Core\Adapters\UI\Interoperability\ExternalMethodBindings\KernelBindings.cs" />
+    <Compile Include="Core\Adapters\UI\Interoperability\KernelInteropAdapter.cs" />
+    <Compile Include="Core\Adapters\UI\Interoperability\UserInteropAdapter.cs" />
+    <Compile Include="Core\IHaveDocumentation.cs" />
+    <Compile Include="Core\IKeyword.cs" />
+    <Compile Include="Core\KeywordStatus.cs" />
+    <Compile Include="App\UI\ConsoleDebuggerCommand.cs" />
+    <Compile Include="App\Configuration\IAutoRegistered.cs" />
+    <Compile Include="App\UI\Overlay\ClickableHudForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Applications\Debugging\Overlay\HUD.cs" />
-    <Compile Include="Applications\Debugging\Overlay\ClickableHudWorker.cs" />
-    <Compile Include="Applications\Debugging\Overlay\OverlayForm2.cs">
+    <Compile Include="App\UI\Overlay\HUD.cs" />
+    <Compile Include="App\UI\Overlay\ClickableHudWorker.cs" />
+    <Compile Include="App\UI\Overlay\OverlayForm2.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Applications\Debugging\Overlay\OverlayForm2.Designer.cs">
+    <Compile Include="App\UI\Overlay\OverlayForm2.Designer.cs">
       <DependentUpon>OverlayForm2.cs</DependentUpon>
     </Compile>
-    <Compile Include="Applications\IAnswer.cs" />
-    <Compile Include="Applications\Interpreter.cs" />
-    <Compile Include="Applications\Iterator.cs" />
-    <Compile Include="Applications\Language.cs" />
-    <Compile Include="Applications\Registrations\DependencyReloader.cs" />
-    <Compile Include="Applications\Registrations\ObjectAccessFactory.cs" />
+    <Compile Include="App\IHavePlan.cs" />
+    <Compile Include="App\IInterpreter.cs" />
+    <Compile Include="Core\Interpretation\IAnswer.cs" />
+    <Compile Include="App\Interpreter.cs" />
+    <Compile Include="App\Workflow\Iterator.cs" />
+    <Compile Include="App\Language.cs" />
+    <Compile Include="App\Registrations\ObjectAccessFactory.cs" />
     <Compile Include="ConsoleView.cs" />
-    <Compile Include="Data\Serialization\Mapping\LazyResolving\CodeStubResolver.cs" />
-    <Compile Include="Data\Serialization\Mapping\LazyResolving\LazyExpressionResolver.cs" />
-    <Compile Include="Data\Serialization\Mapping\DataObjectInterceptor.cs" />
-    <Compile Include="Data\Serialization\Mapping\LazyResolving\RememberedDataResolver.cs" />
-    <Compile Include="Library\Config\ErrorLogging.cs" />
-    <Compile Include="Library\Lookup\DirectLookupStrategyWithNeighbours.cs" />
-    <Compile Include="Library\Lookup\DirectLookupStrategy.cs" />
-    <Compile Include="Library\DragAndDrop.cs" />
-    <Compile Include="Library\Config\DebugMode.cs" />
-    <Compile Include="Adapters\SeleniumAdapter.cs" />
-    <Compile Include="Applications\Debugging\ConsoleDebuggerActionHook.cs" />
-    <Compile Include="Applications\Debugging\ConsoleExtensions.cs" />
-    <Compile Include="Applications\Debugging\Overlay\MasterForm.cs">
+    <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\CodeStubResolver.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\LazyExpressionResolver.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\DataObjectInterceptor.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\RememberedDataResolver.cs" />
+    <Compile Include="Core\ConfigObjects\ErrorLogging.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\DirectLookupStrategyWithNeighbours.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\DirectLookupStrategy.cs" />
+    <Compile Include="Core\KeywordResultSpecialCases.cs" />
+    <Compile Include="Core\Data\Core\RememberedText.cs" />
+    <Compile Include="Library\UI\DragAndDrop.cs" />
+    <Compile Include="Core\ConfigObjects\DebugMode.cs" />
+    <Compile Include="Core\Adapters\UI\SeleniumAdapter.cs" />
+    <Compile Include="Core\Extensions\ConsoleExtensions.cs" />
+    <Compile Include="App\UI\Overlay\MasterForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Applications\Debugging\Overlay\MasterForm.Designer.cs">
+    <Compile Include="App\UI\Overlay\MasterForm.Designer.cs">
       <DependentUpon>MasterForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Applications\Debugging\Overlay\Overlay.cs" />
-    <Compile Include="Applications\IApplicationEventHandler.cs" />
-    <Compile Include="Applications\ScenarioFinishedEventArgs.cs" />
+    <Compile Include="App\UI\Overlay\Overlay.cs" />
+    <Compile Include="App\Workflow\IApplicationEventHandler.cs" />
+    <Compile Include="App\Workflow\ScenarioFinishedEventArgs.cs" />
     <Compile Include="Core\Extensions\Extensions.cs" />
     <Compile Include="Core\Extensions\StringExtensions.cs" />
     <Compile Include="Core\Registrations\ServiceLocator.cs" />
-    <Compile Include="Core\Registrations\WindsorContainerExtensions.cs" />
+    <Compile Include="Core\Extensions\WindsorContainerExtensions.cs" />
     <Compile Include="Core\SuperEntities\WebSite.cs" />
-    <Compile Include="Data\Core\DataAccessBuffer.cs" />
-    <Compile Include="Data\Core\Include.cs" />
-    <Compile Include="Data\Core\CorruptObject.cs" />
-    <Compile Include="Data\Core\FileFinder.cs" />
-    <Compile Include="Data\Serialization\Excel\InteropExcelGateway.cs" />
-    <Compile Include="Data\Serialization\Excel\ExcelSerializer.cs" />
-    <Compile Include="Data\Serialization\Excel\IDataSetGateway.cs" />
-    <Compile Include="Data\Serialization\ISerializer.cs" />
-    <Compile Include="Data\FileObjectAccess.cs" />
-    <Compile Include="Data\IDataObjectAccess.cs" />
-    <Compile Include="Data\ObjectDataAccess.cs" />
-    <Compile Include="Data\DataContext.cs" />
-    <Compile Include="Data\Serialization\CSV\CsvSerializer.cs" />
-    <Compile Include="Data\Serialization\JUnit\JUnit.cs" />
-    <Compile Include="Data\Serialization\JUnit\JUnitSerializer.cs" />
-    <Compile Include="Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
-    <Compile Include="Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
-    <Compile Include="Library\BufferedElement.cs" />
-    <Compile Include="Data\Serialization\SerializerFactory.cs" />
-    <Compile Include="Library\Clear.cs" />
+    <Compile Include="Core\Data\Core\DataAccessBuffer.cs" />
+    <Compile Include="Core\Data\Core\Include.cs" />
+    <Compile Include="Core\Data\Core\CorruptObject.cs" />
+    <Compile Include="Core\Data\Core\FileFinder.cs" />
+    <Compile Include="Core\Data\Serialization\Excel\InteropExcelGateway.cs" />
+    <Compile Include="Core\Data\Serialization\Excel\ExcelSerializer.cs" />
+    <Compile Include="Core\Data\Serialization\Excel\IDataSetGateway.cs" />
+    <Compile Include="Core\Data\Serialization\ISerializer.cs" />
+    <Compile Include="Core\Data\FileObjectAccess.cs" />
+    <Compile Include="Core\Data\IDataObjectAccess.cs" />
+    <Compile Include="Core\Data\ObjectDataAccess.cs" />
+    <Compile Include="Core\Data\DataContext.cs" />
+    <Compile Include="Core\Data\Serialization\CSV\CsvSerializer.cs" />
+    <Compile Include="Core\Data\Serialization\JUnit\JUnit.cs" />
+    <Compile Include="Core\Data\Serialization\JUnit\JUnitSerializer.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
+    <Compile Include="Core\Adapters\UI\BufferedElement.cs" />
+    <Compile Include="Core\Data\Serialization\SerializerFactory.cs" />
+    <Compile Include="Library\UI\Clear.cs" />
     <Compile Include="Library\Documentations\Documentation.cs" />
-    <Compile Include="Library\Lookup\FluentElementQuery.cs" />
-    <Compile Include="Library\Lookup\SeleniumException.cs" />
-    <Compile Include="Library\Lookup\TextFieldLookupStrategy.cs" />
-    <Compile Include="Library\HasText.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\FluentElementQuery.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\SeleniumException.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\TextFieldLookupStrategy.cs" />
+    <Compile Include="Library\UI\HasText.cs" />
     <Compile Include="Library\Forget.cs" />
-    <Compile Include="Library\IAssertion.cs" />
-    <Compile Include="Library\Lookup\ILookupStrategy.cs" />
-    <Compile Include="Library\IsSelected.cs" />
-    <Compile Include="Library\Login.cs" />
-    <Compile Include="Library\LookupResult.cs" />
-    <Compile Include="Library\Reload.cs" />
-    <Compile Include="Library\Resize.cs" />
-    <Compile Include="Library\SaveScreenshot.cs" />
-    <Compile Include="Library\Show.cs" />
-    <Compile Include="Library\StepOut.cs" />
-    <Compile Include="Library\WebElementExtensions.cs" />
-    <Compile Include="Library\WhatIsIt.cs" />
-    <Compile Include="Library\Workflow\Analysis.cs" />
-    <Compile Include="Library\Workflow\AnalysisOff.cs" />
-    <Compile Include="Library\Workflow\Back.cs" />
-    <Compile Include="Library\Enums.cs" />
-    <Compile Include="Library\IInstructed.cs" />
-    <Compile Include="Library\Instruction.cs" />
+    <Compile Include="Core\IAssertion.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\ILookupStrategy.cs" />
+    <Compile Include="Core\IHasTechnique.cs" />
+    <Compile Include="Library\UI\IsSelected.cs" />
+    <Compile Include="Library\UI\Login.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\LookupResult.cs" />
+    <Compile Include="App\Workflow\Library\Reload.cs" />
+    <Compile Include="Library\UI\Resize.cs" />
+    <Compile Include="Core\Library\SaveScreenshot.cs" />
+    <Compile Include="Library\Assistance\Show.cs" />
+    <Compile Include="App\Workflow\Library\StepOut.cs" />
+    <Compile Include="Core\Adapters\UI\WebElementExtensions.cs" />
+    <Compile Include="Library\Assistance\WhatIsIt.cs" />
+    <Compile Include="App\Workflow\Library\Analysis.cs" />
+    <Compile Include="App\Workflow\Library\AnalysisOff.cs" />
+    <Compile Include="App\Workflow\Library\Back.cs" />
+    <Compile Include="Core\Adapters\UI\Enums.cs" />
+    <Compile Include="Core\Adapters\UI\IInstructed.cs" />
+    <Compile Include="Core\Adapters\UI\Instruction.cs" />
     <Compile Include="Library\IsTrue.cs" />
-    <Compile Include="Library\LocationHeuristictSearchStrategy.cs" />
-    <Compile Include="Core\LookupFailureException.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\LocationHeuristictSearchStrategy.cs" />
+    <Compile Include="Core\Adapters\UI\Lookup\LookupFailureException.cs" />
     <Compile Include="Library\Remember.cs" />
     <Compile Include="Library\Reports\CsvScenarioReport.cs" />
     <Compile Include="Library\Reports\JUnitSuiteReport.cs" />
-    <Compile Include="Library\RunScenario.cs" />
-    <Compile Include="Library\Highlighter.cs" />
-    <Compile Include="Library\TagQuery.cs" />
-    <Compile Include="Library\SaveHtml.cs" />
-    <Compile Include="Library\StringResolver.cs" />
-    <Compile Include="Adapters\Interoperability\ExternalMethodBindings\UserBindings.cs" />
-    <Compile Include="Library\Fill.cs" />
-    <Compile Include="Library\Click.cs" />
-    <Compile Include="Library\Comment.cs" />
-    <Compile Include="Library\GoToUrl.cs" />
-    <Compile Include="Library\IsVisible.cs" />
+    <Compile Include="App\Workflow\Library\RunScenario.cs" />
+    <Compile Include="Core\Adapters\UI\Interoperability\Highlighter.cs" />
+    <Compile Include="Core\Adapters\UI\TagQuery.cs" />
+    <Compile Include="Library\Reports\SaveHtml.cs" />
+    <Compile Include="Core\Technique.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\Generate.cs" />
+    <Compile Include="Core\Adapters\UI\Interoperability\ExternalMethodBindings\UserBindings.cs" />
+    <Compile Include="Library\UI\Fill.cs" />
+    <Compile Include="Library\UI\Click.cs" />
+    <Compile Include="Library\Assistance\Comment.cs" />
+    <Compile Include="Library\UI\GoToUrl.cs" />
+    <Compile Include="Library\UI\IsVisible.cs" />
     <Compile Include="Library\Wait.cs" />
-    <Compile Include="Library\GearsLibrary.cs" />
-    <Compile Include="Library\Workflow\Close.cs" />
-    <Compile Include="Library\Workflow\Eval.cs" />
-    <Compile Include="Library\Workflow\GoTo.cs" />
-    <Compile Include="Library\Workflow\Help.cs" />
-    <Compile Include="Library\Workflow\NotLoggedAttribute.cs" />
-    <Compile Include="Library\Workflow\Off.cs" />
-    <Compile Include="Library\Workflow\Open.cs" />
-    <Compile Include="Library\Workflow\Temp.cs" />
-    <Compile Include="Library\Workflow\Run.cs" />
-    <Compile Include="Library\Workflow\Skip.cs" />
-    <Compile Include="Library\Workflow\Start.cs" />
-    <Compile Include="Library\Workflow\Status.cs" />
-    <Compile Include="Library\Workflow\Stop.cs" />
-    <Compile Include="Library\Workflow\Use.cs" />
+    <Compile Include="Core\Adapters\UI\JavaScripts\GearsLibrary.cs" />
+    <Compile Include="App\Workflow\Library\Close.cs" />
+    <Compile Include="App\Workflow\Library\Eval.cs" />
+    <Compile Include="App\Workflow\Library\GoTo.cs" />
+    <Compile Include="App\Workflow\Library\Help.cs" />
+    <Compile Include="Core\NotLoggedAttribute.cs" />
+    <Compile Include="App\Workflow\Library\Off.cs" />
+    <Compile Include="App\Workflow\Library\Open.cs" />
+    <Compile Include="App\Workflow\Library\Temp.cs" />
+    <Compile Include="App\Workflow\Library\Run.cs" />
+    <Compile Include="App\Workflow\Library\Skip.cs" />
+    <Compile Include="App\Workflow\Library\Start.cs" />
+    <Compile Include="App\Workflow\Library\Status.cs" />
+    <Compile Include="App\Workflow\Library\Stop.cs" />
+    <Compile Include="App\Workflow\Library\Use.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Applications\Registrations\Bootstrapper.cs" />
-    <Compile Include="Applications\Debugging\ConsoleDebugger.cs" />
-    <Compile Include="Library\Keyword.cs" />
-    <Compile Include="Applications\ApplicationLoop.cs" />
-    <Compile Include="Data\Core\TypeRegistry.cs" />
+    <Compile Include="App\Registrations\Bootstrapper.cs" />
+    <Compile Include="Core\Keyword.cs" />
+    <Compile Include="Core\Data\Core\TypeRegistry.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Library\DoWhatYouWant.cs" />
+    <Compile Include="Library\Stub\DoWhatYouWant.cs" />
+    <Compile Include="Tests\Pages\Iteration9Tests.cs" />
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />
     <Compile Include="Tests\Pages\Iteration2Tests.cs" />
     <Compile Include="Tests\Pages\Iteration1Tests.cs" />
@@ -313,13 +337,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Applications\Debugging\Overlay\MasterForm.resx">
+    <EmbeddedResource Include="App\UI\Overlay\MasterForm.resx">
       <DependentUpon>MasterForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\Serialization\JUnit\JUnit.xsd" />
-    <Content Include="Library\JavaScripts\Gears.Library.js">
+    <Content Include="Core\Data\Serialization\JUnit\JUnit.xsd" />
+    <Content Include="Core\Adapters\UI\JavaScripts\Gears.Library.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Pages\Iteration5TestPage.html">
@@ -343,6 +367,9 @@
     <Content Include="Tests\Pages\Iteration1TestPage.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Tests\Pages\UnitTestKeywordPlugins.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
@@ -359,7 +386,10 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Library\General\" />
+    <Folder Include="Library\Utilities\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

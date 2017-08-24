@@ -18,10 +18,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
+
 using System;
+using Gears.Interpreter.Core.Data.Serialization.Mapping.LazyResolving;
 using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Data.Serialization.Mapping;
-using Gears.Interpreter.Data.Serialization.Mapping.LazyResolving;
 
 namespace Gears.Interpreter.Core.Extensions
 {

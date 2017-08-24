@@ -19,54 +19,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #endregion
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Threading;
-using System.Windows.Forms;
-using Castle.Core.Internal;
-using Gears.Interpreter.Adapters;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Applications.Debugging.Overlay;
-using Gears.Interpreter.Applications.Registrations;
-using Gears.Interpreter.Core.Extensions;
-using Gears.Interpreter.Core.Registrations;
-using Gears.Interpreter.Library;
-using Gears.Interpreter.Library.Config;
+using Gears.Interpreter.App.Registrations;
+using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter
 {
     public class Program
     {
-        private static OverlayForm2 _form2;
         public const int CriticalErrorStatusCode = -2;
         public const int ScenarioFailureStatusCode = -1;
         public const int OkStatusCode = 0;
-
-        private static void bw_DoWork(object sender, DoWorkEventArgs e)
-        {
-            try
-            {
-                _form2 = new OverlayForm2();
-                _form2.Init();
-                Application.Run(_form2);
-                _form2.Dispose();
-            }
-            catch (Exception)
-            {
-            }
-
-            Application.Exit();
-        }
 
         private static int Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Out.WriteLine("----------------------------------------");
             Console.Out.WriteLine("Gears Scenario Debugger");
-            Console.Out.WriteLine("Copyright 2016 Ondrej Homola");
             Console.Out.WriteLine("----------------------------------------");
             Console.ResetColor();
 
@@ -78,8 +46,6 @@ namespace Gears.Interpreter
 
                 ConsoleView.Render(interpreter.Please("start"));
 
-                //ConsoleView.Render(interpreter.Please("help"));
-
                 while (interpreter.IsAlive)
                 {
                     ConsoleView.Render(interpreter.Please("status"));
@@ -88,13 +54,13 @@ namespace Gears.Interpreter
 
                     if (answer is IFollowupQuestion)
                     {
-                        var options = ((IFollowupQuestion) answer).Options;
+                        var possibleReplies = ((IFollowupQuestion) answer).Options;
 
-                        interpreter.Language.AddOptions(options);
+                        interpreter.Language.AddFollowupOptions(possibleReplies);
                     }
                     else
                     {
-                        interpreter.Language.ResetOptions();
+                        interpreter.Language.ResetFollowupOptions();
                     }
 
                     ConsoleView.Render(answer);
@@ -105,22 +71,13 @@ namespace Gears.Interpreter
             catch (Exception e)
             {
                 ConsoleView.Render(ConsoleColor.Red, "Error running application: " + e);
+
                 return CriticalErrorStatusCode;
             }
             finally
             {
-                Thread.Sleep(1000);
-
                 Bootstrapper.Release();
             }
         }
-
-        
-    }
-
-
-    internal class TestCaseDefinition
-    {
-        public string JUnitReportPath { get; set; }
     }
 }

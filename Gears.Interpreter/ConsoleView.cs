@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
-using Gears.Interpreter.Applications;
-using Gears.Interpreter.Applications.Debugging;
-using Gears.Interpreter.Data;
-using Gears.Interpreter.Data.Core;
-using Gears.Interpreter.Library;
-using Gears.Interpreter.Library.Config;
+using Gears.Interpreter.App.Workflow.Library;
+using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.ConfigObjects;
+using Gears.Interpreter.Core.Data;
+using Gears.Interpreter.Core.Data.Core;
+using Gears.Interpreter.Core.Extensions;
+using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter
 {
@@ -248,10 +248,10 @@ namespace Gears.Interpreter
                 Add(ConsoleColor.Cyan, "\nUse 'StepOut' to return to main scenario.\n", returnValue);
             }
             Add(ConsoleColor.White, "\nEnter command, type 'help', or press <enter> to continue:", returnValue);
-            //if (selectedKeyword != null && !status.Interpreter.Language.Options.IsNullOrEmpty())
+            //if (selectedKeyword != null && !status.Interpreter.Language.FollowupOptions.IsNullOrEmpty())
             //{
             //    Add(ConsoleColor.DarkGray,
-            //        $"\n\tAdditional Options: {string.Join(", ", selectedKeyword.Interpreter.Language.Options.Select(x => x.GetType().Name))}",
+            //        $"\n\tAdditional FollowupOptions: {string.Join(", ", selectedKeyword.Interpreter.Language.FollowupOptions.Select(x => x.GetType().Name))}",
             //        returnValue);
             //}
         }
