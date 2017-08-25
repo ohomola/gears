@@ -7,6 +7,7 @@ using Gears.Interpreter.App.Registrations;
 using Gears.Interpreter.App.Workflow.Library;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Adapters.UI;
+using Gears.Interpreter.Core.ConfigObjects;
 using Gears.Interpreter.Core.Data;
 using Gears.Interpreter.Core.Data.Core;
 using Gears.Interpreter.Core.Interpretation;

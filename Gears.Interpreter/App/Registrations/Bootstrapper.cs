@@ -28,6 +28,7 @@ using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Gears.Interpreter.App.UI.Overlay;
 using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.Adapters.DB;
 using Gears.Interpreter.Core.Adapters.UI;
 using Gears.Interpreter.Core.Data;
 using Gears.Interpreter.Core.Data.Core;
@@ -118,6 +119,7 @@ namespace Gears.Interpreter.App.Registrations
 
             _seleniumAdapterInstance = new SeleniumAdapter();
             Container.Register(Component.For<ISeleniumAdapter>().Instance(_seleniumAdapterInstance));
+            Container.Register(Component.For<IDatabaseAdapter>().ImplementedBy<DatabaseAdapter>().LifestyleSingleton());
 
             Container.Register(Component.For<ILanguage, ITypeRegistry>().ImplementedBy<Language>().LifestyleSingleton());
 

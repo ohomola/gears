@@ -22,7 +22,7 @@ namespace Gears.Interpreter.Library.UI
 
         public override object DoRun()
         {
-            var chromeHandle = Selenium.GetChromeHandle();
+            var chromeHandle = Selenium.BrowserHandle;
             var clientPoint = new Point(200, 200);
             //UserInteropAdapter.ClickOnPoint(chromeHandle, clientPoint);
             Selenium.BringToFront();

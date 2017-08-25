@@ -42,9 +42,9 @@ namespace Gears.Interpreter.Library.Reports
             _pathTemplate = path;
         }
 
-        public void Register(IInterpreter applicationLoop)
+        public void Register(IInterpreter interpreter)
         {
-            applicationLoop.ScenarioFinished += WriteLog;
+            interpreter.ScenarioFinished += WriteLog;
         }
 
         private void WriteLog(object sender, ScenarioFinishedEventArgs e)

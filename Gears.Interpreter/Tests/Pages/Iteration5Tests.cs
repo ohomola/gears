@@ -393,9 +393,9 @@ namespace Gears.Interpreter.Tests.Pages
         public class TestHandler : IApplicationEventHandler
         {
             public List<IKeyword> Keywords { get; set; } = new List<IKeyword>();
-            public virtual void Register(IInterpreter applicationLoop)
+            public virtual void Register(IInterpreter interpreter)
             {
-                applicationLoop.ScenarioFinished += SaveKeywords;
+                interpreter.ScenarioFinished += SaveKeywords;
             }
 
             protected virtual void SaveKeywords(object sender, ScenarioFinishedEventArgs e)

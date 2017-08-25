@@ -112,7 +112,7 @@ Checks if a checkbox or similar input is selected
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
             }
 
-            var chromeHandle = Selenium.GetChromeHandle();
+            var chromeHandle = Selenium.BrowserHandle;
             var browserBox = new UserBindings.RECT();
             UserBindings.GetWindowRect(chromeHandle, ref browserBox);
 
@@ -152,16 +152,16 @@ Checks if a checkbox or similar input is selected
         //{
         //    var oldClipboard = Clipboard.GetDataObject();
 
-        //    var chromeHandle = Selenium.GetChromeHandle();
+        //    var chromeHandle = Selenium.BrowserHandle();
         //    UserBindings.SetForegroundWindow(chromeHandle);
         //    var pointOnScreen = new Point(100,10);
         //    UserBindings.ClientToScreen(chromeHandle, ref pointOnScreen);
-        //    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), pointOnScreen);
+        //    UserInteropAdapter.ClickOnPoint(Selenium.BrowserHandle(), pointOnScreen);
 
         //    UserInteropAdapter.PressWithControl(chromeHandle, 0x41);
         //    UserInteropAdapter.PressWithControl(chromeHandle, 0x43);
 
-        //    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), pointOnScreen);
+        //    UserInteropAdapter.ClickOnPoint(Selenium.BrowserHandle(), pointOnScreen);
 
         //    var text = Clipboard.GetText(TextDataFormat.UnicodeText);
         //    if (oldClipboard != null)

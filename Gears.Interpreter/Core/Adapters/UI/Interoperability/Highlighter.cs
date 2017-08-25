@@ -64,7 +64,7 @@ namespace Gears.Interpreter.Core.Adapters.UI.Interoperability
                 {
                     seleniumAdapter.PutElementOnScreen(elements.ElementAt(selectionIndex).WebElement);
                 }
-                var handle = seleniumAdapter.GetChromeHandle();
+                var handle = seleniumAdapter.BrowserHandle;
                 overlay.Init();
                 int i = 0;
                 foreach (var element in elements)
@@ -101,7 +101,7 @@ namespace Gears.Interpreter.Core.Adapters.UI.Interoperability
         {
             using (var overlay = new Overlay())
             {
-                var handle = selenium.GetChromeHandle();
+                var handle = selenium.BrowserHandle;
                 overlay.Init();
 
 

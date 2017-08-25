@@ -63,6 +63,13 @@ namespace Gears.Interpreter.App
             SuiteFinished?.Invoke(this, e);
         }
 
+        public event EventHandler<StepFinishedEventArgs> StepFinished;
+
+        public virtual void OnStepFinished(StepFinishedEventArgs e)
+        {
+            StepFinished?.Invoke(this, e);
+        }
+
         public string Continue()
         {
             if (UserInteropAdapter.IsKeyDown(Keys.Escape))
@@ -124,6 +131,8 @@ namespace Gears.Interpreter.App
 
                 var result = keyword.Execute();
 
+                OnStepFinished(new StepFinishedEventArgs(keyword));
+
                 if (result != null && result.Equals(KeywordResultSpecialCases.Skipped))
                 {
                     return new InformativeAnswer($"Skipping {keyword}");
@@ -179,7 +188,4 @@ namespace Gears.Interpreter.App
         {
         }
     }
-
-
-    
 }

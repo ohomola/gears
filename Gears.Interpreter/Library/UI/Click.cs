@@ -176,7 +176,7 @@ Clicks an element identified by a visible text on the screen. The input paramete
                         //Highlighter.HighlightPoints(750, Selenium, screenLocation);
                         Highlighter.HighlightElements(750, Selenium, new [] {result.MainResult}, Color.Aqua, Color.Red,-1,Color.Aqua);
                     }
-                    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), screenLocation);
+                    UserInteropAdapter.ClickOnPoint(Selenium.BrowserHandle, screenLocation);
                     Thread.Sleep(50);
                     break;
             }

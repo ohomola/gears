@@ -39,6 +39,8 @@ Stops the scenario execution and closes the application.
 
             var objectsToBeWritten = Interpreter.GetLog();
 
+            Selenium.Dispose();
+
             //new TempFileObjectAccess(Applications.Interpreter.LastScenarioTempFilePath + ".csv", ServiceLocator.Instance.Resolve<ITypeRegistry>())
             //    .Write(objectsToBeWritten);
 

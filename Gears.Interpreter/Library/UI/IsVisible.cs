@@ -118,7 +118,7 @@ Checks the presence of a web element or text in the browser window. The input pa
                 Console.Out.WriteColoredLine(ConsoleColor.Magenta, $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
             }
 
-            var visibleArea = Selenium.GetChromeBox();
+            var visibleArea = Selenium.GetBrowserBox();
             var visibles = lookupResult.AllValidResults.Where(x => IsInsideBoundingBox(x, visibleArea)).ToList();
 
             if (Interpreter?.IsDebugMode == true && lookupResult.AllValidResults.Any())
@@ -135,7 +135,7 @@ Checks the presence of a web element or text in the browser window. The input pa
             //{
             //    var e = lookupResult.AllValidResults.ElementAt(index);
 
-            //    var isInsideBoundingBox = IsInsideBoundingBox(e, Selenium.GetChromeBox());
+            //    var isInsideBoundingBox = IsInsideBoundingBox(e, Selenium.GetBrowserBox());
 
             //    if (isInsideBoundingBox)
             //    {
@@ -177,16 +177,16 @@ Checks the presence of a web element or text in the browser window. The input pa
         //{
         //    var oldClipboard = Clipboard.GetDataObject();
 
-        //    var chromeHandle = Selenium.GetChromeHandle();
+        //    var chromeHandle = Selenium.BrowserHandle();
         //    UserBindings.SetForegroundWindow(chromeHandle);
         //    var pointOnScreen = new Point(100,10);
         //    UserBindings.ClientToScreen(chromeHandle, ref pointOnScreen);
-        //    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), pointOnScreen);
+        //    UserInteropAdapter.ClickOnPoint(Selenium.BrowserHandle(), pointOnScreen);
 
         //    UserInteropAdapter.PressWithControl(chromeHandle, 0x41);
         //    UserInteropAdapter.PressWithControl(chromeHandle, 0x43);
 
-        //    UserInteropAdapter.ClickOnPoint(Selenium.GetChromeHandle(), pointOnScreen);
+        //    UserInteropAdapter.ClickOnPoint(Selenium.BrowserHandle(), pointOnScreen);
 
         //    var text = Clipboard.GetText(TextDataFormat.UnicodeText);
         //    if (oldClipboard != null)

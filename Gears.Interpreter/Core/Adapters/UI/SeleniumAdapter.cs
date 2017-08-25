@@ -32,36 +32,17 @@ using Gears.Interpreter.Core.Adapters.UI.Lookup;
 using Gears.Interpreter.Core.Data.Core;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.IE;
 
 namespace Gears.Interpreter.Core.Adapters.UI
 {
-    public interface ISeleniumAdapter: IDisposable
-    {
-        IWebDriver WebDriver { get; }
-        UserBindings.RECT BrowserWindowScreenRectangle { get; }
-        IFluentElementQuery Query { get; }
-        IntPtr GetChromeHandle();
-        UserBindings.RECT GetChromeBox();
-
-        Point PutElementOnScreen(IWebElement element);
-        void ConvertFromPageToWindow(ref Point p);
-        void ConvertFromWindowToScreen(ref Point point);
-        void ConvertFromScreenToGraphics(ref Point point);
-
-
-        void ConvertFromWindowToPage(ref Point p);
-        void ConvertFromGraphicsToScreen(ref Point point);
-        void ConvertFromScreenToWindow(ref Point point);
-        int ContentOffsetX();
-        int ContentOffsetY();
-        void BringToFront();
-        bool TerminateProcess(string name);
-    }
-
-    public class SeleniumAdapter : ISeleniumAdapter, IDisposable
+    public class SeleniumAdapter : ISeleniumAdapter
     {
         private IntPtr _handle;
         private IWebDriver _webDriver;
+
+        private SeleniumAdapterBrowserType _browserType;
 
         protected Lazy<int> LazyContentOffsetX { get; set; }
         protected Lazy<int> LazyContentOffsetY { get; set; }
@@ -88,10 +69,22 @@ namespace Gears.Interpreter.Core.Adapters.UI
             }
         }
 
+        public IntPtr BrowserHandle
+        {
+            get
+            {
+                LazyInitialize();
+
+                return _handle;
+            }
+        }
+
+        public IFluentElementQuery Query => new FluentElementQuery(this);
+
         public UserBindings.RECT BrowserWindowScreenRectangle {
             get
             {
-                var handle = this.GetChromeHandle();
+                var handle = this.BrowserHandle;
                 var rect = new UserBindings.RECT();
                 UserBindings.GetWindowRect(handle, ref rect);
                 return rect;
@@ -102,17 +95,46 @@ namespace Gears.Interpreter.Core.Adapters.UI
         {
             if (_webDriver == null)
             {
-                var path = FileFinder.Find("chromedriver.exe");
-                var existingChromes = AllChromeHandles();
-                
-                var options = new ChromeOptions();
-                options.AddArguments("enable-automation");
-                options.AddArguments("--disable-infobars");
-                _webDriver = new ChromeDriver(Path.GetDirectoryName(path), options);
-                _handle = FindChromeHandle(existingChromes);
+                var existingBrowsers = AllBrowserHandles(_browserType);
+                _webDriver = ConstructWebDriver(_browserType);
+                _handle = FindNewBrowserHandle(existingBrowsers, _browserType);
             }
         }
 
+        private static IWebDriver ConstructWebDriver(SeleniumAdapterBrowserType browserType)
+        {
+            IWebDriver webDriver = null;
+
+            switch (browserType)
+            {
+                case SeleniumAdapterBrowserType.InternetExplorer:
+
+                    webDriver = new InternetExplorerDriver(InternetExplorerDriverService.CreateDefaultService());
+
+                    break;
+
+                case SeleniumAdapterBrowserType.Firefox:
+
+                    webDriver = new FirefoxDriver(FirefoxDriverService.CreateDefaultService());
+
+                    break;
+
+                case SeleniumAdapterBrowserType.Chrome:
+
+                    var path = FileFinder.Find("chromedriver.exe");
+                    var options = new ChromeOptions();
+                    options.AddArguments("enable-automation");
+                    options.AddArguments("--disable-infobars");
+
+                    webDriver = new ChromeDriver(Path.GetDirectoryName(path), options);
+
+                    break;
+                default:
+                    break;
+            }
+
+            return webDriver;
+        }
 
         public void Dispose()
         {
@@ -157,39 +179,23 @@ namespace Gears.Interpreter.Core.Adapters.UI
             return false;
         }
 
-        public IFluentElementQuery Query => new FluentElementQuery(this);
-
-        public IntPtr GetChromeHandle()
+        public void SetBrowserType(SeleniumAdapterBrowserType type)
         {
-            LazyInitialize();
-            
-            return _handle;
+            _browserType = type;
+
+            if (_webDriver != null)
+            {
+                _webDriver.Dispose();
+                _webDriver = null;
+                LazyInitialize();
+            }
         }
 
-        public UserBindings.RECT GetChromeBox()
+        public UserBindings.RECT GetBrowserBox()
         {
             var browserBox = new UserBindings.RECT();
-            UserBindings.GetWindowRect(GetChromeHandle(), ref browserBox);
+            UserBindings.GetWindowRect(BrowserHandle, ref browserBox);
             return browserBox;
-        }
-
-        private IntPtr FindChromeHandle(IEnumerable<Process> oldChromes)
-        {
-            var allChromeHandles = AllChromeHandles();
-
-            var newChromees = allChromeHandles.Where(each=>!oldChromes.Select(x=>x.Id).Contains(each.Id));
-            var process = newChromees.Single();
-            if (process == null)
-            {
-                throw new ApplicationException("Chrome window was not found");
-            }
-
-            return process.MainWindowHandle;
-        }
-
-        private static IEnumerable<Process> AllChromeHandles()
-        {
-            return Process.GetProcesses().Where(x => x.MainWindowTitle.ToLower().Contains("google chrome")).ToList();
         }
 
 
@@ -215,7 +221,7 @@ namespace Gears.Interpreter.Core.Adapters.UI
 
         public void ConvertFromWindowToScreen(ref Point point)
         {
-            UserBindings.ClientToScreen(this.GetChromeHandle(), ref point);
+            UserBindings.ClientToScreen(this.BrowserHandle, ref point);
         }
 
         public void ConvertFromScreenToGraphics(ref Point point)
@@ -230,7 +236,7 @@ namespace Gears.Interpreter.Core.Adapters.UI
 
         public void ConvertFromScreenToWindow(ref Point point)
         {
-            UserBindings.ScreenToClient(this.GetChromeHandle(), ref point);
+            UserBindings.ScreenToClient(this.BrowserHandle, ref point);
         }
 
         public void ConvertFromWindowToPage(ref Point p)
@@ -244,7 +250,6 @@ namespace Gears.Interpreter.Core.Adapters.UI
             p.X -= ContentOffsetX();
             p.Y -= ContentOffsetY() - scrollOffset;
         }
-
         
         public Point PutElementOnScreen(IWebElement element)
         {
@@ -256,7 +261,7 @@ namespace Gears.Interpreter.Core.Adapters.UI
             var size = element.Size;
 
             var browserBox = new UserBindings.RECT();
-            UserBindings.GetWindowRect(GetChromeHandle(), ref browserBox);
+            UserBindings.GetWindowRect(BrowserHandle, ref browserBox);
 
             ScrollToCenterOfScreen(location, browserBox);
 
@@ -286,12 +291,36 @@ namespace Gears.Interpreter.Core.Adapters.UI
             ((IJavaScriptExecutor)WebDriver).ExecuteScript("window.focus();");
         }
 
+        private static IntPtr FindNewBrowserHandle(IEnumerable<Process> previousBrowsers, SeleniumAdapterBrowserType browserType)
+        {
+            var currentBrowsers = AllBrowserHandles(browserType);
+
+            var newBrowsers = currentBrowsers.Where(each => !previousBrowsers.Select(x => x.Id).Contains(each.Id));
+            var theCreatedFirefox = newBrowsers.Single();
+            if (theCreatedFirefox == null)
+            {
+                throw new ApplicationException("Firefox window was not found");
+            }
+
+            return theCreatedFirefox.MainWindowHandle;
+        }
+
+        private static IEnumerable<Process> AllBrowserHandles(SeleniumAdapterBrowserType browserType)
+        {
+            var expectedTitle = SeleniumAdapterBrowserTypeMapper.MainWindowTitleFor[browserType].ToLower();
+
+            var allRunningProcesses = Process.GetProcesses();
+
+            return allRunningProcesses.Where(x => x.MainWindowTitle.ToLower().Contains(expectedTitle)).ToList();
+        }
+
         private Point GetLocation(IWebElement element)
         {
+            var rectangleObjectt = ((IJavaScriptExecutor) WebDriver).ExecuteScript(
+                "return arguments[0].getBoundingClientRect();", element);
             var rect =
                 (Dictionary<string, object>)
-                ((IJavaScriptExecutor) WebDriver).ExecuteScript(
-                    "return arguments[0].getBoundingClientRect();", element);
+                rectangleObjectt;
 
             var xx = (rect["left"]);
             var yy = (rect["top"]);

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.ConfigObjects;
 using Gears.Interpreter.Core.Data;
 using Gears.Interpreter.Core.Data.Core;
 using Gears.Interpreter.Core.Registrations;

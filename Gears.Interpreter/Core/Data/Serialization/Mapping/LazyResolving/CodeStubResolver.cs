@@ -64,20 +64,14 @@ namespace Gears.Interpreter.Core.Data.Serialization.Mapping.LazyResolving
                         {
                             public object GetValue()
                             {
-                                try
-                                {
-                                    return {CodeExpression};
-                                }
-                                catch(Exception e)
-                                {
-                                }
-
-                                return null;                                
+                                return {CodeExpression};
                             }
                         }
                     }
 
                 ";
+
+            codeExpression= codeExpression.Replace("\\", "\\\\");
 
             codeStub = codeStub.Replace("{CodeExpression}", codeExpression);
 

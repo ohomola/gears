@@ -32,5 +32,6 @@ namespace Gears.Interpreter.App
         string Continue();
         IEnumerable<IKeyword> GetLog();
         void AddToPlan(IKeyword keyword);
+        event EventHandler<StepFinishedEventArgs> StepFinished;
     }
 }

@@ -131,7 +131,7 @@ Fills a text input element (or dropdown) located by a visible text on the screen
                     lookupResult.MainResult.WebElement.SendKeys(Text);
                     break;
                 case Technique.MouseAndKeyboard:
-                    var handle = Selenium.GetChromeHandle();
+                    var handle = Selenium.BrowserHandle;
 
                     var screenLocation = Selenium.PutElementOnScreen(lookupResult.MainResult.WebElement);
 

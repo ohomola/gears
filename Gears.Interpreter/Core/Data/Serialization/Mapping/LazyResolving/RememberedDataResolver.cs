@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Gears.Interpreter.App.Registrations;
+using Gears.Interpreter.Core.ConfigObjects;
 using Gears.Interpreter.Core.Data.Core;
 
 namespace Gears.Interpreter.Core.Data.Serialization.Mapping.LazyResolving

@@ -59,10 +59,10 @@ The generated instruction will be saved in [it] variable so it can be immediatel
         public override object DoRun()
         {
             var clientRect = new UserBindings.RECT();
-            UserBindings.GetClientRect(Selenium.GetChromeHandle(), ref clientRect);
+            UserBindings.GetClientRect(Selenium.BrowserHandle, ref clientRect);
 
             var windowRect = new UserBindings.RECT();
-            UserBindings.GetWindowRect(Selenium.GetChromeHandle(), ref windowRect);
+            UserBindings.GetWindowRect(Selenium.BrowserHandle, ref windowRect);
 
 
             if (_x == default(int))

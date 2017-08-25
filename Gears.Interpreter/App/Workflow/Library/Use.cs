@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Gears.Interpreter.App.Configuration;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Interpretation;
@@ -39,7 +41,7 @@ Adds object of specified Type to Context. Use this keyword to turn on a configur
         public override object DoRun()
         {
             object instance = null;
-
+            var arguments = new List<object>();
             if (Interpreter.Language.HasKeywordFor(What.ToLower()))
             {
                 instance = Interpreter.Language.ResolveKeyword(What.ToLower());
@@ -47,12 +49,18 @@ Adds object of specified Type to Context. Use this keyword to turn on a configur
             else
             {
                 var type = TypeRegistry.GetAll(false).FirstOrDefault(x => x.Name.ToLower() == What.ToLower());
-
+                if (type == null && What.Contains(" "))
+                {
+                    var firstPart = What.Split(' ')[0];
+                    arguments.Add(What.Substring(firstPart.Length+1));
+                    type = TypeRegistry.GetAll(false).FirstOrDefault(x => x.Name.ToLower() == firstPart.ToLower());
+                }
                 if (type == null)
                 {
                     throw new ArgumentException($"{What} is not recognized.");
                 }
-                instance = Activator.CreateInstance(type);
+                
+                instance = Activator.CreateInstance(type, args:arguments.ToArray());
             }
 
             Data.Add(instance);

@@ -135,6 +135,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App\Workflow\StepFinishedEventArgs.cs" />
+    <Compile Include="Core\Adapters\DB\DatabaseAdapter.cs" />
+    <Compile Include="Core\Adapters\DB\IDatabaseAdapter.cs" />
+    <Compile Include="Core\Adapters\UI\ISeleniumAdapter.cs" />
+    <Compile Include="Core\Adapters\UI\SeleniumAdapterBrowserType.cs" />
+    <Compile Include="Core\ConfigObjects\ConnectionString.cs" />
+    <Compile Include="Core\ConfigObjects\Firefox.cs" />
+    <Compile Include="Core\ConfigObjects\IConfig.cs" />
+    <Compile Include="Core\ConfigObjects\SkipAssertions.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\Sql.cs" />
     <Compile Include="Core\Interpretation\CriticalFailure.cs" />
     <Compile Include="Core\Interpretation\DataDescriptionAnswer.cs" />
     <Compile Include="Core\Interpretation\ExceptionAnswer.cs" />
@@ -188,7 +198,7 @@
     <Compile Include="Core\Adapters\UI\Lookup\DirectLookupStrategyWithNeighbours.cs" />
     <Compile Include="Core\Adapters\UI\Lookup\DirectLookupStrategy.cs" />
     <Compile Include="Core\KeywordResultSpecialCases.cs" />
-    <Compile Include="Core\Data\Core\RememberedText.cs" />
+    <Compile Include="Core\ConfigObjects\RememberedText.cs" />
     <Compile Include="Library\UI\DragAndDrop.cs" />
     <Compile Include="Core\ConfigObjects\DebugMode.cs" />
     <Compile Include="Core\Adapters\UI\SeleniumAdapter.cs" />
@@ -297,6 +307,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Library\Stub\DoWhatYouWant.cs" />
+    <Compile Include="Tests\AssertExtensions.cs" />
     <Compile Include="Tests\Pages\Iteration9Tests.cs" />
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />
     <Compile Include="Tests\Pages\Iteration2Tests.cs" />
@@ -398,8 +409,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.29.0\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.ChromeDriver.2.29.0\build\Selenium.WebDriver.ChromeDriver.targets'))" />
     <Error Condition="!Exists('..\packages\Selenium.WebDriver.IEDriver.3.4.0\build\Selenium.WebDriver.IEDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.IEDriver.3.4.0\build\Selenium.WebDriver.IEDriver.targets'))" />
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.18.0\build\Selenium.WebDriver.GeckoDriver.Win64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.18.0\build\Selenium.WebDriver.GeckoDriver.Win64.targets'))" />
   </Target>
   <Import Project="..\packages\Selenium.WebDriver.IEDriver.3.4.0\build\Selenium.WebDriver.IEDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.IEDriver.3.4.0\build\Selenium.WebDriver.IEDriver.targets')" />
+  <Import Project="..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.18.0\build\Selenium.WebDriver.GeckoDriver.Win64.targets" Condition="Exists('..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.18.0\build\Selenium.WebDriver.GeckoDriver.Win64.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

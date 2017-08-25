@@ -42,9 +42,9 @@ namespace Gears.Interpreter.Library.Reports
             _pathTemplate = path;
         }
 
-        public void Register(IInterpreter applicationLoop)
+        public void Register(IInterpreter interpreter)
         {
-            applicationLoop.ScenarioFinished += CreateNewFile;
+            interpreter.ScenarioFinished += CreateNewFile;
         }
 
         private void CreateNewFile(object sender, ScenarioFinishedEventArgs e)

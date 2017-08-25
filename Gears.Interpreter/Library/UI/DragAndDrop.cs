@@ -183,7 +183,7 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
                         //Highlighter.HighlightPoints(750, Selenium, screenLocation);
                         Highlighter.HighlightElements(750, Selenium, new [] {result.MainResult}, Color.Aqua, Color.Red,-1,Color.Aqua);
                     }
-                    UserInteropAdapter.PressOnPoint(Selenium.GetChromeHandle(), screenLocation);
+                    UserInteropAdapter.PressOnPoint(Selenium.BrowserHandle, screenLocation);
                     
                     
                     if (Interpreter.IsAnalysis)
@@ -191,7 +191,7 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
                         var oldPosition = Cursor.Position;
 
                         var tempPoint = new Point(screenLocation.X, screenLocation.Y);
-                        UserBindings.ClientToScreen(Selenium.GetChromeHandle(), ref tempPoint);
+                        UserBindings.ClientToScreen(Selenium.BrowserHandle, ref tempPoint);
                         Cursor.Position = tempPoint;
                         var steps = 50m;
                         var xOffset = X/ steps;
@@ -210,7 +210,7 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
                     screenLocation.Y += Y;
                     Thread.Sleep(20);
 
-                    UserInteropAdapter.ReleaseOnPoint(Selenium.GetChromeHandle(), screenLocation);
+                    UserInteropAdapter.ReleaseOnPoint(Selenium.BrowserHandle, screenLocation);
                     Thread.Sleep(50);
                     break;
             }

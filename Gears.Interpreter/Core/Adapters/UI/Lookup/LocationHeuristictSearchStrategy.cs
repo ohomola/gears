@@ -327,7 +327,7 @@ namespace Gears.Interpreter.Core.Adapters.UI.Lookup
 
         private IEnumerable<IBufferedElement> OnScreen(IEnumerable<IBufferedElement> bufferedElements)
         {
-            var chromeHandle = _seleniumAdapter.GetChromeHandle();
+            var chromeHandle = _seleniumAdapter.BrowserHandle;
             var browserBox = new UserBindings.RECT();
             UserBindings.GetWindowRect(chromeHandle, ref browserBox);
             foreach (var e in bufferedElements)

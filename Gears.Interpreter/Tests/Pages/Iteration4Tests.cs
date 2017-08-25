@@ -188,6 +188,7 @@ namespace Gears.Interpreter.Tests.Pages
             catch (Exception)
             {
             }
+            new Wait(500).Execute();
             new IsVisible("Menu Item 2 left from Examples") { Selenium = _selenium, Expect = false }.Execute();
             new Click("1st Toggle drawer from top") { Selenium = _selenium }.Execute();
             new Wait(1200).Execute();
