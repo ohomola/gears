@@ -57,7 +57,7 @@ namespace Gears.Interpreter.Library.Reports
 
             new FileObjectAccess(_path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).AddRange(e.Keywords);
 
-            if (Technique == Technique.HighlightOnly)
+            if (Technique == Technique.Show)
             {
                 Process.Start("explorer.exe", _path);
             }
@@ -65,7 +65,7 @@ namespace Gears.Interpreter.Library.Reports
 
         public override object DoRun()
         {
-            CreateNewFile(null, new ScenarioFinishedEventArgs(Interpreter.GetLog().ToList(), "Master scenario"));
+            CreateNewFile(null, new ScenarioFinishedEventArgs(Interpreter.GetLoggedKeywords().ToList(), "Master scenario"));
 
             return new SuccessAnswer($"Saved report to {_path}");
         }

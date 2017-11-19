@@ -6,7 +6,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("goto (N)\t-\t goes to Nth keyword")]
+    [HelpDescription("goto (N)\t-\t goes to Nth keyword")]
     public class GoTo : Keyword
     {
         public override string CreateDocumentationMarkDown()

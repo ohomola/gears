@@ -89,7 +89,7 @@ namespace Gears.Interpreter.Core.Data.Serialization.Mapping
             {
                 if (propertyInfo.SetMethod == null || (!propertyInfo.SetMethod.IsVirtual && lazyValues.ContainsKey(propertyInfo.Name.ToLower())))
                 {
-                    throw new ArgumentException($"Property {propertyInfo.Name} of {type.Name} cannot be lazy-evaluated because it is not declared virtual.");
+                    throw new ArgumentException($"Property {propertyInfo.Name} of {type.Name} cannot be lazy-evaluated because it is not declared virtual or a SET method is not declared.");
                 }
             }
         }

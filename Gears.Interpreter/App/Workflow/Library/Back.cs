@@ -5,7 +5,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("back (N)\t-\t back one or N (if specified) steps")]
+    [HelpDescription("back (N)\t-\t back one or N (if specified) steps")]
     public class Back : Keyword
     {
         public int Count { get; set; }

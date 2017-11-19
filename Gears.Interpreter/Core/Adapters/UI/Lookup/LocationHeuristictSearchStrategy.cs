@@ -9,6 +9,7 @@ using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Core.Adapters.UI.Lookup
 {
+    [Obsolete]
     public interface IElementSearchStrategy
     {
         LookupResult DirectLookup(List<ITagSelector> searchedTagNames, string subjectName, string locale, SearchDirection searchDirection, int Order, bool orthogonalOnly, bool exactMatchOnly);
@@ -25,7 +26,7 @@ namespace Gears.Interpreter.Core.Adapters.UI.Lookup
         LookupResult DirectLookupWithNeighbours(string labelText, SearchDirection searchDirection, int order, bool exactMatchOnly);
     }
 
-
+    [Obsolete]
     public class LocationHeuristictSearchStrategy : IElementSearchStrategy
     {
         private readonly ISeleniumAdapter _seleniumAdapter;

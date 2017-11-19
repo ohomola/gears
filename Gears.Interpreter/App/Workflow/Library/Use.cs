@@ -9,7 +9,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("use (X)\t-\t adds Keyword X to context. (e.g. 'use junitscenarioreport' to register ScenarioReport.")]
+    [HelpDescription("use (X)\t-\t adds Keyword X to context. (e.g. 'use junitscenarioreport' to register ScenarioReport.")]
     public class Use : Keyword
     {
         public Use(string what)

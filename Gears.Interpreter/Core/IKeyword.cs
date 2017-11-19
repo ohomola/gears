@@ -8,6 +8,6 @@ namespace Gears.Interpreter.Core
         //TODO strong type
         string Status { get; set; }
         object Expect { get; set; }
-        string GetUserDescription();
+        string HelpDescription { get; }
     }
 }

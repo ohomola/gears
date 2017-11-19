@@ -124,7 +124,18 @@ namespace Gears.Interpreter.App.UI.Overlay
                 Console.Out.WriteColoredLine(ConsoleColor.Yellow, $"Error rendering overlay: {e.ToString()}");
             }
 
+            WaitToPreventBrowserEventsTriggerAtTheResultTime();
+
             return _form.ClickPosition;
+        }
+
+        /// <summary>
+        /// Suspected to cause frequent Stale Element exceptions due to elements disappearing after releasing the Overlay
+        /// (for instance when hover event triggers in browser)
+        /// </summary>
+        private static void WaitToPreventBrowserEventsTriggerAtTheResultTime()
+        {
+            Thread.Sleep(250);
         }
 
         private void Render(Graphics backBuffer, ISeleniumAdapter selenium)

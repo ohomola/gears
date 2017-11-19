@@ -28,7 +28,7 @@ using OpenQA.Selenium;
 namespace Gears.Interpreter.Core.Library
 {
     [NotLogged]
-    [UserDescription("savehtml \t-\t save current page source to a new HTML file")]
+    [HelpDescription("savehtml \t-\t save current page source to a new HTML file")]
     public class SaveScreenshot:Keyword
     {
         public string What { get; set; }

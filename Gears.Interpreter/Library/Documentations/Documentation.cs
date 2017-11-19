@@ -1,16 +1,52 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Gears.Interpreter.App.Registrations;
 using Gears.Interpreter.Core;
+using Gears.Interpreter.Core.Registrations;
+using Gears.Interpreter.Library.UI;
+using NUnit.Framework;
 
 namespace Gears.Interpreter.Library.Documentations
 {
     public class Documentation
     {
+        [Test]
+        public void ShouldCreateDocumentation()
+        {
+            Bootstrapper.Register();
+
+            var cotent = new Documentation(ServiceLocator.Instance.ResolveAll<IHaveDocumentation>().Where(x => !(x is IProtected))).CreateContentMarkDown();
+
+            Assert.IsNotNull(cotent);
+
+            Assert.IsTrue(cotent.Contains("Click"));
+
+            Assert.IsTrue(cotent.Contains(new Click().CreateDocumentationMarkDown()));
+
+            Console.Out.Write(cotent);
+        }
+
+        [Test]
+        public void ShouldCreateSideMenu()
+        {
+            Bootstrapper.Register();
+
+            var sidemenu = new Documentation(ServiceLocator.Instance.ResolveAll<IHaveDocumentation>().Where(x => !(x is IProtected))).CreateSideMenuMarkDown();
+
+            Assert.IsNotNull(sidemenu);
+
+            Console.Out.Write(sidemenu);
+        }
 
         public const string ConsoleKeywordNote =
             "\n> Console control Keyword - use directly in console to control application (not recommended as part of scenario).\n\n";
         private readonly List<IHaveDocumentation> _keywords;
+
+        public Documentation()
+        {
+        }
 
         public Documentation(IEnumerable<IHaveDocumentation> keywords)
         {
@@ -106,8 +142,28 @@ Expressions are parts of user instructions written with special syntax, that cau
 ### Remembered variables
 Remembered variables are referenced by expressions in brackets []. Use these anywhere in text to cause system to evaluate the brackets into the variable's value. See [Remember](remember) for more info.
 
-### Code chunk
-TODO
+### Script chunk
+A generic solution to difficult problems. Instead of providing a text value directly, user can instead provide a short script stub in curly brackets {}.
+Within this script an arbitrary expression returning a string value can be used. For convenience there are several 'helpers' for most common tasks.
+
+#### Generate
+
+Returns a randomly generated text.
+
+|Discriminator|What|Text| What it does|
+|---|---|---|---|
+|Fill|login|{Generate.Word()}| _generates a random word of 3 lower-case letters long and uses it as input |
+|Fill|login|{Generate.Word(6)}| _generates a random word of 6 lower-case letters long |
+|Fill|login|{Generate.Word(3, ""AB4"")}| _generates a random word of 3 characters long, but composed only from characters A, B or C (e.g. result can be a text 'AAA' as well as '4BA') |
+
+#### Key
+
+Returns a randomly generated text.
+
+|Discriminator|Text| What it does|
+|---|---|---|
+|Fill|login|{""Username"" + Key.Tab +}| fills the text 'Username' and then presses Tab key (shifting focus to another element) |
+|Fill|login|{""Password"" + Key.Enter +}| fills the text 'Username' and then presses Enter key (Submitting the current web form) |
 
 # Command line arguments
 ### Memory variables

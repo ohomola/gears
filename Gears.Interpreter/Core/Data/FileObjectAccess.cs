@@ -33,8 +33,13 @@ namespace Gears.Interpreter.Core.Data
 {
     public class TempFileObjectAccess : FileObjectAccess
     {
-        public TempFileObjectAccess(string fileName, ITypeRegistry typeRegistry) : base(System.IO.Path.GetTempPath() + System.IO.Path.PathSeparator + fileName, typeRegistry)
+        public TempFileObjectAccess(string fileName, ITypeRegistry typeRegistry) : base(GetTempFileLocation(fileName), typeRegistry)
         {
+        }
+
+        private static string GetTempFileLocation(string fileName)
+        {
+            return System.IO.Path.GetTempPath() + System.IO.Path.DirectorySeparatorChar + fileName;
         }
     }
 

@@ -28,7 +28,7 @@ using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library.UI
 {
-    [UserDescription("gotourl <url>\t-\t navigates web browser to specified URL.")]
+    [HelpDescription("gotourl <url>\t-\t navigates web browser to specified URL.")]
     public class GoToUrl : Keyword
     {
         public const string SuccessMessage = "Page loaded.";

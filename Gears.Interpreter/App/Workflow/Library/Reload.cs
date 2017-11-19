@@ -7,7 +7,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("reload (x) \t-\t re-reads all input files. Specify X to only reload file with specified text in it's path.")]
+    [HelpDescription("reload (x) \t-\t re-reads all input files. Specify X to only reload file with specified text in it's path.")]
     public class Reload : Keyword
     {
         public Reload()

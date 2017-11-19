@@ -31,7 +31,7 @@ using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library.UI
 {
-    [UserDescription("hastext <inst> \t-\t checks if text of an element equals to expected value")]
+    [HelpDescription("hastext <inst> \t-\t checks if text of an element equals to expected value")]
     public class HasText : Keyword, IHasTechnique, IInstructed, IAssertion
     {
         private Instruction _instruction;
@@ -147,7 +147,7 @@ Checks a text input element (or dropdown) located by a visible text on the scree
 
             switch (Technique)
             {
-                case Technique.HighlightOnly:
+                case Technique.Show:
                     Highlighter.HighlightElements(Selenium, lookupResult.AllValidResults);
                     return new InformativeAnswer("Highlighting complete.");
                 case Technique.MouseAndKeyboard:

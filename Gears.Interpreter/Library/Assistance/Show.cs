@@ -10,21 +10,21 @@ using Gears.Interpreter.Library.UI;
 namespace Gears.Interpreter.Library.Assistance
 {
     [NotLogged]
-    [UserDescription("show (command)\t-\t shows a current keyword or another command (if specified)")]
+    [HelpDescription("show (command)\t-\t shows a current keyword or another command (if specified)")]
     public class Show : Keyword
     {
         [Wire]
         [XmlIgnore]
         public virtual IInterpreter Interpreter { get; set; }
 
-        private IKeyword keyword;
+        private readonly IKeyword _keyword;
 
         public override object DoRun()
         {
-            var tech = (keyword as IHasTechnique);
+            var tech = (_keyword as IHasTechnique);
             var oldTechnique = tech.Technique;
-            tech.Technique = Technique.HighlightOnly;
-            keyword.Execute();
+            tech.Technique = Technique.Show;
+            _keyword.Execute();
             tech.Technique = oldTechnique;
             return new SuccessAnswer("Done.");
         }
@@ -55,7 +55,7 @@ Other usage is prefixing other keyword console commands with the word show. This
 
         public Show(IKeyword keyword)
         {
-            this.keyword = keyword;
+            this._keyword = keyword;
         }
 
         public override IKeyword FromString(string textInstruction)

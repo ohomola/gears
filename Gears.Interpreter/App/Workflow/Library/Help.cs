@@ -6,7 +6,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("help \t\t-\t Displays this help.")]
+    [HelpDescription("help \t\t-\t Displays this help.")]
     public class Help : Keyword
     {
         public override string CreateDocumentationMarkDown()
@@ -25,7 +25,7 @@ namespace Gears.Interpreter.App.Workflow.Library
             var descriptions = new List<string>();
             foreach (var languageKeyword in Interpreter.Language.Keywords)
             {
-                var userDescription = languageKeyword.GetUserDescription();
+                var userDescription = languageKeyword.HelpDescription;
                 
                 if (!string.IsNullOrEmpty(userDescription))
                 {

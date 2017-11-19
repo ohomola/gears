@@ -8,7 +8,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.Library
 {
     [NotLogged]
-    [UserDescription("forget (x)\t\t-\t erases remembered variable (x) from memory. If x not specified, wipes all variables from memory.")]
+    [HelpDescription("forget (x)\t\t-\t erases remembered variable (x) from memory. If x not specified, wipes all variables from memory.")]
     public class Forget : Keyword
     {
         public Forget(string what)

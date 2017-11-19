@@ -4,7 +4,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("skip (N) \t-\t skips one or N (if specified) steps")]
+    [HelpDescription("skip (N) \t-\t skips one or N (if specified) steps")]
     public class Skip : Keyword
     {
         public int Count { get; set;}

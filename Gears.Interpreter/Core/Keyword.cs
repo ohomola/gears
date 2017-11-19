@@ -75,11 +75,19 @@ namespace Gears.Interpreter.Core
         public virtual string Status { get; set; } = KeywordStatus.NotExecuted.ToString();
 
 
-        public string GetUserDescription()
+        private string _additionalHelpDescription;
+        public virtual string HelpDescription
         {
-            var attribute = this.GetType().GetCustomAttributes(true).FirstOrDefault(x => x is UserDescriptionAttribute) as UserDescriptionAttribute;
+            get
+            {
+                var attribute =
+                    this.GetType().GetCustomAttributes(true).FirstOrDefault(x => x is HelpDescriptionAttribute) as
+                        HelpDescriptionAttribute;
 
-            return attribute?.Description;
+                return attribute?.Description + _additionalHelpDescription;
+            }
+
+            protected set => _additionalHelpDescription = value;
         }
 
         public virtual string StatusDetail { get; set; }
@@ -99,6 +107,11 @@ namespace Gears.Interpreter.Core
 
         public virtual bool Matches(string textInstruction)
         {
+            if (textInstruction == null)
+            {
+                return false;
+            }
+
             if (textInstruction.ToLower().Trim().StartsWith(this.GetType().Name.ToLower()))
             {
                 var rest = textInstruction.ToLower().Replace(GetType().Name.ToLower(), string.Empty);

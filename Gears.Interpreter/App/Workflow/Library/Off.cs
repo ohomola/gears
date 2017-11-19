@@ -5,7 +5,7 @@ using Gears.Interpreter.Core;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("(X) off \t-\t remove Keyword X from context.")]
+    [HelpDescription("(X) off \t-\t remove Keyword X from context.")]
     public class Off : Keyword
     {
         public string What { get; set; }

@@ -31,7 +31,7 @@ using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library.UI
 {
-    [UserDescription("fill <inst> \t-\t fills element via instruction")]
+    [HelpDescription("fill <inst> \t-\t fills element via instruction")]
     public class Fill : Keyword, IHasTechnique, IInstructed
     {
         private Instruction _instruction;
@@ -124,13 +124,18 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
             switch (Technique)
             {
-                case Technique.HighlightOnly:
+                case Technique.Show:
+
                     Highlighter.HighlightElements(Selenium, lookupResult.AllValidResults);
                     return new InformativeAnswer("Highlighting complete.");
+
                 case Technique.Javascript:
+
                     lookupResult.MainResult.WebElement.SendKeys(Text);
                     break;
+
                 case Technique.MouseAndKeyboard:
+
                     var handle = Selenium.BrowserHandle;
 
                     var screenLocation = Selenium.PutElementOnScreen(lookupResult.MainResult.WebElement);
@@ -146,43 +151,12 @@ Fills a text input element (or dropdown) located by a visible text on the screen
                     UserInteropAdapter.SendText(handle, Text, screenLocation);
                     Thread.Sleep(50);
                     break;
+
+                default:
+                    throw new NotSupportedException($"Keyword {GetType().Name} cannot be run using {Technique}");
             }
 
             return new SuccessAnswer("Fill successful.");
-        }
-
-        private LookupResult Lookup()
-        {
-            var searchStrategy = new LocationHeuristictSearchStrategy(this.Selenium);
-
-            var lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order);
-
-            if (Interpreter?.IsAnalysis == true)
-            {
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta,
-                    "DirectLookup (exact matches): " + _instruction?.ToAnalysisString());
-                Console.Out.WriteColoredLine(ConsoleColor.Magenta,
-                    $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
-            }
-
-            if (ExactMatch == false && lookupResult.Success == false)
-            {
-                lookupResult = searchStrategy.DirectLookupWithNeighbours(LabelText, Direction, Order, false);
-
-                if (Interpreter?.IsAnalysis == true)
-                {
-                    Console.Out.WriteColoredLine(ConsoleColor.Magenta,
-                        "DirectLookup (all matches): " + _instruction?.ToAnalysisString());
-                    Console.Out.WriteColoredLine(ConsoleColor.Magenta,
-                        $"Main Result: \n\t{lookupResult.MainResult}\nAll results:\n\t{string.Join("\n\t", lookupResult.AllValidResults)}");
-                }
-            }
-
-            if (lookupResult.Success == false)
-            {
-                throw new LookupFailureException(lookupResult, "Input not found");
-            }
-            return lookupResult;
         }
 
         public override string ToString()
@@ -190,38 +164,5 @@ Fills a text input element (or dropdown) located by a visible text on the screen
             return $"Fill {Order+1}. '{LabelText}' with '{Text}'";
         }
 
-        #region Backward compatibility
-
-        //[Obsolete("Backward compatibility")]
-        //public Fill(string what, string where, string text) : this(what, text)
-        //{
-        //    where = @where.ToLower().Trim();
-        //    switch (@where)
-        //    {
-        //        case ("right"):
-        //            Direction = SearchDirection.LeftFromRightEdge;
-        //            break;
-        //        case ("top"):
-        //        case ("up"):
-        //            Direction = SearchDirection.DownFromTopEdge;
-        //            break;
-        //        case ("down"):
-        //        case ("bottom"):
-        //            Direction = SearchDirection.UpFromBottomEdge;
-        //            break;
-        //        default:
-        //            Direction = SearchDirection.RightFromLeftEdge;
-        //            break;
-        //    }
-        //}
-
-        //[Obsolete("Backward compatibility")]
-        //public virtual bool Javascript
-        //{
-        //    get { return Technique == Technique.Javascript; }
-        //    set { Technique = value == true ? Technique.Javascript : Technique.MouseAndKeyboard; }
-        //}
-
-        #endregion
     }
 }

@@ -110,7 +110,7 @@ namespace Gears.Interpreter.App
 
         private static string Normalize(string command)
         {
-            return command.Trim().ToLower();
+            return command?.Trim().ToLower();
         }
 
         public IEnumerable<Type> GetAll(bool includeAbstract = false)

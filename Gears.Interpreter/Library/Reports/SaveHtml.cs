@@ -27,7 +27,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.Library.Reports
 {
     [NotLogged]
-    [UserDescription("savehtml \t-\t save current page source to a new HTML file")]
+    [HelpDescription("savehtml \t-\t save current page source to a new HTML file")]
     public class SaveHtml:Keyword
     {
         public override string CreateDocumentationMarkDown()

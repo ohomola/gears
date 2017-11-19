@@ -68,31 +68,11 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
 
         #endregion
 
-        private void LoadKeywords()
-        {
-            if (Plan.Any())
-            {
-                return;
-            }
-
-            if (!ServiceLocator.IsInitialised() || !ServiceLocator.Instance.Kernel.HasComponent(typeof(ITypeRegistry)))
-            {
-                throw new InvalidOperationException("Cannot construct RunScenario from file without Registered ITypeRegistry");
-            }
-
-            if (FileName != null)
-            {
-                _plan.AddRange(
-                    new DataContext(new FileObjectAccess(FileFinder.Find(FileName),
-                        ServiceLocator.Instance.Resolve<ITypeRegistry>())).GetAll<Keyword>());
-            }
-        }
-
         public override object DoRun()
         {
             LoadKeywords();
 
-            if (Technique == Technique.HighlightOnly && Interpreter.IsDebugMode)
+            if (Technique == Technique.Show && Interpreter.IsDebugMode)
             {
                 return StepIntoScenario();
             }
@@ -161,6 +141,26 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
             Iterator.Index = 0;
 
             return null;
+        }
+
+        private void LoadKeywords()
+        {
+            if (Plan.Any())
+            {
+                return;
+            }
+
+            if (!ServiceLocator.IsInitialised() || !ServiceLocator.Instance.Kernel.HasComponent(typeof(ITypeRegistry)))
+            {
+                throw new InvalidOperationException("Cannot construct RunScenario from file without Registered ITypeRegistry");
+            }
+
+            if (FileName != null)
+            {
+                _plan.AddRange(
+                    new DataContext(new FileObjectAccess(FileFinder.Find(FileName),
+                        ServiceLocator.Instance.Resolve<ITypeRegistry>())).GetAll<Keyword>());
+            }
         }
 
         private object StepIntoScenario()

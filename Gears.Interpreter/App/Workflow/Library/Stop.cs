@@ -7,7 +7,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("stop \t\t-\t stops execution, saves results and exits application.")]
+    [HelpDescription("stop \t\t-\t stops execution, saves results and exits application.")]
     public class Stop : Keyword
     {
 
@@ -37,7 +37,7 @@ Stops the scenario execution and closes the application.
                 return new ResultAnswer(Program.ScenarioFailureStatusCode);
             }
 
-            var objectsToBeWritten = Interpreter.GetLog();
+            var objectsToBeWritten = Interpreter.GetLoggedKeywords();
 
             Selenium.Dispose();
 

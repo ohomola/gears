@@ -4,6 +4,6 @@
     {
         MouseAndKeyboard = 0,
         Javascript,
-        HighlightOnly
+        Show
     }
 }

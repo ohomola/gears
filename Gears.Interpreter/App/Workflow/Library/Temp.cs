@@ -17,10 +17,10 @@ namespace Gears.Interpreter.App.Workflow.Library
         {
             var foa = new TempFileObjectAccess(LastScenarioTempFilePath + ".csv", ServiceLocator.Instance.Resolve<ITypeRegistry>());
 
-            if (Technique == Technique.HighlightOnly)
+            if (Technique == Technique.Show)
             {
                 Process.Start("explorer.exe", foa.Path);
-                return new InformativeAnswer($"Opening folder {foa.Path}");
+                return new InformativeAnswer($"Opening file {foa.Path}");
             }
 
             Interpreter.Data.Include(foa);

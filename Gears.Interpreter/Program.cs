@@ -50,7 +50,7 @@ namespace Gears.Interpreter
                 {
                     ConsoleView.Render(interpreter.Please("status"));
                     
-                    var answer = interpreter.Please(interpreter.Continue());
+                    var answer = interpreter.Please(interpreter.GetNextInstruction());
 
                     if (answer is IFollowupQuestion)
                     {

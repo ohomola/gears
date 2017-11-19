@@ -43,7 +43,12 @@ Forces window to take a certain size. The purpose is to stabilise tests in respo
 
         public override IKeyword FromString(string textInstruction)
         {
+            textInstruction = textInstruction.Replace(" to ", " ");
+            textInstruction = textInstruction.Replace(" x ", " ");
+            textInstruction = textInstruction.Replace(" X ", " ");
             var parts = textInstruction.Split(' ');
+
+
 
             return new Resize(parts[1], int.Parse(parts[2]), int.Parse(parts[3]));
         }
@@ -58,6 +63,11 @@ Forces window to take a certain size. The purpose is to stabilise tests in respo
             Selenium.WebDriver.Manage().Window.Size = new Size(Width, Height);
 
             return true;
+        }
+
+        public override string ToString()
+        {
+            return $"Resize {What} to {Width}x{Height}";
         }
     }
 }

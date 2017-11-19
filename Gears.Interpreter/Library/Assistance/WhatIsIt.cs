@@ -9,7 +9,7 @@ using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library.Assistance
 {
-    [UserDescription("whatisit \t-\t suggests an identifier for a button (selected with mouse)")]
+    [HelpDescription("whatisit \t-\t suggests an identifier for a button (selected with mouse)")]
     public class WhatIsIt : Keyword
     {
         private int _x;

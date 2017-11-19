@@ -143,8 +143,12 @@
     <Compile Include="Core\ConfigObjects\ConnectionString.cs" />
     <Compile Include="Core\ConfigObjects\Firefox.cs" />
     <Compile Include="Core\ConfigObjects\IConfig.cs" />
+    <Compile Include="Core\ConfigObjects\RunFirstStep.cs" />
     <Compile Include="Core\ConfigObjects\SkipAssertions.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\Key.cs" />
     <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\Sql.cs" />
+    <Compile Include="Core\Data\TextKeywordsDataAccess.cs" />
+    <Compile Include="Core\HelpDescriptionAttribute.cs" />
     <Compile Include="Core\Interpretation\CriticalFailure.cs" />
     <Compile Include="Core\Interpretation\DataDescriptionAnswer.cs" />
     <Compile Include="Core\Interpretation\ExceptionAnswer.cs" />
@@ -308,6 +312,7 @@
     </Compile>
     <Compile Include="Library\Stub\DoWhatYouWant.cs" />
     <Compile Include="Tests\AssertExtensions.cs" />
+    <Compile Include="Tests\Pages\Iteration10Tests.cs" />
     <Compile Include="Tests\Pages\Iteration9Tests.cs" />
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />
     <Compile Include="Tests\Pages\Iteration2Tests.cs" />
@@ -318,6 +323,7 @@
     <Compile Include="Library\Reports\JUnitScenarioReport.cs" />
     <Compile Include="Tests\Pages\Iteration7Tests.cs" />
     <Compile Include="Tests\Pages\Iteration6Tests.cs" />
+    <Compile Include="Tests\Pages\RegressionAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

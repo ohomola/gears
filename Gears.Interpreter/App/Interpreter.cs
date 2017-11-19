@@ -8,6 +8,7 @@ using Gears.Interpreter.App.Workflow.Library;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Adapters.UI.Interoperability;
 using Gears.Interpreter.Core.Adapters.UI.Interoperability.ExternalMethodBindings;
+using Gears.Interpreter.Core.ConfigObjects;
 using Gears.Interpreter.Core.Data;
 using Gears.Interpreter.Core.Interpretation;
 
@@ -15,81 +16,30 @@ namespace Gears.Interpreter.App
 {
     public class Interpreter : IInterpreter, IDisposable
     {
+        public const string RUN_NEXT_ITEM_IN_PLAN = "";
+
         public IDataContext Data { get; }
         public ILanguage Language { get; }
+        
         private List<IKeyword> _plan = new List<IKeyword>();
-
-        public Iterator<IKeyword> Iterator { get; set; } 
-
-        public bool IsAlive { get; set; } = true;
-
+        
         [DoNotWire]
         public IEnumerable<IKeyword> Plan
         {
-            get { return _plan; }
-            set
-            {
-                _plan = value.ToList();
-            }
+            get => _plan;
+            set => _plan = value.ToList();
         }
 
-        public void AddToPlan(IKeyword keyword)
-        {
-            _plan.Add(keyword);
-        }
-
-        public bool IsRunningSuite => Plan.Any(x => x is RunScenario);
-
-        public bool IsDebugMode { get; set; }
-
-        public bool IsAnalysis { get; set; }
+        public Iterator<IKeyword> Iterator { get; set; }
 
         [DoNotWire]
         public List<IKeyword> ExecutionHistory { get; set; } = new List<IKeyword>();
 
-        #region Events
+        public bool IsRunningSuite => Plan.Any(x => x is RunScenario);
+        public bool IsDebugMode { get; set; }
+        public bool IsAnalysis { get; set; }
+        public bool IsAlive { get; set; } = true;
 
-        public event EventHandler<ScenarioFinishedEventArgs> ScenarioFinished;
-
-        public virtual void OnScenarioFinished(ScenarioFinishedEventArgs e)
-        {
-            ScenarioFinished?.Invoke(this, e);
-        }
-
-        public event EventHandler<ScenarioFinishedEventArgs> SuiteFinished;
-
-        public virtual void OnSuiteFinished(ScenarioFinishedEventArgs e)
-        {
-            SuiteFinished?.Invoke(this, e);
-        }
-
-        public event EventHandler<StepFinishedEventArgs> StepFinished;
-
-        public virtual void OnStepFinished(StepFinishedEventArgs e)
-        {
-            StepFinished?.Invoke(this, e);
-        }
-
-        public string Continue()
-        {
-            if (UserInteropAdapter.IsKeyDown(Keys.Escape))
-            {
-                IsDebugMode = true;
-            }
-
-            if (IsDebugMode)
-            {
-                UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
-
-                return Console.ReadLine();
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
-
-        #endregion
 
         public Interpreter(IDataContext data, ILanguage language)
         {
@@ -97,6 +47,33 @@ namespace Gears.Interpreter.App
             Language = language;
             Iterator = new Iterator<IKeyword>(this, x => x.Plan);
         }
+
+
+        #region Events
+
+        public event EventHandler<ScenarioFinishedEventArgs> ScenarioFinished;
+
+            public virtual void OnScenarioFinished(ScenarioFinishedEventArgs e)
+            {
+                ScenarioFinished?.Invoke(this, e);
+            }
+
+            public event EventHandler<ScenarioFinishedEventArgs> SuiteFinished;
+
+            public virtual void OnSuiteFinished(ScenarioFinishedEventArgs e)
+            {
+                SuiteFinished?.Invoke(this, e);
+            }
+
+            public event EventHandler<StepFinishedEventArgs> StepFinished;
+
+            public virtual void OnStepFinished(StepFinishedEventArgs e)
+            {
+                StepFinished?.Invoke(this, e);
+            }
+
+        #endregion
+
 
         public IAnswer Please(string command)
         {
@@ -162,6 +139,29 @@ namespace Gears.Interpreter.App
             }
         }
 
+        public string GetNextInstruction()
+        {
+            if (UserInteropAdapter.IsKeyDown(Keys.Escape))
+            {
+                IsDebugMode = true;
+            }
+            if (Data.Contains<RunFirstStep>())
+            {
+                Data.RemoveAll<RunFirstStep>();
+                return RUN_NEXT_ITEM_IN_PLAN;
+            }
+            else if (IsDebugMode)
+            {
+                UserBindings.SetForegroundWindow(UserBindings.GetConsoleWindow());
+
+                return Console.ReadLine();
+            }
+            else
+            {
+                return RUN_NEXT_ITEM_IN_PLAN;
+            }
+        }
+
         public IAnswer RunOnYourOwn()
         {
             var result = Please("start");
@@ -179,7 +179,12 @@ namespace Gears.Interpreter.App
             return result;
         }
 
-        public IEnumerable<IKeyword> GetLog()
+        public void AddToPlan(IKeyword keyword)
+        {
+            _plan.Add(keyword);
+        }
+
+        public IEnumerable<IKeyword> GetLoggedKeywords()
         {
             return Plan.Any() ? Plan.Where(Keyword.IsLogged) : ExecutionHistory.Where(Keyword.IsLogged);
         }

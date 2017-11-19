@@ -4,9 +4,9 @@ namespace Gears.Interpreter.Core.Adapters.UI
 {
     public enum SeleniumAdapterBrowserType
     {
-        Chrome = 1,
-        InternetExplorer = 0,
-        Firefox = 2,
+        Chrome = 0,
+        InternetExplorer = 2,
+        Firefox = 1,
     }
 
     public static class SeleniumAdapterBrowserTypeMapper

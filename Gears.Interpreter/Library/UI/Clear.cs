@@ -87,7 +87,7 @@ See [Fill](#fill) for more info.
 
                 switch (Technique)
                 {
-                    case Technique.HighlightOnly:
+                    case Technique.Show:
                         Highlighter.HighlightElements(Selenium, lookupResult.AllValidResults);
                         return new InformativeAnswer("Highlighting complete.");
                     case Technique.MouseAndKeyboard:

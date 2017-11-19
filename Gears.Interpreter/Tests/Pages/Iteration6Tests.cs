@@ -372,25 +372,6 @@ namespace Gears.Interpreter.Tests.Pages
             Bootstrapper.Release();
         }
 
-        [Test]
-        public void ShouldCreateDocumentation()
-        {
-            Bootstrapper.Register();
-            var doc = new Documentation(ServiceLocator.Instance.ResolveAll<IHaveDocumentation>().Where(x=>!(x is IProtected)));
-
-            var cotent = doc.CreateContentMarkDown();
-            var sidemenu = doc.CreateSideMenuMarkDown();
-
-            Assert.IsNotNull(cotent);
-            Assert.IsNotNull(sidemenu);
-
-            Assert.IsTrue(cotent.Contains("Click"));
-
-            Assert.IsTrue(cotent.Contains(new Click().CreateDocumentationMarkDown()));
-
-
-        }
-
         [SetUp]
         public void SetUp()
         {

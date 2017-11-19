@@ -11,3 +11,4 @@
 *.csproj.DotSettings
 *.user
 *.TMP
+*.ide

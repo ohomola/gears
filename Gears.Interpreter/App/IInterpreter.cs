@@ -29,8 +29,8 @@ namespace Gears.Interpreter.App
         void OnScenarioFinished(ScenarioFinishedEventArgs e);
         event EventHandler<ScenarioFinishedEventArgs> SuiteFinished;
         void OnSuiteFinished(ScenarioFinishedEventArgs e);
-        string Continue();
-        IEnumerable<IKeyword> GetLog();
+        string GetNextInstruction();
+        IEnumerable<IKeyword> GetLoggedKeywords();
         void AddToPlan(IKeyword keyword);
         event EventHandler<StepFinishedEventArgs> StepFinished;
     }

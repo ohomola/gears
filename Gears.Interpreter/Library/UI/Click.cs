@@ -34,7 +34,7 @@ using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library.UI
 {
-    [UserDescription("click <inst>\t-\t clicks a button identified by instruction")]
+    [HelpDescription("click <inst>\t-\t clicks a button identified by instruction")]
     public class Click : Keyword, IHasTechnique, IInstructed
     {
         public virtual string What
@@ -162,7 +162,7 @@ Clicks an element identified by a visible text on the screen. The input paramete
 
             switch (Technique)
             {
-                case Technique.HighlightOnly:
+                case Technique.Show:
                     Highlighter.HighlightElements(Selenium, result.AllValidResults.ToList(), Order);
                     return new InformativeAnswer("Highlighting complete.");
                 case Technique.Javascript:

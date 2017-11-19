@@ -36,7 +36,7 @@ using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library.UI
 {
-    [UserDescription("dragAndDrop <inst>\t-\t clicks a button identified by instruction and drags the mouse by a specified offset")]
+    [HelpDescription("dragAndDrop <inst>\t-\t clicks a button identified by instruction and drags the mouse by a specified offset")]
     public class DragAndDrop : Keyword, IHasTechnique, IInstructed
     {
         public virtual string What
@@ -160,7 +160,7 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
 
             switch (Technique)
             {
-                case Technique.HighlightOnly:
+                case Technique.Show:
                     Highlighter.HighlightElements(
                         ()=>Console.ReadLine(), 
                         Selenium, 

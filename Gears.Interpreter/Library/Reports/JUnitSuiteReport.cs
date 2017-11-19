@@ -30,7 +30,7 @@
 
     //        new FileObjectAccess(_path, ServiceLocator.Instance.Resolve<ITypeRegistry>()).AddRange(e.Keywords);
 
-    //        if (Technique == Technique.HighlightOnly)
+    //        if (Technique == Technique.Show)
     //        {
     //            Process.Start("explorer.exe", _path);
     //        }

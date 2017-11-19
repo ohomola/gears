@@ -24,7 +24,7 @@ using Gears.Interpreter.App.Configuration;
 
 namespace Gears.Interpreter.Core.ConfigObjects
 {
-    public class DebugMode : IAutoRegistered
+    public class DebugMode : IAutoRegistered, IHaveDocumentation
     {
         public DebugMode()
         {
@@ -40,6 +40,21 @@ namespace Gears.Interpreter.Core.ConfigObjects
 
         public void Register(IInterpreter interpreter)
         {
+        }
+
+        public string CreateDocumentationMarkDown()
+        {
+            return $@"
+## DebugMode
+
+Configuration switch used to make Interpreter work in debug mode, halting before each step waiting for user action.
+> Note: To add this to any scenario, you can also use a command-line argument when executing Gears Interpreter -{nameof(DebugMode)}
+";
+        }
+
+        public string CreateDocumentationTypeName()
+        {
+            return "DebugMode";
         }
     }
 }

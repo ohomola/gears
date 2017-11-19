@@ -11,7 +11,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("run (N)\t\t-\t run one or N (if specified) steps")]
+    [HelpDescription("run (N)\t\t-\t run one or N (if specified) steps")]
     public class Run : Keyword
     {
         [Wire]
@@ -19,6 +19,15 @@ namespace Gears.Interpreter.App.Workflow.Library
         public virtual IInterpreter Interpreter2 { get; set; }
 
         public int Count { get; set; }
+
+        public Run()
+        {
+        }
+
+        public Run(int what)
+        {
+            Count = what;
+        }
 
         public override string CreateDocumentationMarkDown()
         {

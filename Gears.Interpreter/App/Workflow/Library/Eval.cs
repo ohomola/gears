@@ -4,7 +4,7 @@ using Gears.Interpreter.Core.Interpretation;
 namespace Gears.Interpreter.App.Workflow.Library
 {
     [NotLogged]
-    [UserDescription("eval \t\t-\t  if current keyword has expressions, it evaluates them and shows their result")]
+    [HelpDescription("eval \t\t-\t  if current keyword has expressions, it evaluates them and shows their result")]
     public class Eval : Keyword
     {
 

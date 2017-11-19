@@ -33,7 +33,7 @@ using OpenQA.Selenium;
 
 namespace Gears.Interpreter.Library.UI
 {
-    [UserDescription("isselected <i>\t-\t checks if a checkbox or similar input is selected")]
+    [HelpDescription("isselected <i>\t-\t checks if a checkbox or similar input is selected")]
     public class IsSelected : Keyword, IAssertion
     {
         private  Instruction spec;

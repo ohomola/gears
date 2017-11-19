@@ -123,8 +123,12 @@ namespace Gears.Interpreter.Core.Adapters.UI
 
                     var path = FileFinder.Find("chromedriver.exe");
                     var options = new ChromeOptions();
+                    options.AddArguments("disable-extensions");
                     options.AddArguments("enable-automation");
                     options.AddArguments("--disable-infobars");
+
+                    
+                    //options.AddArguments("--start-maximized");
 
                     webDriver = new ChromeDriver(Path.GetDirectoryName(path), options);
 
@@ -201,22 +205,27 @@ namespace Gears.Interpreter.Core.Adapters.UI
 
         public void ConvertFromPageToWindow(ref Point p)
         {
+            p.X += ContentOffsetX();
+            p.Y += ContentOffsetY() - GetScrollOffsetOfDefault();
+        }
+
+        private int GetScrollOffsetOfDefault()
+        {
             int scrollOffset;
             try
             {
-                var scriptResult = WebDriver.RunLibraryScript("return window.pageYOffset || document.documentElement.scrollTop");
+                var scriptResult =
+                    WebDriver.RunLibraryScript("return window.pageYOffset || document.documentElement.scrollTop");
                 scrollOffset = (int)
-                        Math.Abs(
-                            (long)
-                            scriptResult);
+                    Math.Abs(
+                        (long)
+                        scriptResult);
             }
             catch (Exception)
             {
                 scrollOffset = 0;
             }
-
-            p.X += ContentOffsetX();
-            p.Y += ContentOffsetY() - scrollOffset;
+            return scrollOffset;
         }
 
         public void ConvertFromWindowToScreen(ref Point point)
@@ -241,14 +250,8 @@ namespace Gears.Interpreter.Core.Adapters.UI
 
         public void ConvertFromWindowToPage(ref Point p)
         {
-            var scrollOffset =
-                (int)
-                Math.Abs(
-                    (long)
-                    WebDriver.RunLibraryScript("return window.pageYOffset || document.documentElement.scrollTop"));
-
             p.X -= ContentOffsetX();
-            p.Y -= ContentOffsetY() - scrollOffset;
+            p.Y -= ContentOffsetY() - GetScrollOffsetOfDefault();
         }
         
         public Point PutElementOnScreen(IWebElement element)

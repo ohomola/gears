@@ -29,7 +29,7 @@ using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library
 {
-    [UserDescription("remember <var> <val> \t saves/updates a variable with a specified value.")]
+    [HelpDescription("remember <var> <val> \t saves/updates a variable with a specified value.")]
     public class Remember : Keyword
     {
         public virtual string Variable { get; set; }

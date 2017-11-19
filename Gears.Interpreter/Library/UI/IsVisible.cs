@@ -32,7 +32,7 @@ using Gears.Interpreter.Core.Extensions;
 
 namespace Gears.Interpreter.Library.UI
 {
-    [UserDescription("isvisible <i>\t-\t checks if an element is visible on screen")]
+    [HelpDescription("isvisible <i>\t-\t checks if an element is visible on screen")]
     public class IsVisible : Keyword, IAssertion
     {
         private  Instruction spec;
