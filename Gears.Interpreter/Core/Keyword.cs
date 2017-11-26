@@ -76,6 +76,8 @@ namespace Gears.Interpreter.Core
 
 
         private string _additionalHelpDescription;
+
+        [XmlIgnore]
         public virtual string HelpDescription
         {
             get

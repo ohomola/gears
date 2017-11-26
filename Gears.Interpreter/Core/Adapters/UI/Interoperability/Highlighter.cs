@@ -60,7 +60,7 @@ namespace Gears.Interpreter.Core.Adapters.UI.Interoperability
         {
             using (var overlay = new Overlay())
             {
-                if (selectionIndex != -1)
+                if (selectionIndex != -1 && elements.Count()>selectionIndex)
                 {
                     seleniumAdapter.PutElementOnScreen(elements.ElementAt(selectionIndex).WebElement);
                 }

@@ -58,5 +58,20 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual(500, width);
             Assert.AreEqual(200, height);
         }
+
+        //[Test]
+        //public void ShouldBeAbleToTestNthElement()
+        //{
+        //    var selenium = Bootstrapper.Container.Resolve<ISeleniumAdapter>();
+
+        //    _interpreter.Please("use debugmode");
+        //    _interpreter.Please($"gotourl http://www.material-ui.com/#/components/app-bar");
+        //    _interpreter.Please("click components");
+
+        //    _interpreter.AddToPlan(new IsVisible("3rd Login button"){Expect = false});
+        //    var result = _interpreter.Please(string.Empty);
+        //    Should.Be<SuccessAnswer>(result);
+        //    _interpreter.Please("stop");
+        //}
     }
 }

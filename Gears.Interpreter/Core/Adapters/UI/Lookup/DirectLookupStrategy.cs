@@ -79,7 +79,7 @@ namespace Gears.Interpreter.Core.Adapters.UI.Lookup
                 _staleElementCounter++;
                 if (_staleElementCounter < 10)
                 {
-                    LookUp();
+                    return LookUp();
                 }
 
                 throw new SeleniumException(e);
