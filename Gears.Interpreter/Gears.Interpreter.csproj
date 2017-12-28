@@ -92,32 +92,30 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Castle.Core.3.3.3\lib\net45\Castle.Core.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.4.2.1\lib\net45\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Windsor, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Castle.Windsor.3.3.0\lib\net45\Castle.Windsor.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Castle.Windsor, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Windsor.4.1.0\lib\net45\Castle.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="JetBrains.Annotations, Version=10.2.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\packages\JetBrains.Annotations.10.2.1\lib\net\JetBrains.Annotations.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="JetBrains.Annotations, Version=11.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nunit.framework, Version=3.4.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.4.1\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -125,13 +123,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="WebDriver, Version=3.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.3.4.0\lib\net40\WebDriver.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="WebDriver, Version=3.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.3.8.0\lib\net45\WebDriver.dll</HintPath>
     </Reference>
-    <Reference Include="WebDriver.Support, Version=3.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.Support.3.4.0\lib\net40\WebDriver.Support.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="WebDriver.Support, Version=3.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.Support.3.8.0\lib\net45\WebDriver.Support.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -196,7 +192,7 @@
     <Compile Include="ConsoleView.cs" />
     <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\CodeStubResolver.cs" />
     <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\LazyExpressionResolver.cs" />
-    <Compile Include="Core\Data\Serialization\Mapping\DataObjectInterceptor.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\ResolveAllStringParameterReferencesInProperties.cs" />
     <Compile Include="Core\Data\Serialization\Mapping\LazyResolving\RememberedDataResolver.cs" />
     <Compile Include="Core\ConfigObjects\ErrorLogging.cs" />
     <Compile Include="Core\Adapters\UI\Lookup\DirectLookupStrategyWithNeighbours.cs" />
@@ -236,8 +232,8 @@
     <Compile Include="Core\Data\Serialization\CSV\CsvSerializer.cs" />
     <Compile Include="Core\Data\Serialization\JUnit\JUnit.cs" />
     <Compile Include="Core\Data\Serialization\JUnit\JUnitSerializer.cs" />
-    <Compile Include="Core\Data\Serialization\Mapping\DefaultTableMappingStrategy.cs" />
-    <Compile Include="Core\Data\Serialization\Mapping\DictionaryToObjectMapper.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\ColumnToPropertyMappingStrategy.cs" />
+    <Compile Include="Core\Data\Serialization\Mapping\DictionaryToProxyMapper.cs" />
     <Compile Include="Core\Adapters\UI\BufferedElement.cs" />
     <Compile Include="Core\Data\Serialization\SerializerFactory.cs" />
     <Compile Include="Library\UI\Clear.cs" />
@@ -312,6 +308,8 @@
     </Compile>
     <Compile Include="Library\Stub\DoWhatYouWant.cs" />
     <Compile Include="Tests\AssertExtensions.cs" />
+    <Compile Include="Tests\Areas\AreaTest.cs" />
+    <Compile Include="Tests\Expressions\ExpressionTest.cs" />
     <Compile Include="Tests\Pages\Iteration10Tests.cs" />
     <Compile Include="Tests\Pages\Iteration9Tests.cs" />
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />
@@ -324,11 +322,14 @@
     <Compile Include="Tests\Pages\Iteration7Tests.cs" />
     <Compile Include="Tests\Pages\Iteration6Tests.cs" />
     <Compile Include="Tests\Pages\RegressionAttribute.cs" />
+    <Compile Include="Tests\Pages\TestBootstrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Gears.Interpreter.licenseheader" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -361,6 +362,12 @@
   <ItemGroup>
     <Content Include="Core\Data\Serialization\JUnit\JUnit.xsd" />
     <Content Include="Core\Adapters\UI\JavaScripts\Gears.Library.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Areas\AreaTestPage.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Expressions\ExpressionTestPage.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Pages\Iteration5TestPage.html">
@@ -408,17 +415,17 @@
     <Folder Include="Library\Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.2.29.0\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.29.0\build\Selenium.WebDriver.ChromeDriver.targets')" />
+  <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.2.34.0\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.34.0\build\Selenium.WebDriver.ChromeDriver.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.29.0\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.ChromeDriver.2.29.0\build\Selenium.WebDriver.ChromeDriver.targets'))" />
-    <Error Condition="!Exists('..\packages\Selenium.WebDriver.IEDriver.3.4.0\build\Selenium.WebDriver.IEDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.IEDriver.3.4.0\build\Selenium.WebDriver.IEDriver.targets'))" />
-    <Error Condition="!Exists('..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.18.0\build\Selenium.WebDriver.GeckoDriver.Win64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.18.0\build\Selenium.WebDriver.GeckoDriver.Win64.targets'))" />
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.34.0\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.ChromeDriver.2.34.0\build\Selenium.WebDriver.ChromeDriver.targets'))" />
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.19.1\build\Selenium.WebDriver.GeckoDriver.Win64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.19.1\build\Selenium.WebDriver.GeckoDriver.Win64.targets'))" />
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.IEDriver.3.8.0\build\Selenium.WebDriver.IEDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.IEDriver.3.8.0\build\Selenium.WebDriver.IEDriver.targets'))" />
   </Target>
-  <Import Project="..\packages\Selenium.WebDriver.IEDriver.3.4.0\build\Selenium.WebDriver.IEDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.IEDriver.3.4.0\build\Selenium.WebDriver.IEDriver.targets')" />
-  <Import Project="..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.18.0\build\Selenium.WebDriver.GeckoDriver.Win64.targets" Condition="Exists('..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.18.0\build\Selenium.WebDriver.GeckoDriver.Win64.targets')" />
+  <Import Project="..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.19.1\build\Selenium.WebDriver.GeckoDriver.Win64.targets" Condition="Exists('..\packages\Selenium.WebDriver.GeckoDriver.Win64.0.19.1\build\Selenium.WebDriver.GeckoDriver.Win64.targets')" />
+  <Import Project="..\packages\Selenium.WebDriver.IEDriver.3.8.0\build\Selenium.WebDriver.IEDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.IEDriver.3.8.0\build\Selenium.WebDriver.IEDriver.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

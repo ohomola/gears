@@ -46,7 +46,7 @@ namespace Gears.Interpreter.Core.Data.Serialization.Mapping.LazyResolving
 
         public object ToProxy(Type type, object objectInstance, IDictionary<string, object> lazyValues)
         {
-            return new ProxyGenerator().CreateClassProxyWithTarget(type, objectInstance, new DataObjectInterceptor(lazyValues, this));
+            return new ProxyGenerator().CreateClassProxyWithTarget(type, objectInstance, new ResolveAllStringParameterReferencesInProperties(lazyValues, this));
         }
 
         public object ToProxy(Type type, object objectInstance)
@@ -64,7 +64,7 @@ namespace Gears.Interpreter.Core.Data.Serialization.Mapping.LazyResolving
                     lazyValues.Add(propertyInfo.Name, propertyInfo.GetValue(objectInstance));
                 }
             }
-            return new ProxyGenerator().CreateClassProxyWithTarget(type, objectInstance, new DataObjectInterceptor(lazyValues, this));
+            return new ProxyGenerator().CreateClassProxyWithTarget(type, objectInstance, new ResolveAllStringParameterReferencesInProperties(lazyValues, this));
         }
     }
 

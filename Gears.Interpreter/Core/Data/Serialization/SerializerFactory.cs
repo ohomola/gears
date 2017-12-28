@@ -17,7 +17,7 @@ namespace Gears.Interpreter.Core.Data.Serialization
 
             if (IsExcel(extension) && IsExcelInstalled())
             {
-                return  new ExcelSerializer(new InteropExcelGateway(path), new DefaultTableMappingStrategy());
+                return  new ExcelSerializer(new InteropExcelGateway(path), new ColumnToPropertyMappingStrategy());
             }
 
             if (IsCSV(extension))

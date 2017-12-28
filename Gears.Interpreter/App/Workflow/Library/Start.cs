@@ -15,14 +15,10 @@ namespace Gears.Interpreter.App.Workflow.Library
     {
         public override object DoRun()
         {
-            SharedObjectDataAccess.Instance = new Lazy<SharedObjectDataAccess>();
-
             var eventHandlers = Data.GetAll<IApplicationEventHandler>();
             RegisterEventHandlers(eventHandlers);
 
-            Interpreter.Plan = Data.GetAll<Keyword>().ToList();
-
-            //ThrowIfRunScenariosAreMixedWithStandardKeywords(Interpreter.IsRunningSuite, Interpreter.Plan);
+            //Interpreter.Plan = Data.GetAll<Keyword>().ToList();
 
             InformativeAnswer successAnswer = new SuccessAnswer("Initialization complete.\n");
 
@@ -51,16 +47,6 @@ namespace Gears.Interpreter.App.Workflow.Library
 
             return successAnswer;
         }
-
-        //private void ThrowIfRunScenariosAreMixedWithStandardKeywords(bool isRunningSuite, IEnumerable<IKeyword> keywords)
-        //{
-        //    if (isRunningSuite && !keywords.All(x => x is RunScenario))
-        //    {
-        //        throw new CriticalFailure("Scenario cannot contain RunScenario steps as well as basic Keywords.");
-        //    }
-        //}
-
-
 
         private void RegisterEventHandlers(IEnumerable<IApplicationEventHandler> applicationEventHandlers)
         {

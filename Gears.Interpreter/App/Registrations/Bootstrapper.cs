@@ -112,7 +112,7 @@ namespace Gears.Interpreter.App.Registrations
             Container.Register(Component.For<ICodeStubResolver>().ImplementedBy<CodeStubResolver>().LifestyleSingleton());
             Container.Register(Component.For<IRememberedDataResolver>().ImplementedBy<RememberedDataResolver>().LifestyleSingleton());
             Container.Register(Component.For<ILazyExpressionResolver>().ImplementedBy<LazyExpressionResolver>().LifestyleSingleton());
-            Container.Register(Component.For<IDictionaryToObjectMapper>().ImplementedBy<DictionaryToObjectMapper>().LifestyleSingleton());
+            Container.Register(Component.For<IDictionaryToObjectMapper>().ImplementedBy<DictionaryToProxyMapper>().LifestyleSingleton());
 
             //Container.Register(Component.For<ITypeRegistry>().ImplementedBy<Language>().LifestyleSingleton());
             Container.Register(Component.For<IDataContext>().ImplementedBy<DataContext>().LifestyleSingleton());
@@ -138,6 +138,8 @@ namespace Gears.Interpreter.App.Registrations
             {
                 throw new InvalidOperationException("Bootstrapper is not registered");
             }
+
+            SharedObjectDataAccess.Instance = new Lazy<SharedObjectDataAccess>();
 
             return Container.Resolve<IInterpreter>();
         }

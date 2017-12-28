@@ -38,6 +38,13 @@ namespace Gears.Interpreter.Core
 {
     public abstract class Keyword : IKeyword
     {
+        // SEMANTIC PROPERTIES:
+        public virtual bool Skip { get; set; }
+        public virtual object Expect { get; set; }
+        public virtual int WaitAfter { get; set; }
+        public virtual int WaitBefore { get; set; }
+        public string ScreenshotAfter { get; set; }
+
         protected Keyword()
         {
             Guid = Guid.NewGuid();
@@ -70,7 +77,7 @@ namespace Gears.Interpreter.Core
         [XmlIgnore]
         public virtual IInterpreter Interpreter { get; set; }
 
-        public virtual bool Skip { get; set; }
+        
 
         public virtual string Status { get; set; } = KeywordStatus.NotExecuted.ToString();
 
@@ -95,14 +102,6 @@ namespace Gears.Interpreter.Core
         public virtual string StatusDetail { get; set; }
 
         public virtual object Result { get; set; }
-
-        public virtual object Expect { get; set; }
-
-        public virtual int WaitAfter { get; set; }
-
-        public virtual int WaitBefore { get; set; }
-
-        public string ScreenshotAfter { get; set; }
 
         [XmlIgnore]
         public virtual double Time { get; set; }
@@ -295,6 +294,7 @@ namespace Gears.Interpreter.Core
             return Guid.GetHashCode();
         }
 
+        //TODO move
         protected static string ExtractSingleParameterFromTextInstruction(string textInstruction)
         {
             var strings = textInstruction.Split(' ');

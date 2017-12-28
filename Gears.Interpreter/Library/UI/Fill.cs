@@ -34,20 +34,21 @@ namespace Gears.Interpreter.Library.UI
     [HelpDescription("fill <inst> \t-\t fills element via instruction")]
     public class Fill : Keyword, IHasTechnique, IInstructed
     {
-        private Instruction _instruction;
+        // RICH SYNTACTIC PROPERTY
+        public virtual string What
+        {
+            set => MapSyntaxToSemantics(new Instruction(value));
+        }
 
-        #region Semantics
-        public virtual int Order { get; set; }
-
+        // I/O PUBLIC
         public virtual string Text { get; set; }
 
+        // SEMANTIC PROPERTIES:
         public virtual string LabelText { get; set; }
-
+        public virtual int Order { get; set; }
         public virtual SearchDirection Direction { get; set; }
-
         public virtual Technique Technique { get; set; }
-
-        public bool ExactMatch { get; set; }
+        public virtual bool ExactMatch { get; set; }
 
         public void MapSyntaxToSemantics(Instruction instruction)
         {
@@ -61,43 +62,15 @@ namespace Gears.Interpreter.Library.UI
             }
 
             Direction = instruction.Direction;
-            Text = instruction.With;
+
+            if (instruction.With != null)
+            {
+                Text = instruction.With;
+            }
+
             Order = instruction.Order;
-            _instruction = instruction;
             ExactMatch = instruction.Accuracy != Accuracy.Partial;
         }
-
-        #endregion
-
-        #region Documentation
-
-        public override string CreateDocumentationMarkDown()
-        {
-            return $@"
-{base.CreateDocumentationMarkDown()}
-Fills a text input element (or dropdown) located by a visible text on the screen. The input parameter is a query instruction passed as a string to parameter **What**. 
-
->The Fill understands simple instructions differently than Click , which means you do not need to specify 'input next to login' each time you are looking for input labelled 'login'. Instead you can ask just for 'login' - Fill assumes you're looking for something that has a label next to it somewhere.
-
-**Text** parameter is the text to be filled into the element.
-
-#### Scenario usages
-| Discriminator | What  | Text  |
-| ------------- | ----- | ----- |
-| Fill          | login | user1 |
-| Fill          | input right from login | password |
-
-#### Console usages
-    fill login with user1
-    fill input right from login with password
-    show fill login with user1
-
-### Additional properties
-* [Common Keyword properties](Documentation#common-keyword-properties)  
-";
-        }
-
-        #endregion
 
         public Fill()
         {
@@ -105,7 +78,7 @@ Fills a text input element (or dropdown) located by a visible text on the screen
 
         public Fill(string what)
         {
-            MapSyntaxToSemantics(new Instruction(what));
+            What = what;
         }
 
         public Fill(string what, string text) : this(what)
@@ -113,9 +86,18 @@ Fills a text input element (or dropdown) located by a visible text on the screen
             Text = text;
         }
 
+        public override string ToString()
+        {
+            return $"Fill {Order + 1}. '{LabelText}' with '{Text}'";
+        }
+
         public override IKeyword FromString(string textInstruction)
         {
-            return new Fill(ExtractSingleParameterFromTextInstruction(textInstruction));
+            //return new Fill(ExtractSingleParameterFromTextInstruction(textInstruction));   
+            return new Fill()
+            {
+                What=ExtractSingleParameterFromTextInstruction(textInstruction)
+            };
         }
 
         public override object DoRun()
@@ -159,10 +141,34 @@ Fills a text input element (or dropdown) located by a visible text on the screen
             return new SuccessAnswer("Fill successful.");
         }
 
-        public override string ToString()
+        #region Documentation
+
+        public override string CreateDocumentationMarkDown()
         {
-            return $"Fill {Order+1}. '{LabelText}' with '{Text}'";
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Fills a text input element (or dropdown) located by a visible text on the screen. The input parameter is a query instruction passed as a string to parameter **What**. 
+
+>The Fill understands simple instructions differently than Click , which means you do not need to specify 'input next to login' each time you are looking for input labelled 'login'. Instead you can ask just for 'login' - Fill assumes you're looking for something that has a label next to it somewhere.
+
+**Text** parameter is the text to be filled into the element.
+
+#### Scenario usages
+| Discriminator | What  | Text  |
+| ------------- | ----- | ----- |
+| Fill          | login | user1 |
+| Fill          | input right from login | password |
+
+#### Console usages
+    fill login with user1
+    fill input right from login with password
+    show fill login with user1
+
+### Additional properties
+* [Common Keyword properties](Documentation#common-keyword-properties)  
+";
         }
 
+        #endregion
     }
 }

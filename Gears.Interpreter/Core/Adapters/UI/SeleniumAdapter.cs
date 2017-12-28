@@ -126,8 +126,8 @@ namespace Gears.Interpreter.Core.Adapters.UI
                     options.AddArguments("disable-extensions");
                     options.AddArguments("enable-automation");
                     options.AddArguments("--disable-infobars");
+                    options.AddArguments("--log-level=3");
 
-                    
                     //options.AddArguments("--start-maximized");
 
                     webDriver = new ChromeDriver(Path.GetDirectoryName(path), options);

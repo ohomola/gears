@@ -57,6 +57,25 @@ namespace Gears.Interpreter.App
                 return returnValue;
             }
         }
+
+        private List<Type> _types = new List<Type>();
+
+        public List<Type> Types
+        {
+            get
+            {
+                if (!_types.Any())
+                {
+                    _types = this.GetType().Assembly.GetTypes()
+                        .Where(x => x.Namespace != null && IsRegisteredType(x)).ToList();
+                }
+
+                _types.Add(typeof(Include));
+
+                return _types;
+            }
+        }
+
         public void AddFollowupOptions(IEnumerable<IKeyword> options)
         {
             FollowupOptions = options;
@@ -160,24 +179,6 @@ namespace Gears.Interpreter.App
         private static bool IsRegisteredType(Type x)
         {
             return x.Namespace.Contains("Library") || x.Namespace.Contains("ConfigObject");
-        }
-
-        private List<Type> _types = new List<Type>();
-
-        public List<Type> Types
-        {
-            get
-            {
-                if (!_types.Any())
-                {
-                    _types = this.GetType().Assembly.GetTypes()
-                        .Where(x => x.Namespace != null && IsRegisteredType(x)).ToList();
-                }
-
-                _types.Add(typeof(Include));
-
-                return _types;
-            }
         }
     }
 }

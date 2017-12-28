@@ -45,6 +45,7 @@ namespace Gears.Interpreter.App
         {
             Data = data;
             Language = language;
+            Plan = Data.GetAll<Keyword>().ToList();
             Iterator = new Iterator<IKeyword>(this, x => x.Plan);
         }
 

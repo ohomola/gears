@@ -72,7 +72,7 @@ What parameter indicates a filename prefix to the created file. Suffix of the fi
 
             var ss = ((ITakesScreenshot) Selenium.WebDriver).GetScreenshot();
             Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
-            ss.SaveAsFile(outputFile, ImageFormat.Jpeg);
+            ss.SaveAsFile(outputFile, ScreenshotImageFormat.Jpeg);
 
             return new SuccessAnswer("Saved file "+outputFile);
         }

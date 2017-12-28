@@ -32,7 +32,7 @@ namespace Gears.Interpreter.Core.Data.Serialization.CSV
     internal class CsvSerializer : ISerializer
     {
         private readonly string _path;
-        private readonly IDataSetMappingStrategy _mapper = new DefaultTableMappingStrategy();
+        private readonly IDataSetMappingStrategy _mapper = new ColumnToPropertyMappingStrategy();
 
         public CsvSerializer(String path)
         {
