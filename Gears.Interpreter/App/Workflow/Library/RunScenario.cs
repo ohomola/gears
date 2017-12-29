@@ -27,9 +27,9 @@ namespace Gears.Interpreter.App.Workflow.Library
         }
         private List<IKeyword> _plan = new List<IKeyword>();
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new RunScenario(ExtractSingleParameterFromTextInstruction(textInstruction));
+            FileName = textInstruction;
         }
 
         public RunScenario()

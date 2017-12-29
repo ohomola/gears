@@ -310,6 +310,7 @@
     <Compile Include="Tests\AssertExtensions.cs" />
     <Compile Include="Tests\Areas\AreaTest.cs" />
     <Compile Include="Tests\Expressions\ExpressionTest.cs" />
+    <Compile Include="Tests\Instructions\InstructionTest.cs" />
     <Compile Include="Tests\Pages\Iteration10Tests.cs" />
     <Compile Include="Tests\Pages\Iteration9Tests.cs" />
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />

@@ -14,10 +14,11 @@ namespace Gears.Interpreter.App
 {
     public interface ILanguage
     {
-        bool HasKeywordFor(string command);
-        IKeyword ResolveKeyword(string command);
+        bool CanParse(string command);
+        IKeyword ParseKeyword(string command);
         IEnumerable<IKeyword> Keywords { get; }
         IEnumerable<IKeyword> FollowupOptions { get; set; }
+        List<Type> Types { get; }
         void AddFollowupOptions(IEnumerable<IKeyword> options);
         void ResetFollowupOptions();
         void AddOption(IKeyword keyword);
@@ -39,7 +40,7 @@ namespace Gears.Interpreter.App
         public IEnumerable<IKeyword> Keywords {
             get
             {
-                var keywordTypes = GetAll().Where(x=>typeof(IKeyword).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract);
+                var keywordTypes = Types.Where(x=>typeof(IKeyword).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract);
                 var returnValue = new List<IKeyword>();
                 foreach (var keywordType in keywordTypes)
                 {
@@ -91,12 +92,12 @@ namespace Gears.Interpreter.App
             AddFollowupOptions(new List<IKeyword>() { keyword });
         }
 
-        public bool HasKeywordFor(string command)
+        public bool CanParse(string command)
         {
             return Keywords.Any(hook => hook.Matches(Normalize(command)));
         }
         
-        public IKeyword ResolveKeyword(string command)
+        public IKeyword ParseKeyword(string command)
         {
             var option = FollowupOptions.FirstOrDefault(x => x.Matches(command));
             if (option != null)
@@ -119,12 +120,28 @@ namespace Gears.Interpreter.App
             if (parts.Length == 2 && _lazyExpressionResolver.CanResolve(parts.Last()))
             {
                 var resolvedParameter = _lazyExpressionResolver.Resolve(parts.Last()) as string;
-                return template.FromString(parts.First()+ ' ' + resolvedParameter);
+
+                var newInstance = CreateNewInstanceViaReflection(parts.First());
+                newInstance.Specification = /*parts.First() + ' ' +*/ resolvedParameter;
+
+                return newInstance;
             }
 
             //command = Normalize(command);
 
-            return template.FromString(command);
+            var instance = CreateNewInstanceViaReflection(parts.First());
+
+            if (!string.IsNullOrEmpty(parts.Last()))
+            {
+                instance.Specification = parts.Last();
+            }
+
+            return instance;
+        }
+
+        private IKeyword CreateNewInstanceViaReflection(string typeName)
+        {
+            return (IKeyword) Activator.CreateInstance(Types.First(x=>x.Name.Equals(typeName, StringComparison.OrdinalIgnoreCase)));
         }
 
         private static string Normalize(string command)
@@ -132,7 +149,7 @@ namespace Gears.Interpreter.App
             return command?.Trim().ToLower();
         }
 
-        public IEnumerable<Type> GetAll(bool includeAbstract = false)
+        public IEnumerable<Type> GetKeywordTypes()
         {
             return Types;
         }

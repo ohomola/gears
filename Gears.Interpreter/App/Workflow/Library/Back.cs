@@ -8,7 +8,7 @@ namespace Gears.Interpreter.App.Workflow.Library
     [HelpDescription("back (N)\t-\t back one or N (if specified) steps")]
     public class Back : Keyword
     {
-        public int Count { get; set; }
+        public int Count { get; set; } = 1;
 
         public override string CreateDocumentationMarkDown()
         {
@@ -33,24 +33,12 @@ Moves selected keyword one step back. You can also add a number parameter to spe
             return new SuccessAnswer($"Backed {moved} step{(moved == 1 ? "" : "s")}.");
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            var back = new Back();
-
-            var param = ExtractSingleParameterFromTextInstruction(textInstruction);
-
-            if (!string.IsNullOrEmpty(param))
+            if (!string.IsNullOrEmpty(textInstruction))
             {
-                back.Count = int.Parse(param);
+                Count = int.Parse(textInstruction);
             }
-            else
-            {
-                back.Count = 1;
-            }
-
-            return back;
-
-
         }
     }
 }

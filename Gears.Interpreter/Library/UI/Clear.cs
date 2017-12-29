@@ -13,6 +13,28 @@ namespace Gears.Interpreter.Library.UI
 {
     public class Clear : Keyword, IHasTechnique
     {
+        // RICH SYNTACTIC PROPERTY
+        public virtual string What
+        {
+            set => MapRichSyntaxToSemantics(new Instruction(value));
+        }
+
+        private void MapRichSyntaxToSemantics(Instruction instruction)
+        {
+            if (string.IsNullOrEmpty(instruction.Locale))
+            {
+                LabelText = instruction.SubjectName ?? LabelText;
+            }
+            else
+            {
+                LabelText = instruction.Locale;
+            }
+
+            Direction = instruction.Direction ?? Direction;
+            Order = instruction.Order ?? Order;
+            ExactMatch = instruction.Accuracy != CompareAccuracy.Partial;
+        }
+
         public virtual string LabelText { get; set; }
         public virtual SearchDirection Direction { get; set; }
         public virtual int Order { get; set; }
@@ -23,9 +45,9 @@ namespace Gears.Interpreter.Library.UI
 
         public Technique Technique { get; set; }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new Clear(ExtractSingleParameterFromTextInstruction(textInstruction));
+            this.What = textInstruction;
         }
 
         public override string CreateDocumentationMarkDown()
@@ -59,16 +81,16 @@ See [Fill](#fill) for more info.
             var spec = new Instruction(what);
             if (string.IsNullOrEmpty(spec.Locale))
             {
-                LabelText = spec.SubjectName;
+                LabelText = spec.SubjectName ?? LabelText ;
             }
             else
             {
-                LabelText = spec.Locale;
+                LabelText = spec.Locale ?? LabelText;
             }
 
-            Direction = spec.Direction;
-            Order = spec.Order;
-            ExactMatch = spec.Accuracy != Accuracy.Partial;
+            Direction = spec.Direction ?? Direction;
+            Order = spec.Order ?? Order;
+            ExactMatch = spec.Accuracy != CompareAccuracy.Partial;
         }
 
         public bool ExactMatch { get; set; }

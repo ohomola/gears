@@ -47,11 +47,9 @@ namespace Gears.Interpreter.Library.UI
             Url = url;
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            var param = ExtractSingleParameterFromTextInstruction(textInstruction);
-
-            return new GoToUrl(param);
+            Url = textInstruction;
         }
 
         public override object DoRun()

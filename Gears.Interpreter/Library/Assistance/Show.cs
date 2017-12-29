@@ -17,7 +17,7 @@ namespace Gears.Interpreter.Library.Assistance
         [XmlIgnore]
         public virtual IInterpreter Interpreter { get; set; }
 
-        private readonly IKeyword _keyword;
+        private IKeyword _keyword;
 
         public override object DoRun()
         {
@@ -58,9 +58,9 @@ Other usage is prefixing other keyword console commands with the word show. This
             this._keyword = keyword;
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            var cmd = ExtractSingleParameterFromTextInstruction(textInstruction);
+            var cmd = textInstruction;
 
             IKeyword keyword = null;
 
@@ -68,9 +68,9 @@ Other usage is prefixing other keyword console commands with the word show. This
             {
                 keyword = Interpreter.Iterator.Current;
             }
-            else if (Interpreter.Language.HasKeywordFor(cmd))
+            else if (Interpreter.Language.CanParse(cmd))
             {
-                keyword = Interpreter.Language.ResolveKeyword(cmd);
+                keyword = Interpreter.Language.ParseKeyword(cmd);
             }
             
             if (keyword == null)
@@ -80,7 +80,7 @@ Other usage is prefixing other keyword console commands with the word show. This
 
             if (keyword is IHasTechnique)
             {
-                return new Show(keyword);
+                _keyword = keyword;
             }
             
             throw new ArgumentException($"Cannot highlight {keyword.GetType().Name} because it does not support this operation. Only the following keywords are supported: \n\t{string.Join("\n\t", Interpreter.Language.Keywords.OfType<IHasTechnique>().Select(x=>" - "+x.GetType().Name))}\n");

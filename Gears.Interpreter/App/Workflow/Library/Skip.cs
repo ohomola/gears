@@ -7,7 +7,7 @@ namespace Gears.Interpreter.App.Workflow.Library
     [HelpDescription("skip (N) \t-\t skips one or N (if specified) steps")]
     public class Skip : Keyword
     {
-        public int Count { get; set;}
+        public int Count { get; set; } = 1;
 
 
         public override string CreateDocumentationMarkDown()
@@ -28,22 +28,12 @@ Skips selected number of steps of your scenario.
             return new SuccessAnswer($"Skipped {moved} step{(moved==1?"":"s")}.");
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            var skip = new Skip();
-
-            var param = ExtractSingleParameterFromTextInstruction(textInstruction);
-
-            if (!string.IsNullOrEmpty(param))
+            if (!string.IsNullOrEmpty(textInstruction))
             {
-                skip.Count = int.Parse(param);
+                this.Count = int.Parse(textInstruction);
             }
-            else
-            {
-                skip.Count = 1;
-            }
-
-            return skip;
         }
     }
 }

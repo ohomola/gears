@@ -211,7 +211,7 @@ namespace Gears.Interpreter.Core.Data
 
         public IEnumerable<object> ReadAllObjects()
         {
-            var types = TypeRegistry.GetAll().OrderBy(x => x.Name).ToList();
+            var types = TypeRegistry.Types.OrderBy(x => x.Name).ToList();
 
             if (!types.Any(x => x.Equals(typeof(Include))))
             {

@@ -26,19 +26,6 @@ namespace Gears.Interpreter.Tests.Pages
         private string _clickScenarioFilePath;
 
         [Test]
-        public void ShouldWorkWithSpecialCharacters()
-        {
-            Bootstrapper.Register();
-            var interpreter = Bootstrapper.ResolveInterpreter();
-            var response = interpreter.Please("Remember Variable1 Hello world");
-
-            ExpectFillAs("Hello world", "fill TextArea 1 with [Variable1]", interpreter);
-            ExpectFillAs("\"Hello world\"", "fill TextArea 1 with \"Hello world\"", interpreter);
-            ExpectFillAs("{hello}", "fill TextArea 1 with {hello}", interpreter);
-            ExpectFillAs("{Hello world}", "fill TextArea 1 with {[Variable1]}", interpreter);
-        }
-
-        [Test]
         public void ShouldBeAbleToSwitchEnvironment()
         {
             var url = "file:///"+ FileFinder.Find("Iteration1TestPage.html");
@@ -164,7 +151,7 @@ namespace Gears.Interpreter.Tests.Pages
             response = interpreter.Please(string.Empty);
             response = interpreter.Please(string.Empty);
             Assert.IsNotInstanceOf<SuccessAnswer>(response, response.Text);
-            response = interpreter.Please("SkipAssertions off");
+            response = interpreter.Please("off SkipAssertions");
             response = interpreter.Please(string.Empty);
             Assert.IsInstanceOf<SuccessAnswer>(response, response.Text);
 
@@ -201,20 +188,6 @@ namespace Gears.Interpreter.Tests.Pages
         private const string Scenario1CsvContent = "Discriminator,Url\nGoToUrl,[Env1Url]\n";
         private const string Scenario2CsvContent = "Discriminator,Url\nGoToUrl,[Env2Url]\n";
 
-        private static void ExpectFillAs(string expectedValue, string fillCommand, IInterpreter interpreter)
-        {
-            var selenium = ServiceLocator.Instance.Resolve<ISeleniumAdapter>();
-
-            var response = interpreter.Please("gotourl {\"file:///\"+FileFinder.Find(\"Iteration2TestPage.html\")}");
-
-            response = interpreter.Please(fillCommand);
-            Assert.IsInstanceOf<SuccessAnswer>(response);
-            var actualValue = selenium.WebDriver.FindElement(By.Id("test1")).GetAttribute("value");
-
-            Assert.AreEqual(expectedValue, actualValue);
-
-            interpreter.Please("clear TextArea 1");
-        }
 
         [Test]
         public void ShouldBeAbleToResize()

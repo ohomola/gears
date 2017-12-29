@@ -57,9 +57,9 @@ namespace Gears.Interpreter.Library
             return new SuccessAnswer($"Forgot {items.Count()} item{(items.Count!=1?"s":"")}.");
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new Forget() { What = ExtractSingleParameterFromTextInstruction(textInstruction) };
+            What = textInstruction;
         }
     }
 }

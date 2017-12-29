@@ -88,18 +88,19 @@ Checks if a checkbox or similar input is selected
 
         private void MapSyntaxToSemantics(Instruction instruction)
         {
-            SubjectName = instruction.SubjectName;
-            Locale = instruction.Locale;
-            Direction = instruction.Direction;
-            Order = instruction.Order;
-            TagNames = instruction.TagNames;
+            SubjectName = instruction.SubjectName ?? SubjectName;
+            Locale = instruction.Locale ?? Locale;
+            Direction = instruction.Direction ?? Direction;
+            Order = instruction.Order ?? Order;
+            TagNames = instruction.TagNames ?? TagNames;
             spec = instruction;
         }
 
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new IsSelected() {What = ExtractSingleParameterFromTextInstruction(textInstruction), Expect = true};
+            Expect = true;
+            What = textInstruction;
         }
 
         public override object DoRun()

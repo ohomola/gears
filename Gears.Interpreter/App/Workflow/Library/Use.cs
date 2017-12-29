@@ -31,7 +31,7 @@ Adds object of specified Type to Context. Use this keyword to turn on a configur
 #### Console usages
     use SkipAssertions
     run
-    SkipAssertions off
+    off SkipAssertions
 
 ### Additional properties
 * [Common Keyword properties](Documentation#common-keyword-properties)  
@@ -42,18 +42,18 @@ Adds object of specified Type to Context. Use this keyword to turn on a configur
         {
             object instance = null;
             var arguments = new List<object>();
-            if (Interpreter.Language.HasKeywordFor(What.ToLower()))
+            if (Interpreter.Language.CanParse(What.ToLower()))
             {
-                instance = Interpreter.Language.ResolveKeyword(What.ToLower());
+                instance = Interpreter.Language.ParseKeyword(What.ToLower());
             }
             else
             {
-                var type = TypeRegistry.GetAll(false).FirstOrDefault(x => x.Name.ToLower() == What.ToLower());
+                var type = TypeRegistry.Types.FirstOrDefault(x => x.Name.ToLower() == What.ToLower());
                 if (type == null && What.Contains(" "))
                 {
                     var firstPart = What.Split(' ')[0];
                     arguments.Add(What.Substring(firstPart.Length+1));
-                    type = TypeRegistry.GetAll(false).FirstOrDefault(x => x.Name.ToLower() == firstPart.ToLower());
+                    type = TypeRegistry.Types.FirstOrDefault(x => x.Name.ToLower() == firstPart.ToLower());
                 }
                 if (type == null)
                 {
@@ -75,15 +75,10 @@ Adds object of specified Type to Context. Use this keyword to turn on a configur
             return new SuccessAnswer($"Added {instance} to Data Context.");
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            var goTo = new Use();
+            this.What = textInstruction;
 
-            var param = ExtractSingleParameterFromTextInstruction(textInstruction);
-
-            goTo.What = param;
-
-            return goTo;
         }
 
         public string What { get; set; }

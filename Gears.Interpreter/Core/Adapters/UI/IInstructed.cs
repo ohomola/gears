@@ -2,6 +2,6 @@
 {
     public interface IInstructed
     {
-        void MapSyntaxToSemantics(Instruction instruction);
+        void MapRichSyntaxToSemantics(Instruction instruction);
     }
 }

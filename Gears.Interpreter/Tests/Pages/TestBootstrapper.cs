@@ -14,12 +14,18 @@ namespace Gears.Interpreter.Tests.Pages
 
         public static IInterpreter Setup(string csvContent)
         {
-            var fileName = $"{Directory.CreateDirectory("./Input")}\\Test.csv";
-            File.WriteAllText(fileName, csvContent);
+            var fileName = ModifyScenario(csvContent);
 
             Bootstrapper.RegisterArguments(fileName);
 
             return Bootstrapper.ResolveInterpreter();
+        }
+
+        public static string ModifyScenario(string csvContent)
+        {
+            var fileName = $"{Directory.CreateDirectory("./Input")}\\Test.csv";
+            File.WriteAllText(fileName, csvContent);
+            return fileName;
         }
 
         public static void TearDown()

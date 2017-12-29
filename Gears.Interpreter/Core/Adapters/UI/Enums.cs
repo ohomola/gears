@@ -2,7 +2,7 @@
 
 namespace Gears.Interpreter.Core.Adapters.UI
 {
-    public enum SubjectType
+    public enum WebElementType
     {
         Any = 0,
         Button,

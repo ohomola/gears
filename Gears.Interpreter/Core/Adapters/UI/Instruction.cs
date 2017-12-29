@@ -1,13 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Gears.Interpreter.Core.Adapters.UI.Lookup;
 using Gears.Interpreter.Core.Extensions;
+using JetBrains.Annotations;
 
 namespace Gears.Interpreter.Core.Adapters.UI
 {
     public class Instruction
     {
+        private const string DEFAULT_VALUE_WHEN_WORD_IS_NOT_FOUND = null;
+
         private static string QuotedWord = "(\\s?'[^']+'\\s?)";
         private static string NotPrecedingAnyControlWord = "(?!((with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
         private static string FollowingAnyControlWord = "(?<=((with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
@@ -16,23 +20,33 @@ namespace Gears.Interpreter.Core.Adapters.UI
         private static string DefaultCapturingGroupForValues = $"{QuotedWord}|{UnquotedWord}";// NOTE: order defines preference (reverting causes incorrect match of empty string as unquoted word, instead for capturing quoted word)
         private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+[a-zA-Z\\.]+)\\s?";
         private static string SpaceOrEnd = "(?:\\s|$)";
+
+        
         //private static string NumberStrippingOffNthTextSuffix = "\\s?(\\d+))(\\S*\\s?";
 
+        [CanBeNull]
         public string With { get; set; }
 
-        public SearchDirection Direction { get; set; }
+        [CanBeNull]
+        public SearchDirection? Direction { get; set; }
 
+        [CanBeNull]
         public string Locale { get; set; }
 
-        public int Order { get; set; }
+        [CanBeNull]
+        public int? Order { get; set; }
 
+        [CanBeNull]
         public string SubjectName { get; set; }
 
-        public SubjectType SubjectType { get; set; }
+        [CanBeNull]
+        public WebElementType? SubjectType { get; set; }
 
+        [CanBeNull]
         public List<ITagSelector> TagNames { get; set; }
 
-        public Accuracy Accuracy { get; set; }
+        [CanBeNull]
+        public CompareAccuracy? Accuracy { get; set; }
 
         public Instruction(string what) : this()
         {
@@ -71,14 +85,18 @@ namespace Gears.Interpreter.Core.Adapters.UI
             {
                 var orderString = GetCapturedValue(result, "Order")??string.Empty;
                 orderString = ParseNumber(orderString);
-                Order = string.IsNullOrEmpty(orderString)?0: int.Parse(orderString) - 1;
+                Order = string.IsNullOrEmpty(orderString)?(int?)null: int.Parse(orderString) - 1;
                 Direction = ParseDirection(GetCapturedValue(result, "Direction"));
                 Locale = GetCapturedValue(result, "Locale");
                 With = GetCapturedValue(result, "Text");
-                Accuracy = GetCapturedValue(result, "Accuracy")?.ToLower() == "like"?Accuracy.Partial : Accuracy.Exact;
+                Accuracy = GetCapturedValue(result, "Accuracy")?.ToLower() == "like"?CompareAccuracy.Partial : CompareAccuracy.Exact;
 
                 SubjectName = GetCapturedValue(result, "Subject");
                 this.SubjectType= MapToSubjectTypeAndAddTagnamesRange(GetCapturedValue(result, "SubjectTagName"), TagNames);
+                if (!TagNames.Any())
+                {
+                    TagNames = null;
+                }
             }
         }
 
@@ -96,29 +114,34 @@ namespace Gears.Interpreter.Core.Adapters.UI
             TagNames = new List<ITagSelector>();
         }
 
-        private SubjectType MapToSubjectTypeAndAddTagnamesRange(string subject, List<ITagSelector> selectors)
+        private WebElementType? MapToSubjectTypeAndAddTagnamesRange(string subject, List<ITagSelector> selectors)
         {
+            if (subject == null)
+            {
+                return null;
+            }
+
             subject = subject.ToLower();
 
             if (subject.Contains("button"))
             {
                 selectors.Add(new TagNameSelector("button"));
                 selectors.Add(new AttributeSelector("type", "button"));
-                return SubjectType.Button;
+                return WebElementType.Button;
             }
             else if (subject.Contains("link"))
             {
                 selectors.Add(new TagNameSelector("a"));
-                return SubjectType.Link;
+                return WebElementType.Link;
             }
             else if(subject.Contains("input") || subject.Contains("textfield") || subject.Contains("textarea"))
             {
                 selectors.Add(new TagNameSelector("input"));
                 selectors.Add(new TagNameSelector("textArea"));
-                return SubjectType.Input;
+                return WebElementType.Input;
             }
 
-            return SubjectType.Any;
+            return WebElementType.Any;
 
             //return subject
             //    .Replace("button", "")
@@ -129,8 +152,12 @@ namespace Gears.Interpreter.Core.Adapters.UI
             //    .Trim();
         }
 
-        private SearchDirection ParseDirection(string direction)
+        private SearchDirection? ParseDirection(string direction)
         {
+            if (direction == null)
+            {
+                return null;
+            }
             direction = direction.ToLower().Trim();
             switch (direction)
             {
@@ -182,16 +209,23 @@ namespace Gears.Interpreter.Core.Adapters.UI
 
         public string GetCapturedValue(Match result, string groupname)
         {
-            return result.Groups[groupname].Value.Replace("'", "").Trim();
+            var capturedValue = result.Groups[groupname].Value.Replace("'", "").Trim();
+
+            if (string.IsNullOrEmpty(capturedValue))
+            {
+                return DEFAULT_VALUE_WHEN_WORD_IS_NOT_FOUND;
+            }
+
+            return capturedValue;
         }
 
 
         public override string ToString()
         {
-            return $"{(this.Order+1).ToOrdinalString()} " +
-                   $"{(SubjectType == default(SubjectType) ? "" : SubjectType.ToString())} " +
+            return $"{(!Order.HasValue ? "" :(this.Order.Value+1).ToOrdinalString())} " +
+                   $"{(!SubjectType.HasValue? "" : SubjectType.ToString())} " +
                    $"{(string.IsNullOrEmpty(this.SubjectName)? "":$"'{this.SubjectName}'")} " +
-                   $"{(Direction==default(SearchDirection)?"": GetDescription(Direction))} " +
+                   $"{(!Direction.HasValue ? "" : GetDescription(Direction.Value))} " +
                    $"{(string.IsNullOrEmpty(Locale)?"":"'"+Locale+"'")}";
         }
 
@@ -224,7 +258,7 @@ namespace Gears.Interpreter.Core.Adapters.UI
         }
     }
 
-    public enum Accuracy
+    public enum CompareAccuracy
     {
         Exact,
         Partial,

@@ -85,8 +85,6 @@ namespace Gears.Interpreter.Tests.Pages
 
             var interpreter = Bootstrapper.ResolveInterpreter();
             
-
-            
             try
             {
                 _returnCode = (interpreter.RunOnYourOwn() as ResultAnswer).Code;

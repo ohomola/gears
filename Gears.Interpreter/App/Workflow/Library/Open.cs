@@ -81,12 +81,9 @@ namespace Gears.Interpreter.App.Workflow.Library
             }
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new Open()
-            {
-                File = ExtractSingleParameterFromTextInstruction(textInstruction)
-            };
+            File = textInstruction;
         }
 
         

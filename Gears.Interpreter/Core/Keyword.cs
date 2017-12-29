@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
@@ -33,11 +34,19 @@ using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Interpretation;
 using Gears.Interpreter.Core.Library;
 using Gears.Interpreter.Core.Registrations;
+using JetBrains.Annotations;
 
 namespace Gears.Interpreter.Core
 {
     public abstract class Keyword : IKeyword
     {
+        // TOP-LEVEL RICH SYNTACTIC PROPERTY
+        [CanBeNull]
+        public string Specification
+        {
+            set => FromString(value);
+        }
+
         // SEMANTIC PROPERTIES:
         public virtual bool Skip { get; set; }
         public virtual object Expect { get; set; }
@@ -77,10 +86,7 @@ namespace Gears.Interpreter.Core
         [XmlIgnore]
         public virtual IInterpreter Interpreter { get; set; }
 
-        
-
         public virtual string Status { get; set; } = KeywordStatus.NotExecuted.ToString();
-
 
         private string _additionalHelpDescription;
 
@@ -113,32 +119,15 @@ namespace Gears.Interpreter.Core
                 return false;
             }
 
-            if (textInstruction.ToLower().Trim().StartsWith(this.GetType().Name.ToLower()))
-            {
-                var rest = textInstruction.ToLower().Replace(GetType().Name.ToLower(), string.Empty);
-                return rest.IsNullOrEmpty() || rest.StartsWith(" ");
-            }
+            var actualName = textInstruction.Split(' ').First().Trim();
 
-            if (textInstruction.ToLower().Trim().EndsWith(this.GetType().Name.ToLower()))
-            {
-                var rest = textInstruction.ToLower().Replace(GetType().Name.ToLower(), string.Empty);
-                return rest.IsNullOrEmpty() || rest.EndsWith(" ");
-            }
+            var expectedName = this.GetType().Name;
 
-            return false;
+            return actualName.Equals(expectedName, StringComparison.OrdinalIgnoreCase);
         }
 
-        public virtual IKeyword FromString(string textInstruction)
+        public virtual void FromString(string textInstruction)
         {
-            //return (IKeyword) Activator.CreateInstance(TypeRegistry.GetAll().First(x=> textInstruction.StartsWith(x.Name.ToLower())));
-            var type = TypeRegistry.GetAll().FirstOrDefault(x => textInstruction.Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
-
-            if (type == null)
-            {
-                throw new InvalidOperationException($"Keyword not recognized from instruction '{textInstruction}'");
-            }
-
-            return (IKeyword) ServiceLocator.Instance.Resolve(type);
         }
 
         public abstract object DoRun();
@@ -272,6 +261,9 @@ namespace Gears.Interpreter.Core
         [XmlIgnore]
         public virtual Guid Guid { get; set; }
 
+        /// <summary>
+        /// Targeted by proxy resolver
+        /// </summary>
         public virtual void Hydrate()
         {
         }
@@ -295,7 +287,7 @@ namespace Gears.Interpreter.Core
         }
 
         //TODO move
-        protected static string ExtractSingleParameterFromTextInstruction(string textInstruction)
+        public static string ExtractSingleParameterFromTextInstruction(string textInstruction)
         {
             var strings = textInstruction.Split(' ');
 

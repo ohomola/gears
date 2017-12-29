@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.ConfigObjects;
@@ -41,7 +42,7 @@ namespace Gears.Interpreter.App.Registrations
 
             foreach (var argument in nonparametricArguments)
             {
-                var dtoTypes = _registry.GetAll();
+                var dtoTypes = (IEnumerable<Type>) _registry.Types;
                 var type =
                     dtoTypes.FirstOrDefault(registeredType => registeredType.Name.ToLower() == argument.Substring(1).ToLower());
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gears.Interpreter.Core;
 
@@ -25,12 +26,10 @@ namespace Gears.Interpreter.App.Workflow.Library
 {base.CreateDocumentationMarkDown()}
 Removes all objects of specified Type from Context. Use this keyword to turn off a configuration previousl turned-on by Use keyword.
 
-> Note: Off keyword is used as last word in your console command (unlike most keywordw which are itentified as first word in your instruction). Do not use it as 'off SkipAssertions' as it will not be recognized that way.
-
 #### Console usages
     use SkipAssertions
     run
-    SkipAssertions off
+    off SkipAssertions
 
 ### Additional properties
 * [Common Keyword properties](Documentation#common-keyword-properties)  
@@ -44,7 +43,7 @@ Removes all objects of specified Type from Context. Use this keyword to turn off
 
         public override object DoRun()
         {
-            var type = TypeRegistry.GetAll(false).FirstOrDefault(x => x.Name.ToLower() == What.ToLower());
+            var type = TypeRegistry.Types.FirstOrDefault(x => x.Name.ToLower() == What.ToLower());
 
             if (type == null)
             {
@@ -56,15 +55,9 @@ Removes all objects of specified Type from Context. Use this keyword to turn off
             return null;
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            var goTo = new Off();
-
-            var param = ReverseExtractSingleParameterFromTextInstruction(textInstruction);
-
-            goTo.What = param;
-
-            return goTo;
+            this.What = textInstruction;
         }
     }
 }

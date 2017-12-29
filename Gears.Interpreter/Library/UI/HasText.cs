@@ -34,22 +34,21 @@ namespace Gears.Interpreter.Library.UI
     [HelpDescription("hastext <inst> \t-\t checks if text of an element equals to expected value")]
     public class HasText : Keyword, IHasTechnique, IInstructed, IAssertion
     {
+        // RICH SYNTACTIC PROPERTY
+        public virtual string What
+        {
+            set => MapRichSyntaxToSemantics(new Instruction(value));
+        }
+
         private Instruction _instruction;
-
-        #region Semantics
         public virtual int Order { get; set; }
-
         public virtual string Text { get; set; }
-
         public virtual string LabelText { get; set; }
-
         public virtual SearchDirection Direction { get; set; }
-
         public virtual Technique Technique { get; set; }
-
         public bool ExactMatch { get; set; }
 
-        public void MapSyntaxToSemantics(Instruction instruction)
+        public void MapRichSyntaxToSemantics(Instruction instruction)
         {
             if (string.IsNullOrEmpty(instruction.Locale))
             {
@@ -60,14 +59,12 @@ namespace Gears.Interpreter.Library.UI
                 LabelText = instruction.Locale;
             }
 
-            Direction = instruction.Direction;
-            Text = instruction.With;
-            Order = instruction.Order;
+            Direction = instruction.Direction ?? Direction;
+            Text = instruction.With ?? Text;
+            Order = instruction.Order ?? Order;
             _instruction = instruction;
-            ExactMatch = instruction.Accuracy != Accuracy.Partial;
+            ExactMatch = instruction.Accuracy != CompareAccuracy.Partial;
         }
-
-        #endregion
 
         #region Documentation
 
@@ -103,7 +100,7 @@ Checks a text input element (or dropdown) located by a visible text on the scree
 
         public HasText(string what)
         {
-            MapSyntaxToSemantics(new Instruction(what));
+            MapRichSyntaxToSemantics(new Instruction(what));
         }
 
         public HasText(string what, string text) : this(what)
@@ -111,9 +108,10 @@ Checks a text input element (or dropdown) located by a visible text on the scree
             Text = text;
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new HasText(ExtractSingleParameterFromTextInstruction(textInstruction)) {Expect = true};
+            Expect = true;
+            What = textInstruction;
         }
 
         public override object DoRun()

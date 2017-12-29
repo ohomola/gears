@@ -25,7 +25,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldFindOneLabel_WhenSplitByAreas()
         {
-            _interpreter.Please($"gotourl file:///{FileFinder.Find("AreaTestPage.html")}");
+            //_interpreter.Please($"gotourl file:///{FileFinder.Find("AreaTestPage.html")}");
 
        //     _interpreter.Please("fill 2nd textfield like 'TextArea' from bottom in left with SampleText");
             //_interpreter.Please("fill 4th textfield from top with SampleText");

@@ -30,9 +30,9 @@ namespace Gears.Interpreter.Core.Data
                 var list = new List<IKeyword>();
                 foreach (var action in actions)
                 {
-                    if (Language.HasKeywordFor(action))
+                    if (Language.CanParse(action))
                     {
-                        list.Add(Language.ResolveKeyword(action));
+                        list.Add(Language.ParseKeyword(action));
                     }
                 }
 

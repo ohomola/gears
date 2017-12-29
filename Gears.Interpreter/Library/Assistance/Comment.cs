@@ -57,9 +57,9 @@ namespace Gears.Interpreter.Library.Assistance
         {
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new Comment(ExtractSingleParameterFromTextInstruction(textInstruction));
+            Text = textInstruction;
         }
 
         public override object DoRun()

@@ -43,17 +43,16 @@ The generated instruction will be saved in [it] variable so it can be immediatel
         {
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
             var strings = textInstruction.Split(' ');
 
-            if (strings.Length < 3)
+            if (strings.Length < 2)
             {
-                return new WhatIsIt();
+                return;
             }
-
-            var args = ExtractTwoParametersFromTextInstruction(textInstruction);
-            return new WhatIsIt(int.Parse(args[0]), int.Parse(args[1]));
+            _x = int.Parse(strings[0]);
+            _y= int.Parse(strings[1]);
         }
 
         public override object DoRun()
@@ -88,6 +87,7 @@ The generated instruction will be saved in [it] variable so it can be immediatel
             {
 
                 var instruction = new Instruction();
+                instruction.Order = 0;
                 if (element.Text != null)
                 {
                     instruction.SubjectName = element.Text;
@@ -96,13 +96,13 @@ The generated instruction will be saved in [it] variable so it can be immediatel
                 if (element.TagName.ToLower() == "a")
                 {
                     instruction.TagNames.Add(new TagNameSelector("a"));
-                    instruction.SubjectType =SubjectType.Link;
+                    instruction.SubjectType =WebElementType.Link;
                 }
                 else
                 {
                     instruction.TagNames.Add(new TagNameSelector("button"));
                     instruction.TagNames.Add(new AttributeSelector("type", "button"));
-                    instruction.SubjectType = SubjectType.Button;
+                    instruction.SubjectType = WebElementType.Button;
                 }
 
                 var query = new LocationHeuristictSearchStrategy(Selenium);
@@ -131,7 +131,7 @@ The generated instruction will be saved in [it] variable so it can be immediatel
                 if (relatives.Any())
                 {
                     var relativeInstruction = new Instruction();
-
+                    relativeInstruction.Order = 0;
                     relativeInstruction.Direction = SearchDirection.LeftFromAnotherElement;
                     relativeInstruction.Locale = relatives.First().WebElement.Text;
                     relativeInstruction.SubjectType = instruction.SubjectType;
@@ -150,7 +150,7 @@ The generated instruction will be saved in [it] variable so it can be immediatel
                 if (relatives.Any())
                 {
                     var relativeInstruction = new Instruction();
-
+                    relativeInstruction.Order = 0;
                     relativeInstruction.Direction = SearchDirection.RightFromAnotherElement;
                     relativeInstruction.Locale = relatives.First().WebElement.Text;
                     relativeInstruction.SubjectType = instruction.SubjectType;
@@ -169,7 +169,7 @@ The generated instruction will be saved in [it] variable so it can be immediatel
                 if (relatives.Any())
                 {
                     var relativeInstruction = new Instruction();
-
+                    relativeInstruction.Order = 0;
                     relativeInstruction.Direction = SearchDirection.BelowAnotherElement;
                     relativeInstruction.Locale = relatives.First().WebElement.Text;
                     relativeInstruction.SubjectType = instruction.SubjectType;

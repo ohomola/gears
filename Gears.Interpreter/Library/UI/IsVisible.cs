@@ -36,7 +36,7 @@ namespace Gears.Interpreter.Library.UI
     public class IsVisible : Keyword, IAssertion
     {
         private  Instruction spec;
-        public virtual List<ITagSelector> TagNames { get; set; }
+        public virtual List<ITagSelector> TagNames { get; set; } = new List<ITagSelector>();
 
         public virtual string SubjectName { get; set; }
 
@@ -92,21 +92,22 @@ Checks the presence of a web element or text in the browser window. The input pa
 
         private void MapSyntaxToSemantics(Instruction instruction)
         {
-            SubjectName = instruction.SubjectName;
-            Locale = instruction.Locale;
-            Direction = instruction.Direction;
-            Order = instruction.Order;
-            TagNames = instruction.TagNames;
+            SubjectName = instruction.SubjectName ?? SubjectName;
+            Locale = instruction.Locale ?? Locale;
+            Direction = instruction.Direction ?? Direction;
+            Order = instruction.Order ?? Order;
+            TagNames = instruction.TagNames ?? TagNames;
             spec = instruction;
-            ExactMatch = instruction.Accuracy != Accuracy.Partial;
+            ExactMatch = instruction.Accuracy != CompareAccuracy.Partial;
         }
 
         public bool ExactMatch { get; set; }
 
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new IsVisible() {What = ExtractSingleParameterFromTextInstruction(textInstruction), Expect = true};
+            What = textInstruction;
+            Expect = true;
         }
 
         public override object DoRun()

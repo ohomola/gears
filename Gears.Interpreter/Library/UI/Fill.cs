@@ -34,42 +34,36 @@ namespace Gears.Interpreter.Library.UI
     [HelpDescription("fill <inst> \t-\t fills element via instruction")]
     public class Fill : Keyword, IHasTechnique, IInstructed
     {
-        // RICH SYNTACTIC PROPERTY
-        public virtual string What
-        {
-            set => MapSyntaxToSemantics(new Instruction(value));
-        }
 
-        // I/O PUBLIC
         public virtual string Text { get; set; }
-
-        // SEMANTIC PROPERTIES:
         public virtual string LabelText { get; set; }
         public virtual int Order { get; set; }
         public virtual SearchDirection Direction { get; set; }
         public virtual Technique Technique { get; set; }
         public virtual bool ExactMatch { get; set; }
 
-        public void MapSyntaxToSemantics(Instruction instruction)
+        // RICH SYNTACTIC PROPERTY
+        public virtual string What
         {
-            if (string.IsNullOrEmpty(instruction.Locale))
-            {
-                LabelText = instruction.SubjectName;
-            }
-            else
+            set => MapRichSyntaxToSemantics(new Instruction(value));
+        }
+
+        public void MapRichSyntaxToSemantics(Instruction instruction)
+        {
+            if (!string.IsNullOrEmpty(instruction.Locale))
             {
                 LabelText = instruction.Locale;
             }
-
-            Direction = instruction.Direction;
-
-            if (instruction.With != null)
+            else
             {
-                Text = instruction.With;
+                LabelText = instruction.SubjectName ?? LabelText;
             }
 
-            Order = instruction.Order;
-            ExactMatch = instruction.Accuracy != Accuracy.Partial;
+            Direction = instruction.Direction ?? Direction;
+            Text = instruction.With ?? Text;
+            Order = instruction.Order ?? Order;
+
+            ExactMatch = instruction.Accuracy != CompareAccuracy.Partial;
         }
 
         public Fill()
@@ -91,13 +85,9 @@ namespace Gears.Interpreter.Library.UI
             return $"Fill {Order + 1}. '{LabelText}' with '{Text}'";
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            //return new Fill(ExtractSingleParameterFromTextInstruction(textInstruction));   
-            return new Fill()
-            {
-                What=ExtractSingleParameterFromTextInstruction(textInstruction)
-            };
+            What = textInstruction;
         }
 
         public override object DoRun()

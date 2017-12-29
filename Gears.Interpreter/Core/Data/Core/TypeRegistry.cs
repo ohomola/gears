@@ -28,12 +28,11 @@ namespace Gears.Interpreter.Core.Data.Core
 {
     public interface ITypeRegistry
     {
-        IEnumerable<Type> GetAll(bool includeAbstract = false);
-
         Type FirstOrDefault(string typeName);
 
         void Register(Type t);
         List<Type> Register(string file);
+        List<Type> Types { get; }
     }
 
     [Obsolete("Merged with language", true)]
@@ -59,11 +58,6 @@ namespace Gears.Interpreter.Core.Data.Core
         private static bool IsRegisteredType(Type x)
         {
             return x.Namespace.Contains("Library") || x.Namespace.Contains("ConfigObject");
-        }
-
-        public IEnumerable<Type> GetAll(bool includeAbstract = false)
-        {
-            return Types;
         }
 
         public void Register(Type t)

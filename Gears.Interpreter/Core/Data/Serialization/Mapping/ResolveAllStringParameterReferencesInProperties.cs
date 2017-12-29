@@ -27,7 +27,7 @@ namespace Gears.Interpreter.Core.Data.Serialization.Mapping
 
         private void InterceptExecute(IInvocation invocation)
         {
-            if (!invocation.Method.Name.Contains("Execute")&& invocation.Method.Name!="Hydrate")
+            if (invocation.Method.Name != nameof(Keyword.Execute) && invocation.Method.Name != nameof(Keyword.Hydrate))
             {
                 return;
             }

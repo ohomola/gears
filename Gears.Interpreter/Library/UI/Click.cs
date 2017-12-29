@@ -41,15 +41,15 @@ namespace Gears.Interpreter.Library.UI
         {
             set
             {
-                MapSyntaxToSemantics(new Instruction(value));
+                MapRichSyntaxToSemantics(new Instruction(value));
             }
         }
 
         #region Semantics
 
         public virtual int Order { get; set; }
-        public virtual SubjectType SearchedType { get; set; }
-        public virtual List<ITagSelector> SearchedTagNames { get; set; }
+        public virtual WebElementType SearchedType { get; set; }
+        public virtual List<ITagSelector> SearchedTagNames { get; set; } = new List<ITagSelector>();
         public virtual string VisibleTextOfTheButton { get; set; }
         public virtual SearchDirection Direction { get; set; }
         public virtual string NeighbourToLookFrom { get; set; }
@@ -60,15 +60,15 @@ namespace Gears.Interpreter.Library.UI
         public bool ExactMatch { get; set; }
         private Instruction _instruction;
 
-        public void MapSyntaxToSemantics(Instruction instruction)
+        public void MapRichSyntaxToSemantics(Instruction instruction)
         {
-            Order = instruction.Order;
-            SearchedTagNames = instruction.TagNames;
-            SearchedType = instruction.SubjectType;
-            VisibleTextOfTheButton = instruction.SubjectName;
-            Direction = instruction.Direction;
-            NeighbourToLookFrom = instruction.Locale;
-            ExactMatch = instruction.Accuracy != Accuracy.Partial;
+            Order = instruction.Order ?? Order;
+            SearchedTagNames = instruction.TagNames ?? SearchedTagNames;
+            SearchedType = instruction.SubjectType ?? SearchedType;
+            VisibleTextOfTheButton = instruction.SubjectName ?? VisibleTextOfTheButton;
+            Direction = instruction.Direction ?? Direction;
+            NeighbourToLookFrom = instruction.Locale ?? NeighbourToLookFrom;
+            ExactMatch = instruction.Accuracy != CompareAccuracy.Partial;
 
             if (new[]
             {
@@ -122,14 +122,14 @@ Clicks an element identified by a visible text on the screen. The input paramete
         {
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new Click() {What= ExtractSingleParameterFromTextInstruction(textInstruction)};
+            What = textInstruction;
         }
 
         public Click(string what)
         {
-            MapSyntaxToSemantics(new Instruction(what));
+            MapRichSyntaxToSemantics(new Instruction(what));
         }
 
         public override object DoRun()
@@ -186,7 +186,7 @@ Clicks an element identified by a visible text on the screen. The input paramete
         
         public override string ToString()
         {
-            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(SubjectType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":Instruction.GetDescription(Direction))} {NeighbourToLookFrom}";
+            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(WebElementType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":Instruction.GetDescription(Direction))} {NeighbourToLookFrom}";
         }
     }
 }

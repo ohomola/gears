@@ -214,55 +214,7 @@ namespace Gears.Interpreter.Tests.Pages
             Assert.AreEqual("\n--- Help ---\nConsole commands: \n ", output.First().Text);
         }
 
-        [Test]
-        public void CanEvaluate()
-        {
-            var folder = Directory.CreateDirectory("./Input");
-            var path = folder + "\\Scenario3.csv";
-            File.WriteAllText(path,
-                "Discriminator, Url, What, Expect\n" +
-                "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n" +
-                "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n");
-
-            Bootstrapper.RegisterArguments(new[] { path });
-            var interpreter = Bootstrapper.ResolveInterpreter();
-
-            interpreter.Please("start");
-            interpreter.Please("skip");
-
-            Assert.IsFalse((interpreter.Plan.First() as Keyword).IsHydrated);
-            Assert.IsFalse((interpreter.Plan.Last() as Keyword).IsHydrated);
-
-            var answer = interpreter.Please("eval");
-            Assert.IsInstanceOf<SuccessAnswer>(answer);
-            Assert.IsFalse((interpreter.Plan.First() as Keyword).IsHydrated);
-            Assert.IsTrue((interpreter.Plan.Last() as Keyword).IsHydrated);
-
-            
-            Directory.Delete("./Input", true);
-            Directory.CreateDirectory("./Input");
-            File.WriteAllText(path,
-                "Discriminator, Url, What, Expect\n" +
-                "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n" +
-                "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n"+
-                "GoToUrl,{\"file:///\"+FileFinder.Find(\"Iteration1TestPageRelativeButtons.html\")},,\n");
-
-            
-            answer = interpreter.Please("reload");
-            Assert.IsInstanceOf<SuccessAnswer>(answer);
-
-            Assert.AreEqual(3, interpreter.Plan.Count());
-            Assert.IsFalse((interpreter.Plan.First() as Keyword).IsHydrated);
-            Assert.IsFalse((interpreter.Plan.Last() as Keyword).IsHydrated);
-            Assert.AreEqual(1, interpreter.Iterator.Index);
-            
-            answer = interpreter.Please("eval");
-            Assert.IsInstanceOf<SuccessAnswer>(answer);
-            
-            Assert.IsFalse((interpreter.Plan.First() as Keyword).IsHydrated);
-            Assert.IsTrue((interpreter.Plan.Skip(1).First() as Keyword).IsHydrated);
-            Assert.IsFalse((interpreter.Plan.Last() as Keyword).IsHydrated);
-        }
+        
 
         [Test]
         public void CanEvaluateSubString()
@@ -294,7 +246,7 @@ namespace Gears.Interpreter.Tests.Pages
         }
 
         [Test]
-        public void CanDescribe()
+        public void ShouldTell_WhatIsIt()
         {
             Bootstrapper.Register();
             var interpreter = Bootstrapper.ResolveInterpreter();

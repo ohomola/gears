@@ -92,9 +92,9 @@ namespace Gears.Interpreter.App
                     keyword = Iterator.Current;
                     Iterator.MoveNext();
                 }
-                else if (Language.HasKeywordFor(command))
+                else if (Language.CanParse(command))
                 {
-                    keyword = Language.ResolveKeyword(command);
+                    keyword = Language.ParseKeyword(command);
                 }
                 else if (!string.IsNullOrEmpty(command))
                 {

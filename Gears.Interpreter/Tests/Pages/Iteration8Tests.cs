@@ -57,7 +57,7 @@ namespace Gears.Interpreter.Tests.Pages
         public void ShouldParseInstruction_WithAccuracySpecified()
         {
             var instruction = new Instruction("like 'something long' above 'something even longer' with ' an absurdely long text with numb3rs and stuff'");
-            Assert.AreEqual(Accuracy.Partial, instruction.Accuracy);
+            Assert.AreEqual(CompareAccuracy.Partial, instruction.Accuracy);
             Assert.AreEqual("something long", instruction.SubjectName);
             Assert.AreEqual("something even longer", instruction.Locale);
             Assert.AreEqual(SearchDirection.AboveAnotherElement, instruction.Direction);
@@ -69,119 +69,16 @@ namespace Gears.Interpreter.Tests.Pages
         {
             var instruction = new Instruction("2nd 'Input Name' from top");
             Assert.AreEqual(1, instruction.Order);
-            Assert.AreEqual(Accuracy.Exact, instruction.Accuracy);
+            Assert.AreEqual(CompareAccuracy.Exact, instruction.Accuracy);
             Assert.AreEqual("Input Name", instruction.SubjectName);
             Assert.AreEqual(SearchDirection.DownFromTopEdge, instruction.Direction);
         }
 
-        [Test]
-        public void ShouldParseInstruction_Bug2()
-        {
-            var instruction = new Instruction("'7 dwarfs' from top");
-            Assert.AreEqual(0, instruction.Order);
-            Assert.AreEqual("7 dwarfs", instruction.SubjectName);
-            Assert.AreEqual(SearchDirection.DownFromTopEdge, instruction.Direction);
-        }
+        
+        
 
-        [Test]
-        public void ShouldParseInstruction_WithAccuracySpecified2()
-        {
-            var instruction = new Instruction("1st button like submit like");
-            Assert.AreEqual(Accuracy.Partial, instruction.Accuracy);
-            Assert.AreEqual("submit like", instruction.SubjectName);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
-        }
 
-        [Test]
-        public void ShouldParseInstruction_WithAccuracySpecified4()
-        {
-            var instruction = new Instruction("3. button like 'Add to'");
-            Assert.AreEqual(2, instruction.Order);
-            Assert.AreEqual(Accuracy.Partial, instruction.Accuracy);
-            Assert.AreEqual("Add to", instruction.SubjectName);
-            Assert.AreEqual(SubjectType.Button, instruction.SubjectType);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
-        }
-
-        [Test]
-        public void ShouldParseInstruction_WithAccuracySpecified5()
-        {
-            var instruction = new Instruction("button like 'Add to'");
-            Assert.AreEqual(Accuracy.Partial, instruction.Accuracy);
-            Assert.AreEqual("Add to", instruction.SubjectName);
-            Assert.AreEqual(SubjectType.Button, instruction.SubjectType);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
-        }
-
-        [Test]
-        public void ShouldParseInstruction_WithAccuracySpecified7()
-        {
-            var instruction = new Instruction("button like Add to");
-            Assert.AreEqual(Accuracy.Partial, instruction.Accuracy);
-            Assert.AreEqual("Add to", instruction.SubjectName);
-            Assert.AreEqual(SubjectType.Button, instruction.SubjectType);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
-        }
-
-        [Test]
-        public void ShouldParseInstruction_WithAccuracySpecified6()
-        {
-            var instruction = new Instruction("button like 'Add to' left from 'Something'");
-            Assert.AreEqual(Accuracy.Partial, instruction.Accuracy);
-            Assert.AreEqual("Add to", instruction.SubjectName);
-            Assert.AreEqual("Something", instruction.Locale);
-            Assert.AreEqual(SubjectType.Button, instruction.SubjectType);
-            Assert.AreEqual(SearchDirection.LeftFromAnotherElement, instruction.Direction);
-        }
-
-        [Test]
-        public void ShouldParseInstruction_WithAccuracySpecified3()
-        {
-            var instruction = new Instruction("1st button 'like submit'");
-            Assert.AreEqual(Accuracy.Exact, instruction.Accuracy);
-            Assert.AreEqual("like submit", instruction.SubjectName);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
-        }
-
-        [Test]
-        public void ShouldParseInstruction_WithNumber()
-        {
-            var instruction = new Instruction("12 records");
-            Assert.AreEqual(Accuracy.Exact, instruction.Accuracy);
-            Assert.AreEqual("12 records", instruction.SubjectName);
-            Assert.AreEqual(0, instruction.Order);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
-        }
-
-        [Test]
-        public void ShouldParseInstruction_WithKeyWordSubstring()
-        {
-            var instruction = new Instruction("1st Inputs from left");
-            Assert.AreEqual("Inputs", instruction.SubjectName);
-            Assert.AreEqual(0, instruction.Order);
-            Assert.AreEqual(SubjectType.Any, instruction.SubjectType);
-            Assert.AreEqual(SearchDirection.RightFromLeftEdge, instruction.Direction);
-        }
-
-        [Test]
-        public void ShouldParseInstruction_WithKeyWordSubstring3()
-        {
-            var instruction = new Instruction("1st Input s from left");
-            Assert.AreEqual("s", instruction.SubjectName);
-            Assert.AreEqual(0, instruction.Order);
-            Assert.AreEqual(SubjectType.Input, instruction.SubjectType);
-            Assert.AreEqual(SearchDirection.RightFromLeftEdge, instruction.Direction);
-        }
-
-        [Test]
-        public void ShouldParseInstruction_WithKeyWordSubstring2()
-        {
-            var instruction = new Instruction("1st Input");
-            Assert.AreEqual("", instruction.SubjectName);
-            Assert.AreEqual(0, instruction.Order);
-            Assert.AreEqual(SubjectType.Input, instruction.SubjectType);
-            Assert.AreEqual(SearchDirection.RightFromAnotherElementInclusiveOrAnywhereNextTo, instruction.Direction);
-        }
+      
 
         [Ignore("Not sure how to do this with react checkboxes")]
         [Test]

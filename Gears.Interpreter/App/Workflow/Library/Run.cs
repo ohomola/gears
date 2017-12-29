@@ -18,7 +18,7 @@ namespace Gears.Interpreter.App.Workflow.Library
         [XmlIgnore]
         public virtual IInterpreter Interpreter2 { get; set; }
 
-        public int Count { get; set; }
+        public int Count { get; set; } = 1;
 
         public Run()
         {
@@ -78,11 +78,11 @@ Executes selected number of steps of your scenario. Use this if you want to run 
             }
         }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            var run = new Run();
+            var run = this;
 
-            var param = ExtractSingleParameterFromTextInstruction(textInstruction);
+            var param = textInstruction;
 
             if (!string.IsNullOrEmpty(param))
             {
@@ -95,12 +95,6 @@ Executes selected number of steps of your scenario. Use this if you want to run 
                     run.Count = int.Parse(param);
                 }
             }
-            else
-            {
-                run.Count = 1;
-            }
-
-            return run;
         }
     }
 }

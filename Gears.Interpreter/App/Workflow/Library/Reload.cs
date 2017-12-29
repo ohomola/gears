@@ -21,9 +21,9 @@ namespace Gears.Interpreter.App.Workflow.Library
 
         public string What { get; set; }
 
-        public override IKeyword FromString(string textInstruction)
+        public override void FromString(string textInstruction)
         {
-            return new Reload(ExtractSingleParameterFromTextInstruction(textInstruction));
+            What = textInstruction;
         }
 
 
