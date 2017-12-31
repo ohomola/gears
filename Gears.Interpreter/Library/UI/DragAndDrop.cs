@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Gears.Interpreter.App.UI.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Adapters.UI;
 using Gears.Interpreter.Core.Adapters.UI.Interoperability;
@@ -43,7 +44,7 @@ namespace Gears.Interpreter.Library.UI
         {
             set
             {
-                MapRichSyntaxToSemantics(new Instruction(value));
+                MapRichSyntaxToSemantics(new WebElementInstruction(value));
             }
         }
 
@@ -51,7 +52,7 @@ namespace Gears.Interpreter.Library.UI
 
         public virtual int Order { get; set; }
         public virtual WebElementType SearchedType { get; set; }
-        public virtual List<ITagSelector> SearchedTagNames { get; set; }
+        public virtual List<ITagSelector> SearchedTagNames { get; set; } = new List<ITagSelector>();
         public virtual string VisibleTextOfTheButton { get; set; }
         public virtual SearchDirection Direction { get; set; }
         public virtual string NeighbourToLookFrom { get; set; }
@@ -60,9 +61,9 @@ namespace Gears.Interpreter.Library.UI
         //TODO parse from instruction
         public virtual Technique Technique { get; set; }
 
-        private Instruction _instruction;
+        private WebElementInstruction _instruction;
 
-        public void MapRichSyntaxToSemantics(Instruction instruction)
+        public void MapRichSyntaxToSemantics(WebElementInstruction instruction)
         {
             Order = instruction.Order ?? Order;
             SearchedTagNames = instruction.TagNames ?? SearchedTagNames;
@@ -121,33 +122,39 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
         {
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            var parts = textInstruction.Split(' ');
-
-            parts = new[]
+            set
             {
-                parts[0],
-                parts[1],
-                string.Join(" ", parts.Skip(2))
-            };
+                var parts = value.Split(' ');
 
-            var xOffset = int.Parse(parts[0]);
-            var yOffset = int.Parse(parts[1]);
-            textInstruction = parts[2];
+                parts = new[]
+                {
+                    parts[0],
+                    parts[1],
+                    string.Join(" ", parts.Skip(2))
+                };
 
-            What = textInstruction;
-            X = xOffset;
-            Y =yOffset;
+                var xOffset = int.Parse(parts[0]);
+                var yOffset = int.Parse(parts[1]);
+                value = parts[2];
+
+                What = value;
+                X = xOffset;
+                Y = yOffset;
+            }
         }
 
         public int X { get; set; }
 
         public int Y { get; set; }
 
+        [Wire]
+        public IBrowserOverlay BrowserOverlay { get; set; }
+
         public DragAndDrop(string what)
         {
-            MapRichSyntaxToSemantics(new Instruction(what));
+            MapRichSyntaxToSemantics(new WebElementInstruction(what));
         }
 
         public override object DoRun()
@@ -170,17 +177,12 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
             switch (Technique)
             {
                 case Technique.Show:
-                    Highlighter.HighlightElements(
-                        ()=>Console.ReadLine(), 
-                        Selenium, 
-                        result.AllValidResults, 
-                        Color.FromArgb(255, 0, 150, 255), 
-                        Color.FromArgb(255, 255, 0, 255),
-                        Order,
-                        Color.FromArgb(255, 0, 255, 150),
-                        X, 
-                        Y);
-                    return new InformativeAnswer("Highlighting complete.");
+                    BrowserOverlay
+                        .HighlightElements((Order + 1).ToString(), Color.GreenYellow, result.MainResult)
+                        .HighlightElements((Order + 1).ToString(), Color.CadetBlue, result.AllValidResults.Except(new[] { result.AllValidResults.ElementAt(Order) }))
+                        .ShowUntilNextKeyword("Highlighted element will be Clicked");
+                    return new OverlayAnswer(BrowserOverlay.Artifacts, "Highlighting complete.");
+
                 case Technique.Javascript:
                     Selenium.WebDriver.Click(result.MainResult.WebElement);
                     break;
@@ -189,8 +191,9 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
                     var screenLocation = Selenium.PutElementOnScreen(result.MainResult.WebElement);
                     if (Interpreter?.IsAnalysis == true)
                     {
-                        //Highlighter.HighlightPoints(750, Selenium, screenLocation);
-                        Highlighter.HighlightElements(750, Selenium, new [] {result.MainResult}, Color.Aqua, Color.Red,-1,Color.Aqua);
+                        BrowserOverlay
+                            .HighlightElements((Order + 1).ToString(), Color.GreenYellow, result.MainResult)
+                            .ShowFor(750, "Highlighted element will be Dragged");
                     }
                     UserInteropAdapter.PressOnPoint(Selenium.BrowserHandle, screenLocation);
                     
@@ -229,7 +232,7 @@ Additional parameters X and Y indicate the vector of the 'drag' action.
         
         public override string ToString()
         {
-            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(WebElementType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":Instruction.GetDescription(Direction))} {NeighbourToLookFrom}";
+            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(WebElementType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":WebElementInstruction.GetDescription(Direction))} {NeighbourToLookFrom}";
         }
     }
 }

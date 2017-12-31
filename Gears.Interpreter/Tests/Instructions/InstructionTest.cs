@@ -17,9 +17,9 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly1()
         {
-            Assert.AreEqual("blah", new Instruction("blah").SubjectName);
+            Assert.AreEqual("blah", new WebElementInstruction("blah").SubjectName);
 
-            var instruction = new Instruction("blah left from bleh with aa");
+            var instruction = new WebElementInstruction("blah left from bleh with aa");
             Assert.AreEqual("blah", instruction.SubjectName);
             Assert.AreEqual("bleh", instruction.Locale);
             Assert.AreEqual(SearchDirection.LeftFromAnotherElement, instruction.Direction);
@@ -29,7 +29,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly2()
         {
-            var instruction = new Instruction("'something long' above 'something even longer' with ' an absurdely long text with numb3rs and stuff'");
+            var instruction = new WebElementInstruction("'something long' above 'something even longer' with ' an absurdely long text with numb3rs and stuff'");
             Assert.AreEqual("something long", instruction.SubjectName);
             Assert.AreEqual("something even longer", instruction.Locale);
             Assert.AreEqual(SearchDirection.AboveAnotherElement, instruction.Direction);
@@ -39,7 +39,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly3()
         {
-            var instruction = new Instruction("something long above something even longer with ' an absurdely long text with numb3rs and stuff'");
+            var instruction = new WebElementInstruction("something long above something even longer with ' an absurdely long text with numb3rs and stuff'");
             Assert.AreEqual("something long", instruction.SubjectName);
             Assert.AreEqual("something even longer", instruction.Locale);
             Assert.AreEqual(SearchDirection.AboveAnotherElement, instruction.Direction);
@@ -49,7 +49,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly4()
         {
-            var instruction = new Instruction("blah blah with bluh bluh");
+            var instruction = new WebElementInstruction("blah blah with bluh bluh");
             Assert.AreEqual("blah blah", instruction.SubjectName);
             Assert.AreEqual("bluh bluh", instruction.With);
         }
@@ -57,7 +57,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly5()
         {
-            var instruction = new Instruction("2nd button");
+            var instruction = new WebElementInstruction("2nd button");
             Assert.AreEqual(null, instruction.SubjectName);
             Assert.AreEqual(WebElementType.Button, instruction.SubjectType);
             Assert.AreEqual(1, instruction.Order);
@@ -66,7 +66,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly6()
         {
-            var instruction = new Instruction("4 textfield blah left from Password with 'Hello'");
+            var instruction = new WebElementInstruction("4 textfield blah left from Password with 'Hello'");
             Assert.AreEqual(null, instruction.Order);
             Assert.AreEqual(null, instruction.SubjectType);
             Assert.AreEqual("4 textfield blah", instruction.SubjectName);
@@ -78,7 +78,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly6b()
         {
-            var instruction = new Instruction("2nd textfield 4 blah 4 left from Password with 'Hello'");
+            var instruction = new WebElementInstruction("2nd textfield 4 blah 4 left from Password with 'Hello'");
             Assert.AreEqual(1, instruction.Order);
             Assert.AreEqual(WebElementType.Input, instruction.SubjectType);
             Assert.AreEqual("4 blah 4", instruction.SubjectName);
@@ -90,7 +90,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly7()
         {
-            var instruction = new Instruction("4. link from right");
+            var instruction = new WebElementInstruction("4. link from right");
             Assert.AreEqual(3, instruction.Order);
             Assert.AreEqual(null, instruction.SubjectName);
             Assert.AreEqual(WebElementType.Link, instruction.SubjectType);
@@ -101,7 +101,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly8()
         {
-            var instruction = new Instruction("4. button from left");
+            var instruction = new WebElementInstruction("4. button from left");
             Assert.AreEqual(3, instruction.Order);
             Assert.AreEqual(WebElementType.Button, instruction.SubjectType);
             Assert.AreEqual(SearchDirection.RightFromLeftEdge, instruction.Direction);
@@ -111,7 +111,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly9()
         {
-            var instruction = new Instruction("4. button login from left");
+            var instruction = new WebElementInstruction("4. button login from left");
             Assert.AreEqual(3, instruction.Order);
             Assert.AreEqual("login", instruction.SubjectName);
             Assert.AreEqual(WebElementType.Button, instruction.SubjectType);
@@ -122,7 +122,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly10()
         {
-            var instruction = new Instruction("223421th input from bottom with flowers");
+            var instruction = new WebElementInstruction("223421th input from bottom with flowers");
             Assert.AreEqual(223420, instruction.Order);
             Assert.AreEqual(null, instruction.SubjectName);
             Assert.AreEqual(WebElementType.Input, instruction.SubjectType);
@@ -134,7 +134,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstructionCorrectly11()
         {
-            var instruction = new Instruction("1st button 'blah' from bottom with flowers");
+            var instruction = new WebElementInstruction("1st button 'blah' from bottom with flowers");
             Assert.AreEqual(0, instruction.Order);
             Assert.AreEqual("blah", instruction.SubjectName);
             Assert.AreEqual(WebElementType.Button, instruction.SubjectType);
@@ -161,7 +161,7 @@ namespace Gears.Interpreter.Tests.Instructions
         public void Should_BeAbleTo_ParseSpecification()
         {
             var interpreter = TestBootstrapper.Setup(
-                @"Discriminator,    Specification
+                @"Discriminator,    Instruction
                   Fill,             1st TextArea1 from left with SampleText
                 ");
             Assert.AreEqual("SampleText", interpreter.Plan.OfType<Fill>().First().Text);
@@ -172,7 +172,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_Bug2()
         {
-            var instruction = new Instruction("'7 dwarfs' from top");
+            var instruction = new WebElementInstruction("'7 dwarfs' from top");
             Assert.AreEqual(null, instruction.Order);
             Assert.AreEqual("7 dwarfs", instruction.SubjectName);
             Assert.AreEqual(SearchDirection.DownFromTopEdge, instruction.Direction);
@@ -181,7 +181,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithAccuracySpecified2()
         {
-            var instruction = new Instruction("1st button like submit like");
+            var instruction = new WebElementInstruction("1st button like submit like");
             Assert.AreEqual(CompareAccuracy.Partial, instruction.Accuracy);
             Assert.AreEqual("submit like", instruction.SubjectName);
         }
@@ -189,7 +189,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithAccuracySpecified4()
         {
-            var instruction = new Instruction("3. button like 'Add to'");
+            var instruction = new WebElementInstruction("3. button like 'Add to'");
             Assert.AreEqual(2, instruction.Order);
             Assert.AreEqual(CompareAccuracy.Partial, instruction.Accuracy);
             Assert.AreEqual("Add to", instruction.SubjectName);
@@ -200,7 +200,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithAccuracySpecified5()
         {
-            var instruction = new Instruction("button like 'Add to'");
+            var instruction = new WebElementInstruction("button like 'Add to'");
             Assert.AreEqual(CompareAccuracy.Partial, instruction.Accuracy);
             Assert.AreEqual("Add to", instruction.SubjectName);
             Assert.AreEqual(WebElementType.Button, instruction.SubjectType);
@@ -209,7 +209,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithAccuracySpecified7()
         {
-            var instruction = new Instruction("button like Add to");
+            var instruction = new WebElementInstruction("button like Add to");
             Assert.AreEqual(CompareAccuracy.Partial, instruction.Accuracy);
             Assert.AreEqual("Add to", instruction.SubjectName);
             Assert.AreEqual(WebElementType.Button, instruction.SubjectType);
@@ -218,7 +218,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithAccuracySpecified6()
         {
-            var instruction = new Instruction("button like 'Add to' left from 'Something'");
+            var instruction = new WebElementInstruction("button like 'Add to' left from 'Something'");
             Assert.AreEqual(CompareAccuracy.Partial, instruction.Accuracy);
             Assert.AreEqual("Add to", instruction.SubjectName);
             Assert.AreEqual("Something", instruction.Locale);
@@ -229,7 +229,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithAccuracySpecified3()
         {
-            var instruction = new Instruction("1st button 'like submit'");
+            var instruction = new WebElementInstruction("1st button 'like submit'");
             Assert.AreEqual(CompareAccuracy.Exact, instruction.Accuracy);
             Assert.AreEqual("like submit", instruction.SubjectName);
         }
@@ -237,7 +237,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithNumber()
         {
-            var instruction = new Instruction("12 records");
+            var instruction = new WebElementInstruction("12 records");
             Assert.AreEqual(CompareAccuracy.Exact, instruction.Accuracy);
             Assert.AreEqual("12 records", instruction.SubjectName);
             Assert.AreEqual(null, instruction.Order);
@@ -247,7 +247,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithKeyWordSubstring()
         {
-            var instruction = new Instruction("1st Inputs from left");
+            var instruction = new WebElementInstruction("1st Inputs from left");
             Assert.AreEqual("Inputs", instruction.SubjectName);
             Assert.AreEqual(0, instruction.Order);
             Assert.AreEqual(null, instruction.SubjectType);
@@ -257,7 +257,7 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithKeyWordSubstring3()
         {
-            var instruction = new Instruction("1st Input s from left");
+            var instruction = new WebElementInstruction("1st Input s from left");
             Assert.AreEqual("s", instruction.SubjectName);
             Assert.AreEqual(0, instruction.Order);
             Assert.AreEqual(WebElementType.Input, instruction.SubjectType);
@@ -267,11 +267,64 @@ namespace Gears.Interpreter.Tests.Instructions
         [Test]
         public void ShouldParseInstruction_WithKeyWordSubstring2()
         {
-            var instruction = new Instruction("1st Input");
+            var instruction = new WebElementInstruction("1st Input");
             Assert.AreEqual(null, instruction.SubjectName);
             Assert.AreEqual(0, instruction.Order);
             Assert.AreEqual(WebElementType.Input, instruction.SubjectType);
             Assert.AreEqual(null, instruction.Direction);
         }
+
+        [Test]
+        public void ShouldParseInstruction_WithArea()
+        {
+            var instruction = new WebElementInstruction("1st Input inside left center");
+            Assert.AreEqual(null, instruction.SubjectName);
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual(WebElementType.Input, instruction.SubjectType);
+            Assert.AreEqual(null, instruction.Direction);
+            Assert.AreEqual("left center", instruction.Area);
+        }
+
+        [Test]
+        public void ShouldParseInstruction_WithArea2()
+        {
+            var instruction = new WebElementInstruction("45th button like 'Add to' left from 'Something' inside Marshmallow village with Green Butter");
+            Assert.AreEqual(CompareAccuracy.Partial, instruction.Accuracy);
+            Assert.AreEqual(44, instruction.Order);
+            Assert.AreEqual("Add to", instruction.SubjectName);
+            Assert.AreEqual("Something", instruction.Locale);
+            Assert.AreEqual(WebElementType.Button, instruction.SubjectType);
+            Assert.AreEqual(SearchDirection.LeftFromAnotherElement, instruction.Direction);
+            Assert.AreEqual("Green Butter", instruction.With);
+            Assert.AreEqual("Marshmallow village", instruction.Area);
+        }
+
+        [Test]
+        [Ignore("Known Bug")]
+        public void ShouldParseInstruction_WithKeyWordSubstring4()
+        {
+            Assert.AreEqual("within", new WebElementInstruction("1st withinside").SubjectName);
+
+            Assert.AreEqual("fillin", new WebElementInstruction("1st button fillinside").SubjectName);
+        }
+
+        [Test]
+        public void ShouldParseInstruction_WithKeyWordSubstring5()
+        {
+            var instruction = new WebElementInstruction("1st 'inwith' with 'inside'");
+            Assert.AreEqual("inwith", instruction.SubjectName);
+            Assert.AreEqual(0, instruction.Order);
+            Assert.AreEqual("inside", instruction.With);
+        }
+
+        // Test for potential mismatches with 'In' control word
+        [Test]
+        public void ShouldParseInstruction_WithKeyWordSubstring6()
+        {
+            Assert.AreEqual("blink", new WebElementInstruction("1st button blink").SubjectName);
+
+            Assert.AreEqual("interceptor", new WebElementInstruction("1st button interceptor").SubjectName);
+        }
+
     }
 }

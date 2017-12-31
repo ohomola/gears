@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Castle.Core.Internal;
+using Gears.Interpreter.App.Configuration;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.ConfigObjects;
 using Gears.Interpreter.Core.Data;
@@ -15,7 +16,7 @@ namespace Gears.Interpreter.App.Workflow.Library
     {
         public override object DoRun()
         {
-            var eventHandlers = Data.GetAll<IApplicationEventHandler>();
+            var eventHandlers = Data.GetAll<IAutoRegistered>();
             RegisterEventHandlers(eventHandlers);
 
             //Interpreter.Plan = Data.GetAll<Keyword>().ToList();
@@ -48,7 +49,7 @@ namespace Gears.Interpreter.App.Workflow.Library
             return successAnswer;
         }
 
-        private void RegisterEventHandlers(IEnumerable<IApplicationEventHandler> applicationEventHandlers)
+        private void RegisterEventHandlers(IEnumerable<IAutoRegistered> applicationEventHandlers)
         {
             foreach (var handler in applicationEventHandlers)
             {

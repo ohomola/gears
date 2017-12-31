@@ -77,9 +77,9 @@ What parameter indicates a filename prefix to the created file. Suffix of the fi
             return new SuccessAnswer("Saved file "+outputFile);
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            What = textInstruction;
+            set { What = value; }
         }
     }
 }

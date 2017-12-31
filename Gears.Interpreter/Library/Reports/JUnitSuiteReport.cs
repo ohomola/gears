@@ -20,7 +20,7 @@
     //        //applicationLoop.SuiteFinished += CreateNewFile;
     //    }
 
-    //    private void CreateNewFile(object sender, ScenarioFinishedEventArgs e)
+    //    private void CreateNewFile(object sender, ScenarioEventArgs e)
     //    {
     //        _path = string.Format(_path, DateTime.Now.ToString("s").Replace(":", "_") + "_"+ ++_filesCreated);
 
@@ -38,7 +38,7 @@
 
     //    public override object DoRun()
     //    {
-    //        CreateNewFile(null,new ScenarioFinishedEventArgs(Interpreter.GetLog().ToList()));
+    //        CreateNewFile(null,new ScenarioEventArgs(Interpreter.GetLog().ToList()));
 
     //        return new SuccessAnswer($"Saved report to {_path}");
     //    }

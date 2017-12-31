@@ -69,22 +69,25 @@ Saves a specified value to a variable for later use. Your currently memorized va
         #endregion
 
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            var args = textInstruction.Split(' ');
-
-            args = new[]
+            set
             {
-                args.First(),
-                string.Join(" ", args.Skip(1))
-            };
+                var args = value.Split(' ');
 
-            if (args.Length < 2)
-            {
-                throw new ArgumentException("Must provide two parameters.");
+                args = new[]
+                {
+                    args.First(),
+                    string.Join(" ", args.Skip(1))
+                };
+
+                if (args.Length < 2)
+                {
+                    throw new ArgumentException("Must provide two parameters.");
+                }
+                Variable = args[0];
+                What = args[1];
             }
-            Variable = args[0];
-            What = args[1];
         }
 
         public override object DoRun()

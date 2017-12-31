@@ -75,10 +75,9 @@ Adds object of specified Type to Context. Use this keyword to turn on a configur
             return new SuccessAnswer($"Added {instance} to Data Context.");
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            this.What = textInstruction;
-
+            set { this.What = value; }
         }
 
         public string What { get; set; }

@@ -41,16 +41,19 @@ Forces window to take a certain size. The purpose is to stabilise tests in respo
             Width = width;
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            textInstruction = textInstruction.Replace(" to ", " ");
-            textInstruction = textInstruction.Replace(" x ", " ");
-            textInstruction = textInstruction.Replace(" X ", " ");
-            var parts = textInstruction.Split(' ');
+            set
+            {
+                value = value.Replace(" to ", " ");
+                value = value.Replace(" x ", " ");
+                value = value.Replace(" X ", " ");
+                var parts = value.Split(' ');
 
-            What = parts[0];
-            Width = int.Parse(parts[1]);
-            Height = int.Parse(parts[2]);
+                What = parts[0];
+                Width = int.Parse(parts[1]);
+                Height = int.Parse(parts[2]);
+            }
         }
 
         public override object DoRun()

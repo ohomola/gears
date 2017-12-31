@@ -47,7 +47,7 @@ namespace Gears.Interpreter.Library.Reports
             interpreter.ScenarioFinished += WriteLog;
         }
 
-        private void WriteLog(object sender, ScenarioFinishedEventArgs e)
+        private void WriteLog(object sender, ScenarioEventArgs e)
         {
             _path = string.Format(_pathTemplate, DateTime.Now.ToString("s").Replace(":", "_") + _filesCreated++);
 
@@ -65,7 +65,7 @@ namespace Gears.Interpreter.Library.Reports
 
         public override object DoRun()
         {
-            WriteLog(null, new ScenarioFinishedEventArgs(Interpreter.GetLoggedKeywords().ToList(), "Master scenario"));
+            WriteLog(null, new ScenarioEventArgs(Interpreter.GetLoggedKeywords().ToList(), "Master scenario"));
 
             return new SuccessAnswer($"Saved report to {_path}");
         }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Linq;
 using System.Xml.Serialization;
 using Gears.Interpreter.App.UI.Overlay;
 using Gears.Interpreter.Core;
@@ -13,13 +15,17 @@ namespace Gears.Interpreter.Library.UI
 {
     public class Clear : Keyword, IHasTechnique
     {
-        // RICH SYNTACTIC PROPERTY
-        public virtual string What
+        public override string Instruction
         {
-            set => MapRichSyntaxToSemantics(new Instruction(value));
+            set => What = value;
         }
 
-        private void MapRichSyntaxToSemantics(Instruction instruction)
+        public virtual string What
+        {
+            set => MapRichSyntaxToSemantics(new WebElementInstruction(value));
+        }
+
+        private void MapRichSyntaxToSemantics(WebElementInstruction instruction)
         {
             if (string.IsNullOrEmpty(instruction.Locale))
             {
@@ -44,11 +50,6 @@ namespace Gears.Interpreter.Library.UI
         public IOverlay Overlay { get; set; }
 
         public Technique Technique { get; set; }
-
-        public override void FromString(string textInstruction)
-        {
-            this.What = textInstruction;
-        }
 
         public override string CreateDocumentationMarkDown()
         {
@@ -78,7 +79,7 @@ See [Fill](#fill) for more info.
 
         public Clear(string what)
         {
-            var spec = new Instruction(what);
+            var spec = new WebElementInstruction(what);
             if (string.IsNullOrEmpty(spec.Locale))
             {
                 LabelText = spec.SubjectName ?? LabelText ;
@@ -95,6 +96,10 @@ See [Fill](#fill) for more info.
 
         public bool ExactMatch { get; set; }
 
+        [Wire]
+        public IBrowserOverlay BrowserOverlay { get; set; }
+
+
         public override object DoRun()
         {
             try
@@ -110,8 +115,12 @@ See [Fill](#fill) for more info.
                 switch (Technique)
                 {
                     case Technique.Show:
-                        Highlighter.HighlightElements(Selenium, lookupResult.AllValidResults);
-                        return new InformativeAnswer("Highlighting complete.");
+                        BrowserOverlay
+                            .HighlightElements((Order + 1).ToString(), Color.GreenYellow, lookupResult.AllValidResults.ElementAt(Order))
+                            .HighlightElements((Order + 1).ToString(), Color.CadetBlue, lookupResult.AllValidResults.Except(new[] { lookupResult.AllValidResults.ElementAt(Order) }))
+                            .ShowUntilNextKeyword("Highlighted element will be Cleared");
+
+                        return new OverlayAnswer(BrowserOverlay.Artifacts, "Highlighting complete.");
                     case Technique.MouseAndKeyboard:
                         lookupResult.MainResult.WebElement.SendKeys(Keys.LeftControl + "a");
                         lookupResult.MainResult.WebElement.SendKeys(Keys.Delete);

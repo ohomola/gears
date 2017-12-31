@@ -56,7 +56,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldParseInstruction_WithAccuracySpecified()
         {
-            var instruction = new Instruction("like 'something long' above 'something even longer' with ' an absurdely long text with numb3rs and stuff'");
+            var instruction = new WebElementInstruction("like 'something long' above 'something even longer' with ' an absurdely long text with numb3rs and stuff'");
             Assert.AreEqual(CompareAccuracy.Partial, instruction.Accuracy);
             Assert.AreEqual("something long", instruction.SubjectName);
             Assert.AreEqual("something even longer", instruction.Locale);
@@ -67,7 +67,7 @@ namespace Gears.Interpreter.Tests.Pages
         [Test]
         public void ShouldParseInstruction_Bug()
         {
-            var instruction = new Instruction("2nd 'Input Name' from top");
+            var instruction = new WebElementInstruction("2nd 'Input Name' from top");
             Assert.AreEqual(1, instruction.Order);
             Assert.AreEqual(CompareAccuracy.Exact, instruction.Accuracy);
             Assert.AreEqual("Input Name", instruction.SubjectName);

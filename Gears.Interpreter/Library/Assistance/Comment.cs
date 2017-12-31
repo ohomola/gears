@@ -57,9 +57,9 @@ namespace Gears.Interpreter.Library.Assistance
         {
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            Text = textInstruction;
+            set { Text = value; }
         }
 
         public override object DoRun()

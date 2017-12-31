@@ -10,16 +10,6 @@ namespace Gears.Interpreter.App.Workflow.Library
     {
         public int Count { get; set; } = 1;
 
-        public override string CreateDocumentationMarkDown()
-        {
-            return
-                $@"{base.CreateDocumentationMarkDown()}
-Moves selected keyword one step back. You can also add a number parameter to specify the numer of steps.
-#### Console usages
-    back
-    back 4";
-        }
-
         public override object DoRun()
         {
             if (Interpreter.Iterator.Index == 0 && Interpreter.Plan.OfType<StepOut>().Any())
@@ -33,12 +23,27 @@ Moves selected keyword one step back. You can also add a number parameter to spe
             return new SuccessAnswer($"Backed {moved} step{(moved == 1 ? "" : "s")}.");
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            if (!string.IsNullOrEmpty(textInstruction))
+            set
             {
-                Count = int.Parse(textInstruction);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    Count = int.Parse(value);
+                }
             }
         }
+
+        #region Documentation
+        public override string CreateDocumentationMarkDown()
+        {
+            return
+                $@"{base.CreateDocumentationMarkDown()}
+Moves selected keyword one step back. You can also add a number parameter to specify the numer of steps.
+#### Console usages
+    back
+    back 4";
+        }
+        #endregion
     }
 }

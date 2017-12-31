@@ -131,7 +131,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App\Workflow\StepFinishedEventArgs.cs" />
+    <Compile Include="App\UI\Overlay\Artifact.cs" />
+    <Compile Include="App\UI\Overlay\BrowserOverlay.cs" />
+    <Compile Include="App\Workflow\Library\AnalyseData.cs" />
+    <Compile Include="App\Workflow\StepEventArgs.cs" />
     <Compile Include="Core\Adapters\DB\DatabaseAdapter.cs" />
     <Compile Include="Core\Adapters\DB\IDatabaseAdapter.cs" />
     <Compile Include="Core\Adapters\UI\ISeleniumAdapter.cs" />
@@ -156,6 +159,7 @@
     <Compile Include="Core\Interpretation\INegativeAnswer.cs" />
     <Compile Include="Core\Interpretation\InformativeAnswer.cs" />
     <Compile Include="Core\Interpretation\InformativeDetailAnswer.cs" />
+    <Compile Include="Core\Interpretation\OverlayAnswer.cs" />
     <Compile Include="Core\Interpretation\ProblemDescriptionAnswer.cs" />
     <Compile Include="Core\Interpretation\ResultAnswer.cs" />
     <Compile Include="Core\Interpretation\StatusAnswer.cs" />
@@ -171,11 +175,10 @@
     <Compile Include="Core\KeywordStatus.cs" />
     <Compile Include="App\UI\ConsoleDebuggerCommand.cs" />
     <Compile Include="App\Configuration\IAutoRegistered.cs" />
-    <Compile Include="App\UI\Overlay\ClickableHudForm.cs">
+    <Compile Include="App\UI\Overlay\HudForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="App\UI\Overlay\HUD.cs" />
-    <Compile Include="App\UI\Overlay\ClickableHudWorker.cs" />
+    <Compile Include="App\UI\Overlay\AnnotationOverlay.cs" />
     <Compile Include="App\UI\Overlay\OverlayForm2.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -211,7 +214,7 @@
     </Compile>
     <Compile Include="App\UI\Overlay\Overlay.cs" />
     <Compile Include="App\Workflow\IApplicationEventHandler.cs" />
-    <Compile Include="App\Workflow\ScenarioFinishedEventArgs.cs" />
+    <Compile Include="App\Workflow\ScenarioEventArgs.cs" />
     <Compile Include="Core\Extensions\Extensions.cs" />
     <Compile Include="Core\Extensions\StringExtensions.cs" />
     <Compile Include="Core\Registrations\ServiceLocator.cs" />
@@ -261,7 +264,7 @@
     <Compile Include="App\Workflow\Library\Back.cs" />
     <Compile Include="Core\Adapters\UI\Enums.cs" />
     <Compile Include="Core\Adapters\UI\IInstructed.cs" />
-    <Compile Include="Core\Adapters\UI\Instruction.cs" />
+    <Compile Include="Core\Adapters\UI\WebElementInstruction.cs" />
     <Compile Include="Library\IsTrue.cs" />
     <Compile Include="Core\Adapters\UI\Lookup\LocationHeuristictSearchStrategy.cs" />
     <Compile Include="Core\Adapters\UI\Lookup\LookupFailureException.cs" />
@@ -311,6 +314,7 @@
     <Compile Include="Tests\Areas\AreaTest.cs" />
     <Compile Include="Tests\Expressions\ExpressionTest.cs" />
     <Compile Include="Tests\Instructions\InstructionTest.cs" />
+    <Compile Include="Tests\Library\Show\ShowTest.cs" />
     <Compile Include="Tests\Pages\Iteration10Tests.cs" />
     <Compile Include="Tests\Pages\Iteration9Tests.cs" />
     <Compile Include="Tests\Pages\Iteration3Tests.cs" />
@@ -369,6 +373,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Expressions\ExpressionTestPage.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Library\Show\ShowTestPage.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Pages\Iteration5TestPage.html">

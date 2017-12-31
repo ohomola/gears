@@ -21,9 +21,9 @@ namespace Gears.Interpreter.App.Workflow.Library
 
         public string What { get; set; }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            What = textInstruction;
+            set { What = value; }
         }
 
 

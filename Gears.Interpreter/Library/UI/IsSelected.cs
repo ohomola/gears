@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Gears.Interpreter.App.UI.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Adapters.UI;
 using Gears.Interpreter.Core.Adapters.UI.Interoperability;
@@ -36,7 +37,7 @@ namespace Gears.Interpreter.Library.UI
     [HelpDescription("isselected <i>\t-\t checks if a checkbox or similar input is selected")]
     public class IsSelected : Keyword, IAssertion
     {
-        private  Instruction spec;
+        private  WebElementInstruction spec;
         public virtual List<ITagSelector> TagNames { get; set; }
 
         public virtual string SubjectName { get; set; }
@@ -51,7 +52,7 @@ namespace Gears.Interpreter.Library.UI
         {
             set
             {
-                MapSyntaxToSemantics(new Instruction(value));
+                MapSyntaxToSemantics(new WebElementInstruction(value));
             }
         }
 
@@ -83,10 +84,10 @@ Checks if a checkbox or similar input is selected
 
         public IsSelected(string what)
         {
-            MapSyntaxToSemantics(new Instruction(what));
+            MapSyntaxToSemantics(new WebElementInstruction(what));
         }
 
-        private void MapSyntaxToSemantics(Instruction instruction)
+        private void MapSyntaxToSemantics(WebElementInstruction instruction)
         {
             SubjectName = instruction.SubjectName ?? SubjectName;
             Locale = instruction.Locale ?? Locale;
@@ -96,11 +97,16 @@ Checks if a checkbox or similar input is selected
             spec = instruction;
         }
 
+        [Wire]
+        public IBrowserOverlay BrowserOverlay { get; set; }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            Expect = true;
-            What = textInstruction;
+            set
+            {
+                Expect = true;
+                What = value;
+            }
         }
 
         public override object DoRun()
@@ -137,7 +143,9 @@ Checks if a checkbox or similar input is selected
             {
                 if (Interpreter?.IsDebugMode == true)
                 {
-                    Highlighter.HighlightElements(750, Selenium, lookupResult.AllValidResults, (Expect.ToString().ToLower().Equals(true.ToString().ToLower()) ? Color.GreenYellow : Color.Red), Color.Yellow, -1, Color.Black);
+                    BrowserOverlay
+                        .HighlightElements((Order + 1).ToString(), (Expect.ToString().ToLower().Equals(true.ToString().ToLower()) ? Color.GreenYellow : Color.Red), lookupResult.MainResult)
+                        .ShowFor(750, "Highlighted element will be Clicked");
                 }
                 return lookupResult.AllValidResults.ElementAt(Order).WebElement.Selected;
             }

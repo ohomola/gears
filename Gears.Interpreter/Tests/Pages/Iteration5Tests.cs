@@ -396,7 +396,7 @@ namespace Gears.Interpreter.Tests.Pages
                 interpreter.ScenarioFinished += SaveKeywords;
             }
 
-            protected virtual void SaveKeywords(object sender, ScenarioFinishedEventArgs e)
+            protected virtual void SaveKeywords(object sender, ScenarioEventArgs e)
             {
                 Keywords.AddRange(e.Keywords);
             }

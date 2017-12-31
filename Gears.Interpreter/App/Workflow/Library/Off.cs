@@ -55,9 +55,9 @@ Removes all objects of specified Type from Context. Use this keyword to turn off
             return null;
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            this.What = textInstruction;
+            set { this.What = value; }
         }
     }
 }

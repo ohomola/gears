@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
+using Gears.Interpreter.App.UI.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Adapters.UI;
 using Gears.Interpreter.Core.Adapters.UI.Interoperability;
@@ -37,15 +38,21 @@ namespace Gears.Interpreter.Library.UI
     [HelpDescription("click <inst>\t-\t clicks a button identified by instruction")]
     public class Click : Keyword, IHasTechnique, IInstructed
     {
+        [Wire]
+        public IBrowserOverlay BrowserOverlay { get; set; }
+
+        public override string Instruction
+        {
+            set => What = value;
+        }
+
         public virtual string What
         {
             set
             {
-                MapRichSyntaxToSemantics(new Instruction(value));
+                MapRichSyntaxToSemantics(new WebElementInstruction(value));
             }
         }
-
-        #region Semantics
 
         public virtual int Order { get; set; }
         public virtual WebElementType SearchedType { get; set; }
@@ -53,14 +60,12 @@ namespace Gears.Interpreter.Library.UI
         public virtual string VisibleTextOfTheButton { get; set; }
         public virtual SearchDirection Direction { get; set; }
         public virtual string NeighbourToLookFrom { get; set; }
-        //TODO parse from instruction
         public virtual bool LookForOrthogonalNeighboursOnly { get; set; }
-        //TODO parse from instruction
         public virtual Technique Technique { get; set; }
         public bool ExactMatch { get; set; }
-        private Instruction _instruction;
+        private WebElementInstruction _instruction;
 
-        public void MapRichSyntaxToSemantics(Instruction instruction)
+        public void MapRichSyntaxToSemantics(WebElementInstruction instruction)
         {
             Order = instruction.Order ?? Order;
             SearchedTagNames = instruction.TagNames ?? SearchedTagNames;
@@ -85,51 +90,13 @@ namespace Gears.Interpreter.Library.UI
             _instruction = instruction;
         }
 
-        
-
-        #endregion
-
-
-        #region Documentation
-
-        public override string CreateDocumentationMarkDown()
-        {
-            return $@"
-{base.CreateDocumentationMarkDown()}
-Clicks an element identified by a visible text on the screen. The input parameter is a query instruction passed as a string to parameter 'What'. See [Web element instructions](#web-element-instructions) for more info.
-
-#### Scenario usages
-| Discriminator | What |
-| ------------- | ---- |
-| Click         | Save |
-| Click         | 1st button 'save customer' below 'New Customer'|
-| Click         | 1st button like 'save' below 'New Customer'|
-| Click         | 4th button from right|
-
-#### Console usages
-    click save
-    click 4th button from right
-    show click save
-
-### Additional properties
-* [Common Keyword properties](Documentation#common-keyword-properties)  
-";
-        }
-
-        #endregion
-
         public Click()
         {
         }
 
-        public override void FromString(string textInstruction)
-        {
-            What = textInstruction;
-        }
-
         public Click(string what)
         {
-            MapRichSyntaxToSemantics(new Instruction(what));
+            MapRichSyntaxToSemantics(new WebElementInstruction(what));
         }
 
         public override object DoRun()
@@ -163,18 +130,26 @@ Clicks an element identified by a visible text on the screen. The input paramete
             switch (Technique)
             {
                 case Technique.Show:
-                    Highlighter.HighlightElements(Selenium, result.AllValidResults.ToList(), Order);
-                    return new InformativeAnswer("Highlighting complete.");
+
+                    BrowserOverlay
+                        .HighlightElements((Order + 1).ToString(), Color.GreenYellow, result.MainResult)
+                        .HighlightElements((Order + 1).ToString(), Color.CadetBlue, result.AllValidResults.Except(new[] { result.AllValidResults.ElementAt(Order) }))
+                        .ShowUntilNextKeyword("Highlighted element will be Clicked");
+                    return new OverlayAnswer(BrowserOverlay.Artifacts, "Highlighting complete.");
+
                 case Technique.Javascript:
                     Selenium.WebDriver.Click(result.MainResult.WebElement);
                     break;
                 case Technique.MouseAndKeyboard:
                     Selenium.BringToFront();
                     var screenLocation = Selenium.PutElementOnScreen(result.MainResult.WebElement);
+
                     if (Interpreter?.IsAnalysis == true)
                     {
-                        //Highlighter.HighlightPoints(750, Selenium, screenLocation);
-                        Highlighter.HighlightElements(750, Selenium, new [] {result.MainResult}, Color.Aqua, Color.Red,-1,Color.Aqua);
+                        BrowserOverlay
+                            .HighlightElements((Order + 1).ToString(), Color.GreenYellow, result.MainResult)
+                            .ShowFor(750,"Highlighted element will be Clicked");
+
                     }
                     UserInteropAdapter.ClickOnPoint(Selenium.BrowserHandle, screenLocation);
                     Thread.Sleep(50);
@@ -186,7 +161,35 @@ Clicks an element identified by a visible text on the screen. The input paramete
         
         public override string ToString()
         {
-            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(WebElementType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":Instruction.GetDescription(Direction))} {NeighbourToLookFrom}";
+            return $"Click {(Order+1).ToOrdinalString()} {(SearchedType == default(WebElementType) ? "" : SearchedType.ToString())} {VisibleTextOfTheButton} {(Direction==default(SearchDirection)?"":WebElementInstruction.GetDescription(Direction))} {NeighbourToLookFrom}";
         }
+
+        #region Documentation
+
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Clicks an element identified by a visible text on the screen. The input parameter is a query instruction passed as a string to parameter 'What'. See [Web element instructions](#web-element-instructions) for more info.
+
+#### Scenario usages
+| Discriminator | What |
+| ------------- | ---- |
+| Click         | Save |
+| Click         | 1st button 'save customer' below 'New Customer'|
+| Click         | 1st button like 'save' below 'New Customer'|
+| Click         | 4th button from right|
+
+#### Console usages
+    click save
+    click 4th button from right
+    show click save
+
+### Additional properties
+* [Common Keyword properties](Documentation#common-keyword-properties)  
+";
+        }
+
+        #endregion
     }
 }

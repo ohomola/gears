@@ -21,25 +21,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Gears.Interpreter.App;
 using Gears.Interpreter.App.Configuration;
+using Gears.Interpreter.Core.Adapters.UI.Interoperability;
+using Gears.Interpreter.Core.Adapters.UI.Interoperability.ExternalMethodBindings;
 
 namespace Gears.Interpreter.Core.ConfigObjects
 {
-    public class DebugMode : IAutoRegistered, IHaveDocumentation
+    public class DebugMode : IAutoRegistered, IHaveDocumentation, IProtected, IConfig
     {
         public DebugMode()
         {
-            IsActive = true;
         }
-
-        public DebugMode(bool isActive)
-        {
-            IsActive = isActive;
-        }
-
-        public bool IsActive { get; set; }
 
         public void Register(IInterpreter interpreter)
         {
+            UserBindings.SetWindowPos(UserBindings.GetConsoleWindow(), 0, UserInteropAdapter.PrimaryScreenWidth/2, 0, UserInteropAdapter.PrimaryScreenWidth / 2, UserInteropAdapter.PrimaryScreenHeight , 0);
         }
 
         public string CreateDocumentationMarkDown()

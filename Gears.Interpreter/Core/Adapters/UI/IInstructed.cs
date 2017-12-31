@@ -2,6 +2,6 @@
 {
     public interface IInstructed
     {
-        void MapRichSyntaxToSemantics(Instruction instruction);
+        void MapRichSyntaxToSemantics(WebElementInstruction instruction);
     }
 }

@@ -38,7 +38,7 @@ using Gears.Interpreter.Core.Registrations;
 
 namespace Gears.Interpreter.App.Registrations
 {
-    public class Bootstrapper
+    public static class Bootstrapper
     {
         public static WindsorContainer Container { get; private set; }
 
@@ -127,6 +127,9 @@ namespace Gears.Interpreter.App.Registrations
             Container.Register(Component.For<ILateBoundDataContext>().ImplementedBy<LateBoundDataContext>().LifestyleSingleton());
 
             Container.Register(Component.For<IInterpreter>().ImplementedBy<Interpreter>().LifestyleSingleton());
+
+            Container.Register(Component.For<IAnnotationOverlay>().ImplementedBy<AnnotationOverlay>().LifestyleSingleton());
+            Container.Register(Component.For<IBrowserOverlay>().ImplementedBy<BrowserOverlay>().LifestyleSingleton());
 
             Container.Kernel.AddFacility<TypedFactoryFacility>();
             ServiceLocator.Initialise(Container);

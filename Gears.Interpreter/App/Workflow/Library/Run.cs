@@ -78,21 +78,24 @@ Executes selected number of steps of your scenario. Use this if you want to run 
             }
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            var run = this;
-
-            var param = textInstruction;
-
-            if (!string.IsNullOrEmpty(param))
+            set
             {
-                if (param.ToLower() == "all")
+                var run = this;
+
+                var param = value;
+
+                if (!string.IsNullOrEmpty(param))
                 {
-                    run.Count = int.MaxValue;
-                }
-                else
-                {
-                    run.Count = int.Parse(param);
+                    if (param.ToLower() == "all")
+                    {
+                        run.Count = int.MaxValue;
+                    }
+                    else
+                    {
+                        run.Count = int.Parse(param);
+                    }
                 }
             }
         }

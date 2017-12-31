@@ -34,7 +34,7 @@ Steps out of a scenario. Used only when currently inside a scenario (via Show Ru
 
         public override object DoRun()
         {
-            Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Interpreter.Plan.ToList(), FileName));
+            Interpreter.OnScenarioFinished(new ScenarioEventArgs(Interpreter.Plan.ToList(), FileName));
 
             var isScenarioFailed = Interpreter.Plan.Any(x => x.Status.ToString() == KeywordStatus.Error.ToString());
 

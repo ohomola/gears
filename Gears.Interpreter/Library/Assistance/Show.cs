@@ -21,12 +21,18 @@ namespace Gears.Interpreter.Library.Assistance
 
         public override object DoRun()
         {
+            if (_keyword == null)
+            {
+                _keyword = ParseInstruction(_instruction, Interpreter);
+            }
+
             var tech = (_keyword as IHasTechnique);
             var oldTechnique = tech.Technique;
             tech.Technique = Technique.Show;
-            _keyword.Execute();
+
+            var childAnswer = _keyword.Execute() as IInformativeAnswer;
             tech.Technique = oldTechnique;
-            return new SuccessAnswer("Done.");
+            return new SuccessAnswer("Done.").With(childAnswer);
         }
 
         public override string CreateDocumentationMarkDown()
@@ -58,32 +64,48 @@ Other usage is prefixing other keyword console commands with the word show. This
             this._keyword = keyword;
         }
 
-        public override void FromString(string textInstruction)
+        public string What
         {
-            var cmd = textInstruction;
+            set => Instruction = value;
+        }
+
+
+        private string _instruction;
+        public override string Instruction
+        {
+            set
+            {
+                _instruction = value;
+            }
+        }
+
+        private static IKeyword ParseInstruction(string value, IInterpreter interpreter)
+        {
+            var cmd = value;
 
             IKeyword keyword = null;
 
             if (string.IsNullOrEmpty(cmd))
             {
-                keyword = Interpreter.Iterator.Current;
+                keyword = interpreter.Iterator.Current;
             }
-            else if (Interpreter.Language.CanParse(cmd))
+            else if (interpreter.Language.CanParse(cmd))
             {
-                keyword = Interpreter.Language.ParseKeyword(cmd);
-            }
-            
-            if (keyword == null)
-            {
-                throw new ArgumentException("Incorrect syntax. Use show as a prefix for other commands. E.g. show click 1st Submit button, or when a loaded step is selected.");
+                keyword = interpreter.Language.ParseKeyword(cmd);
             }
 
-            if (keyword is IHasTechnique)
+            if (keyword == null)
             {
-                _keyword = keyword;
+                throw new ArgumentException(
+                    "Incorrect syntax. Use show as a prefix for other commands. E.g. show click 1st Submit button, or when a loaded step is selected.");
             }
-            
-            throw new ArgumentException($"Cannot highlight {keyword.GetType().Name} because it does not support this operation. Only the following keywords are supported: \n\t{string.Join("\n\t", Interpreter.Language.Keywords.OfType<IHasTechnique>().Select(x=>" - "+x.GetType().Name))}\n");
+            if (!(keyword is IHasTechnique))
+            {
+                throw new ArgumentException(
+                    $"Cannot highlight {keyword.GetType().Name} because it does not support this operation. Only the following keywords are supported: \n\t{string.Join("\n\t", interpreter.Language.Keywords.OfType<IHasTechnique>().Select(x => " - " + x.GetType().Name))}\n");
+            }
+
+            return keyword;
         }
     }
 }

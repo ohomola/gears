@@ -15,14 +15,17 @@ namespace Gears.Interpreter.Core.Adapters.UI
         UserBindings.RECT GetBrowserBox();
 
         Point PutElementOnScreen(IWebElement element);
-        void ConvertFromPageToWindow(ref Point p);
-        void ConvertFromWindowToScreen(ref Point point);
-        void ConvertFromScreenToGraphics(ref Point point);
 
-
-        void ConvertFromWindowToPage(ref Point p);
         void ConvertFromGraphicsToScreen(ref Point point);
         void ConvertFromScreenToWindow(ref Point point);
+        void ConvertFromWindowToPage(ref Point p);
+        void ConvertFromPageToWindow(ref Point p);
+        void ConvertFromPageToWindow(ref Rectangle p);
+        void ConvertFromWindowToScreen(ref Point point);
+        void ConvertFromWindowToScreen(ref Rectangle point);
+        void ConvertFromScreenToGraphics(ref Point point);
+        void ConvertFromScreenToGraphics(ref Rectangle point);
+
         int ContentOffsetX();
         int ContentOffsetY();
         void BringToFront();

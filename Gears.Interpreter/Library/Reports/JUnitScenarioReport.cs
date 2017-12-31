@@ -47,7 +47,7 @@ namespace Gears.Interpreter.Library.Reports
             interpreter.ScenarioFinished += CreateNewFile;
         }
 
-        private void CreateNewFile(object sender, ScenarioFinishedEventArgs e)
+        private void CreateNewFile(object sender, ScenarioEventArgs e)
         {
             _path = string.Format(_pathTemplate, DateTime.Now.ToString("s").Replace(":", "_") + "_"+ ++_filesCreated);
 
@@ -65,7 +65,7 @@ namespace Gears.Interpreter.Library.Reports
 
         public override object DoRun()
         {
-            CreateNewFile(null, new ScenarioFinishedEventArgs(Interpreter.GetLoggedKeywords().ToList(), "Master scenario"));
+            CreateNewFile(null, new ScenarioEventArgs(Interpreter.GetLoggedKeywords().ToList(), "Master scenario"));
 
             return new SuccessAnswer($"Saved report to {_path}");
         }

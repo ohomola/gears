@@ -14,7 +14,6 @@ namespace Gears.Interpreter.App.Workflow.Library
 {
     public class RunScenario : Keyword, IHasTechnique, IHavePlan
     {
-        
         public virtual string FileName { get; set; }
 
         public Iterator<IKeyword> Iterator { get; set; }
@@ -27,9 +26,9 @@ namespace Gears.Interpreter.App.Workflow.Library
         }
         private List<IKeyword> _plan = new List<IKeyword>();
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            FileName = textInstruction;
+            set { FileName = value; }
         }
 
         public RunScenario()
@@ -129,14 +128,14 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
                         return error;
                     }
 
-                    Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Plan.ToList(), FileName));
+                    Interpreter.OnScenarioFinished(new ScenarioEventArgs(Plan.ToList(), FileName));
                     Iterator.Index = 0;
                     throw;
                 }
 
             }
 
-            Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(Plan.ToList(), FileName));
+            Interpreter.OnScenarioFinished(new ScenarioEventArgs(Plan.ToList(), FileName));
 
             Iterator.Index = 0;
 
@@ -200,7 +199,7 @@ Execute entire scenario plan file. Use this keyword to define scenario-of-scenar
                 }),
                 new No(() =>
                 {
-                    runScenario.Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(runScenario.Plan.ToList(), runScenario.FileName));
+                    runScenario.Interpreter.OnScenarioFinished(new ScenarioEventArgs(runScenario.Plan.ToList(), runScenario.FileName));
                     runScenario.Iterator.Index = 0;
                     return "OK.";
                 }), 

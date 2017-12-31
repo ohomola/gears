@@ -8,13 +8,13 @@ using JetBrains.Annotations;
 
 namespace Gears.Interpreter.Core.Adapters.UI
 {
-    public class Instruction
+    public class WebElementInstruction
     {
         private const string DEFAULT_VALUE_WHEN_WORD_IS_NOT_FOUND = null;
 
         private static string QuotedWord = "(\\s?'[^']+'\\s?)";
-        private static string NotPrecedingAnyControlWord = "(?!((with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
-        private static string FollowingAnyControlWord = "(?<=((with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
+        private static string NotPrecedingAnyControlWord =  "(?!((inside )|(with )|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
+        //private static string FollowingAnyControlWord =    "(?<=((in)|(with)|(under)|(next to)|(above)|(below)|(left from)|(right from)|(near)|(from left)|(from right)|(from top)|(from bottom)))";
         private static string AnythingExceptQuote = "[^']";
         private static string UnquotedWord = $"(({NotPrecedingAnyControlWord}{AnythingExceptQuote})*)";
         private static string DefaultCapturingGroupForValues = $"{QuotedWord}|{UnquotedWord}";// NOTE: order defines preference (reverting causes incorrect match of empty string as unquoted word, instead for capturing quoted word)
@@ -48,7 +48,9 @@ namespace Gears.Interpreter.Core.Adapters.UI
         [CanBeNull]
         public CompareAccuracy? Accuracy { get; set; }
 
-        public Instruction(string what) : this()
+        public string Area { get; set; }
+
+        public WebElementInstruction(string what) : this()
         {
             what = " " + what + " ";
             var regex = new Regex("^"+
@@ -72,6 +74,7 @@ namespace Gears.Interpreter.Core.Adapters.UI
                             ControlWord("from bottom")
                             ))) +
                     Optional(CapturingGroup("Locale")) +
+                    Optional(ControlWord("inside") + CapturingGroup("Area")) +
                     Optional(ControlWord("with") + CapturingGroup("Text") )
                     +"$", RegexOptions.IgnoreCase);
 
@@ -90,7 +93,7 @@ namespace Gears.Interpreter.Core.Adapters.UI
                 Locale = GetCapturedValue(result, "Locale");
                 With = GetCapturedValue(result, "Text");
                 Accuracy = GetCapturedValue(result, "Accuracy")?.ToLower() == "like"?CompareAccuracy.Partial : CompareAccuracy.Exact;
-
+                Area = GetCapturedValue(result, "Area");
                 SubjectName = GetCapturedValue(result, "Subject");
                 this.SubjectType= MapToSubjectTypeAndAddTagnamesRange(GetCapturedValue(result, "SubjectTagName"), TagNames);
                 if (!TagNames.Any())
@@ -109,7 +112,7 @@ namespace Gears.Interpreter.Core.Adapters.UI
             return result.Groups[1].Value;
         }
 
-        public Instruction()
+        public WebElementInstruction()
         {
             TagNames = new List<ITagSelector>();
         }
@@ -238,7 +241,7 @@ namespace Gears.Interpreter.Core.Adapters.UI
                    $"{nameof(Direction)} = {Direction}\n" +
                    $"{nameof(Locale)} = {Locale}\n" +
                    $"{nameof(With)} = {With}\n" +
-                   $"{nameof(TagNames)} = {string.Join(", ",TagNames)}\n";
+                   $"{nameof(TagNames)} = {(TagNames==null?"null":string.Join(", ",TagNames))}\n";
             ;
 
         }

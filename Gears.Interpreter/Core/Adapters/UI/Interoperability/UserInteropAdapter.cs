@@ -24,10 +24,14 @@ namespace Gears.Interpreter.Core.Adapters.UI.Interoperability
             p.Y -= VirtualScreenTop;
         }
 
+        public static void ScreenToGraphics(ref Rectangle p)
+        {
+            p.X -= VirtualScreenLeft;
+            p.Y -= VirtualScreenTop;
+        }
+
         /// <summary>
-        /// Converts screen coordinates to zero-based coordinates of the pixel buffer.
-        /// Input - point returned by ClientToScreen native method (this can be negative for multiple screen layout- Zero is on primary monitor regardless of the layout.)
-        /// Output - point in a space where top-left is 0,0
+        /// Inversion of ScreenToGraphics
         /// </summary>
         /// <param name="p"></param>
         public static void GraphicsToScreen(ref Point p)
@@ -35,8 +39,6 @@ namespace Gears.Interpreter.Core.Adapters.UI.Interoperability
             p.X += VirtualScreenLeft;
             p.Y += VirtualScreenTop;
         }
-
-
 
         public static int VirtualScreenLeft
         {
@@ -58,6 +60,9 @@ namespace Gears.Interpreter.Core.Adapters.UI.Interoperability
         {
             get { return UserBindings.GetSystemMetrics(79); }
         }
+
+        public static int PrimaryScreenWidth => UserBindings.GetSystemMetrics(61);
+        public static int PrimaryScreenHeight => UserBindings.GetSystemMetrics(62);
 
 
         public static void ClickOnPoint(IntPtr wndHandle, Point clientPoint)

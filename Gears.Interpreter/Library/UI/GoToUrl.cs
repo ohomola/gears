@@ -47,9 +47,9 @@ namespace Gears.Interpreter.Library.UI
             Url = url;
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            Url = textInstruction;
+            set { Url = value; }
         }
 
         public override object DoRun()

@@ -25,13 +25,12 @@ namespace Gears.Interpreter.App
 
         IAnswer RunOnYourOwn();
 
-        event EventHandler<ScenarioFinishedEventArgs> ScenarioFinished;
-        void OnScenarioFinished(ScenarioFinishedEventArgs e);
-        event EventHandler<ScenarioFinishedEventArgs> SuiteFinished;
-        void OnSuiteFinished(ScenarioFinishedEventArgs e);
+        event EventHandler<ScenarioEventArgs> ScenarioFinished;
+        void OnScenarioFinished(ScenarioEventArgs e);
         string GetNextInstruction();
         IEnumerable<IKeyword> GetLoggedKeywords();
         void AddToPlan(IKeyword keyword);
-        event EventHandler<StepFinishedEventArgs> StepFinished;
+        event EventHandler<StepEventArgs> StepFinished;
+        event EventHandler<StepEventArgs> StepStarted;
     }
 }

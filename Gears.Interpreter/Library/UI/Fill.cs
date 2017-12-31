@@ -21,20 +21,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
+using Gears.Interpreter.App.UI.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Adapters.UI;
 using Gears.Interpreter.Core.Adapters.UI.Interoperability;
 using Gears.Interpreter.Core.Adapters.UI.Lookup;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Interpretation;
+using Gears.Interpreter.Library.Assistance;
 
 namespace Gears.Interpreter.Library.UI
 {
     [HelpDescription("fill <inst> \t-\t fills element via instruction")]
     public class Fill : Keyword, IHasTechnique, IInstructed
     {
-
         public virtual string Text { get; set; }
         public virtual string LabelText { get; set; }
         public virtual int Order { get; set; }
@@ -42,13 +44,21 @@ namespace Gears.Interpreter.Library.UI
         public virtual Technique Technique { get; set; }
         public virtual bool ExactMatch { get; set; }
 
+        [Wire]
+        public IBrowserOverlay BrowserOverlay { get; set; }
+
+        public override string Instruction
+        {
+            set => What = value;
+        }
+
         // RICH SYNTACTIC PROPERTY
         public virtual string What
         {
-            set => MapRichSyntaxToSemantics(new Instruction(value));
+            set => MapRichSyntaxToSemantics(new WebElementInstruction(value));
         }
 
-        public void MapRichSyntaxToSemantics(Instruction instruction)
+        public void MapRichSyntaxToSemantics(WebElementInstruction instruction)
         {
             if (!string.IsNullOrEmpty(instruction.Locale))
             {
@@ -85,11 +95,6 @@ namespace Gears.Interpreter.Library.UI
             return $"Fill {Order + 1}. '{LabelText}' with '{Text}'";
         }
 
-        public override void FromString(string textInstruction)
-        {
-            What = textInstruction;
-        }
-
         public override object DoRun()
         {
             var lookupResult = new TextFieldLookupStrategy(Selenium, ExactMatch, Order, Direction, LabelText).LookUp();
@@ -98,8 +103,12 @@ namespace Gears.Interpreter.Library.UI
             {
                 case Technique.Show:
 
-                    Highlighter.HighlightElements(Selenium, lookupResult.AllValidResults);
-                    return new InformativeAnswer("Highlighting complete.");
+                    BrowserOverlay
+                        .HighlightElements((Order + 1).ToString(), Color.GreenYellow, lookupResult.MainResult)
+                        .HighlightElements((Order+1).ToString(), Color.CadetBlue, lookupResult.AllValidResults.Except(new []{ lookupResult.AllValidResults.ElementAt(Order)}))
+                        .ShowUntilNextKeyword("Highlighted element will be Filled");
+                    
+                    return new OverlayAnswer(BrowserOverlay.Artifacts, "Highlighting complete.");
 
                 case Technique.Javascript:
 
@@ -115,7 +124,9 @@ namespace Gears.Interpreter.Library.UI
                     Selenium.BringToFront();
                     if (Interpreter?.IsAnalysis == true)
                     {
-                        Highlighter.HighlightElements(750, Selenium, new[] { lookupResult.MainResult }, Color.Aqua, Color.Red, -1, Color.Aqua);
+                        BrowserOverlay
+                            .HighlightElements((Order + 1).ToString(), Color.GreenYellow, lookupResult.MainResult)
+                            .ShowFor(750, "Highlighted element will be Clicked");
                     }
 
                     UserInteropAdapter.ClickOnPoint(handle, screenLocation);

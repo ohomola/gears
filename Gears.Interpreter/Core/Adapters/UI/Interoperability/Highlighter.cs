@@ -29,6 +29,7 @@ using Gears.Interpreter.Core.Extensions;
 
 namespace Gears.Interpreter.Core.Adapters.UI.Interoperability
 {
+    [Obsolete("Use BrowserOverlay",true)]
     public static class Highlighter
     {
         public static void HighlightElements(ISeleniumAdapter seleniumAdapter, params IBufferedElement[] elements)
@@ -112,14 +113,6 @@ namespace Gears.Interpreter.Core.Adapters.UI.Interoperability
                 }
 
                 Thread.Sleep(wait);
-            }
-        }
-
-        public static void PingScreen(int x, int y)
-        {
-            using (var hud = Hud.CreateFor(750))
-            {
-                var point = hud.Ping(x, y);
             }
         }
     }

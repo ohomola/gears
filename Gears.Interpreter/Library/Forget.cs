@@ -57,9 +57,9 @@ namespace Gears.Interpreter.Library
             return new SuccessAnswer($"Forgot {items.Count()} item{(items.Count!=1?"s":"")}.");
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            What = textInstruction;
+            set { What = value; }
         }
     }
 }

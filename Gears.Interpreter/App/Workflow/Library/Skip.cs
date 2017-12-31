@@ -28,11 +28,14 @@ Skips selected number of steps of your scenario.
             return new SuccessAnswer($"Skipped {moved} step{(moved==1?"":"s")}.");
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            if (!string.IsNullOrEmpty(textInstruction))
+            set
             {
-                this.Count = int.Parse(textInstruction);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    this.Count = int.Parse(value);
+                }
             }
         }
     }

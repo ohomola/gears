@@ -117,12 +117,14 @@ namespace Gears.Interpreter.App
                 command.Split(' ').First(),
                 string.Join(" ", command.Split(' ').Skip(1))
             };
+
             if (parts.Length == 2 && _lazyExpressionResolver.CanResolve(parts.Last()))
             {
                 var resolvedParameter = _lazyExpressionResolver.Resolve(parts.Last()) as string;
 
                 var newInstance = CreateNewInstanceViaReflection(parts.First());
-                newInstance.Specification = /*parts.First() + ' ' +*/ resolvedParameter;
+
+                newInstance.Instruction = /*parts.First() + ' ' +*/ resolvedParameter;
 
                 return newInstance;
             }
@@ -133,7 +135,7 @@ namespace Gears.Interpreter.App
 
             if (!string.IsNullOrEmpty(parts.Last()))
             {
-                instance.Specification = parts.Last();
+                instance.Instruction = parts.Last();
             }
 
             return instance;
@@ -141,7 +143,11 @@ namespace Gears.Interpreter.App
 
         private IKeyword CreateNewInstanceViaReflection(string typeName)
         {
-            return (IKeyword) Activator.CreateInstance(Types.First(x=>x.Name.Equals(typeName, StringComparison.OrdinalIgnoreCase)));
+            var instance = (IKeyword) Activator.CreateInstance(Types.First(x=>x.Name.Equals(typeName, StringComparison.OrdinalIgnoreCase)));
+
+            ServiceLocator.Instance.Resolve(instance);
+
+            return instance;
         }
 
         private static string Normalize(string command)

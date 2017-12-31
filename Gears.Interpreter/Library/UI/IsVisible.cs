@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Gears.Interpreter.App.UI.Overlay;
 using Gears.Interpreter.Core;
 using Gears.Interpreter.Core.Adapters.UI;
 using Gears.Interpreter.Core.Adapters.UI.Interoperability;
@@ -35,7 +36,7 @@ namespace Gears.Interpreter.Library.UI
     [HelpDescription("isvisible <i>\t-\t checks if an element is visible on screen")]
     public class IsVisible : Keyword, IAssertion
     {
-        private  Instruction spec;
+        private  WebElementInstruction spec;
         public virtual List<ITagSelector> TagNames { get; set; } = new List<ITagSelector>();
 
         public virtual string SubjectName { get; set; }
@@ -46,13 +47,14 @@ namespace Gears.Interpreter.Library.UI
 
         public virtual int Order { get; set; }
 
-
+        [Wire]
+        public IBrowserOverlay BrowserOverlay { get; set; }
 
         public virtual string What
         {
             set
             {
-                MapSyntaxToSemantics(new Instruction(value));
+                MapSyntaxToSemantics(new WebElementInstruction(value));
             }
         }
 
@@ -87,10 +89,10 @@ Checks the presence of a web element or text in the browser window. The input pa
 
         public IsVisible(string what)
         {
-            MapSyntaxToSemantics(new Instruction(what));
+            MapSyntaxToSemantics(new WebElementInstruction(what));
         }
 
-        private void MapSyntaxToSemantics(Instruction instruction)
+        private void MapSyntaxToSemantics(WebElementInstruction instruction)
         {
             SubjectName = instruction.SubjectName ?? SubjectName;
             Locale = instruction.Locale ?? Locale;
@@ -104,10 +106,13 @@ Checks the presence of a web element or text in the browser window. The input pa
         public bool ExactMatch { get; set; }
 
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            What = textInstruction;
-            Expect = true;
+            set
+            {
+                What = value;
+                Expect = true;
+            }
         }
 
         public override object DoRun()
@@ -125,8 +130,10 @@ Checks the presence of a web element or text in the browser window. The input pa
             if (Interpreter?.IsDebugMode == true && lookupResult.AllValidResults.Any())
             {
                 var passedExpectations = Expect.ToString().ToLower().Equals(true.ToString().ToLower());
-                Highlighter.HighlightElements(1250, Selenium, lookupResult.AllValidResults,
-                (passedExpectations? Color.Aqua: Color.Chocolate), Color.FromArgb(4,4,4), Order, (passedExpectations ? Color.FromArgb(0,255,0) : Color.Red));
+                
+                BrowserOverlay
+                    .HighlightElements((Order + 1).ToString(), (passedExpectations ? Color.FromArgb(0, 255, 0) : Color.Red), lookupResult.MainResult)
+                    .ShowFor(750, "Highlighted element will be Clicked");
             }
 
             return visibles.Count > Order;

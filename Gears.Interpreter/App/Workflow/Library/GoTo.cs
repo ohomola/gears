@@ -26,19 +26,22 @@ namespace Gears.Interpreter.App.Workflow.Library
             return new SuccessAnswer($"Moved to {Interpreter.Iterator.Index+1}.");
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            var goTo = this;
-
-            var param = (textInstruction);
-
-            if (!string.IsNullOrEmpty(param))
+            set
             {
-                goTo.Index = int.Parse(param)-1;
-            }
-            else
-            {
-                throw new ArgumentException("Must specify index number");
+                var goTo = this;
+
+                var param = (value);
+
+                if (!string.IsNullOrEmpty(param))
+                {
+                    goTo.Index = int.Parse(param) - 1;
+                }
+                else
+                {
+                    throw new ArgumentException("Must specify index number");
+                }
             }
         }
     }

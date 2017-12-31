@@ -52,11 +52,11 @@ Stops the scenario execution and closes the application.
         //{
         //    if (!isRunningSuite)
         //    {
-        //        Interpreter.OnScenarioFinished(new ScenarioFinishedEventArgs(keywords.ToList(), "Master scenario"));
+        //        Interpreter.OnScenarioFinished(new ScenarioEventArgs(keywords.ToList(), "Master scenario"));
         //    }
         //    else
         //    {
-        //        Interpreter.OnSuiteFinished(new ScenarioFinishedEventArgs(keywords.ToList()));
+        //        Interpreter.OnSuiteFinished(new ScenarioEventArgs(keywords.ToList()));
         //    }
         //}
 

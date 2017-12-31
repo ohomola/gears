@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gears.Interpreter.App.Workflow.Library;
+using Gears.Interpreter.Core.ConfigObjects;
 using Gears.Interpreter.Core.Data.Core;
 using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Registrations;
@@ -30,7 +32,11 @@ namespace Gears.Interpreter.Core.Data
 {
     public interface IDataContext : IDataObjectAccess
     {
+        bool IsAnalysis { get; set; }
+        bool IsDebugMode { get; set; }
+
         List<IDataObjectAccess> DataAccesses { get; set; }
+        
         void Include(IDataObjectAccess dataAccess);
         void Include(string fileName);
         void Exclude(IDataObjectAccess dataAccess);
@@ -55,6 +61,39 @@ namespace Gears.Interpreter.Core.Data
         }
 
         public List<IDataObjectAccess> DataAccesses { get; set; }
+        public bool IsAnalysis
+        {
+            get => Contains<Analysis>();
+            set
+            {
+                if (value == true && !Contains<Analysis>())
+                {
+                    Add(new Analysis());
+                }
+                
+                if (value == false)
+                {
+                    RemoveAll<Analysis>();
+                }
+            }
+        }
+
+        public bool IsDebugMode
+        {
+            get => Contains<DebugMode>();
+            set
+            {
+                if (value == true && !Contains<DebugMode>())
+                {
+                    Add(new DebugMode());
+                }
+
+                if (value == false)
+                {
+                    RemoveAll<DebugMode>();
+                }
+            }
+        }
 
         public void Include(IDataObjectAccess dataAccess)
         {

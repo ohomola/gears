@@ -81,11 +81,9 @@ namespace Gears.Interpreter.App.Workflow.Library
             }
         }
 
-        public override void FromString(string textInstruction)
+        public override string Instruction
         {
-            File = textInstruction;
+            set { File = value; }
         }
-
-        
     }
 }

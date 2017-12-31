@@ -5,6 +5,7 @@ using Gears.Interpreter.Core.Adapters.UI;
 using Gears.Interpreter.Core.Adapters.UI.Interoperability.ExternalMethodBindings;
 using Gears.Interpreter.Core.Adapters.UI.JavaScripts;
 using Gears.Interpreter.Core.Adapters.UI.Lookup;
+using Gears.Interpreter.Core.Extensions;
 using Gears.Interpreter.Core.Interpretation;
 
 namespace Gears.Interpreter.Library.Assistance
@@ -15,44 +16,36 @@ namespace Gears.Interpreter.Library.Assistance
         private int _x;
         private int _y;
 
-        public override string CreateDocumentationMarkDown()
+        public int Timeout { get; set; } = 30000;
+
+        [Wire]
+        public IBrowserOverlay BrowserOverlay { get; set; }
+
+        public override string Instruction
         {
-            return $@"
-{base.CreateDocumentationMarkDown()}
-Prompts user to indicate a webelement of interest to the application. The application will then attempt to figure out the simplest instruction how to describe this element.
+            set
+            {
+                var strings = value.Split(' ');
 
-The generated instruction will be saved in [it] variable so it can be immediatelly tested in a followup 'click [it]' command.
-
-> Note: This is a concept version only. Currently only works on Buttons and Links and not all instructions are guaranteed to work at all circumstances.
-
-#### Console usage
-    whatisit
-
-> Note: Your browser will be overlayed by a highlight form window. This will make your browser content unaccessible until you click the overlay.
-
-";
+                if (strings.Length < 2)
+                {
+                    return;
+                }
+                _x = int.Parse(strings[0]);
+                Y = int.Parse(strings[1]);
+            }
         }
 
-        private WhatIsIt(int x, int y)
-        {
-            _x = x;
-            _y = y;
-        }
+        public int Y { get => _y; set => _y = value; }
 
         public WhatIsIt()
         {
         }
 
-        public override void FromString(string textInstruction)
+        private WhatIsIt(int x, int y)
         {
-            var strings = textInstruction.Split(' ');
-
-            if (strings.Length < 2)
-            {
-                return;
-            }
-            _x = int.Parse(strings[0]);
-            _y= int.Parse(strings[1]);
+            _x = x;
+            Y = y;
         }
 
         public override object DoRun()
@@ -63,30 +56,28 @@ The generated instruction will be saved in [it] variable so it can be immediatel
             var windowRect = new UserBindings.RECT();
             UserBindings.GetWindowRect(Selenium.BrowserHandle, ref windowRect);
 
-
             if (_x == default(int))
             {
-                using (var hud = Hud.CreateClickable(Selenium))
-                {
-                    var point = hud.ReadClick();
+                var point = BrowserOverlay.ShowUntilClicked("Please click on an element", Timeout);
+                
+                //var point = AnnotationOverlay.RunUntilClicked();
 
-                    Selenium.ConvertFromGraphicsToScreen(ref point);
-                    Selenium.ConvertFromScreenToWindow(ref point);
-                    Selenium.ConvertFromWindowToPage(ref point);
+                Selenium.ConvertFromGraphicsToScreen(ref point);
+                Selenium.ConvertFromScreenToWindow(ref point);
+                Selenium.ConvertFromWindowToPage(ref point);
 
-                    _x = point.X;
-                    _y = point.Y;
-                }
+                _x = point.X;
+                Y = point.Y;
             }
 
-            var elements = Selenium.WebDriver.GetElementByCoordinates(_x, _y);
+            var elements = Selenium.WebDriver.GetElementByCoordinates(_x, Y);
             
             var element = elements.LastOrDefault(x=>x.IsClickable());
             
             if (element != null)
             {
 
-                var instruction = new Instruction();
+                var instruction = new WebElementInstruction();
                 instruction.Order = 0;
                 if (element.Text != null)
                 {
@@ -130,7 +121,7 @@ The generated instruction will be saved in [it] variable so it can be immediatel
 
                 if (relatives.Any())
                 {
-                    var relativeInstruction = new Instruction();
+                    var relativeInstruction = new WebElementInstruction();
                     relativeInstruction.Order = 0;
                     relativeInstruction.Direction = SearchDirection.LeftFromAnotherElement;
                     relativeInstruction.Locale = relatives.First().WebElement.Text;
@@ -149,7 +140,7 @@ The generated instruction will be saved in [it] variable so it can be immediatel
 
                 if (relatives.Any())
                 {
-                    var relativeInstruction = new Instruction();
+                    var relativeInstruction = new WebElementInstruction();
                     relativeInstruction.Order = 0;
                     relativeInstruction.Direction = SearchDirection.RightFromAnotherElement;
                     relativeInstruction.Locale = relatives.First().WebElement.Text;
@@ -168,7 +159,7 @@ The generated instruction will be saved in [it] variable so it can be immediatel
 
                 if (relatives.Any())
                 {
-                    var relativeInstruction = new Instruction();
+                    var relativeInstruction = new WebElementInstruction();
                     relativeInstruction.Order = 0;
                     relativeInstruction.Direction = SearchDirection.BelowAnotherElement;
                     relativeInstruction.Locale = relatives.First().WebElement.Text;
@@ -188,5 +179,25 @@ The generated instruction will be saved in [it] variable so it can be immediatel
         {
             return "What is it?";
         }
+
+        #region Documentation
+        public override string CreateDocumentationMarkDown()
+        {
+            return $@"
+{base.CreateDocumentationMarkDown()}
+Prompts user to indicate a webelement of interest to the application. The application will then attempt to figure out the simplest instruction how to describe this element.
+
+The generated instruction will be saved in [it] variable so it can be immediatelly tested in a followup 'click [it]' command.
+
+> Note: This is a concept version only. Currently only works on Buttons and Links and not all instructions are guaranteed to work at all circumstances.
+
+#### Console usage
+    whatisit
+
+> Note: Your browser will be overlayed by a highlight form window. This will make your browser content unaccessible until you click the overlay.
+
+";
+        } 
+        #endregion
     }
 }

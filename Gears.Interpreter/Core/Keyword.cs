@@ -40,13 +40,6 @@ namespace Gears.Interpreter.Core
 {
     public abstract class Keyword : IKeyword
     {
-        // TOP-LEVEL RICH SYNTACTIC PROPERTY
-        [CanBeNull]
-        public string Specification
-        {
-            set => FromString(value);
-        }
-
         // SEMANTIC PROPERTIES:
         public virtual bool Skip { get; set; }
         public virtual object Expect { get; set; }
@@ -54,20 +47,15 @@ namespace Gears.Interpreter.Core
         public virtual int WaitBefore { get; set; }
         public string ScreenshotAfter { get; set; }
 
+        // TOP-LEVEL RICH SYNTACTIC PROPERTY
+        public virtual string Instruction {
+            set { }
+        }
+
         protected Keyword()
         {
             Guid = Guid.NewGuid();
             Data = new DataContext();
-        }
-
-        public virtual string CreateDocumentationMarkDown()
-        {
-            return $"## {this.GetType().Name}\n";
-        }
-
-        public virtual string CreateDocumentationTypeName()
-        {
-            return this.GetType().Name;
         }
 
         [XmlIgnore]
@@ -124,10 +112,6 @@ namespace Gears.Interpreter.Core
             var expectedName = this.GetType().Name;
 
             return actualName.Equals(expectedName, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public virtual void FromString(string textInstruction)
-        {
         }
 
         public abstract object DoRun();
@@ -316,5 +300,17 @@ namespace Gears.Interpreter.Core
                 string.Join(" ", strings.Skip(2))
             };
         }
+
+        #region Documentation
+        public virtual string CreateDocumentationMarkDown()
+        {
+            return $"## {this.GetType().Name}\n";
+        }
+
+        public virtual string CreateDocumentationTypeName()
+        {
+            return this.GetType().Name;
+        }
+        #endregion
     }
 }

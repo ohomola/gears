@@ -98,7 +98,16 @@ namespace Gears.Interpreter.Core.Adapters.UI
                 var existingBrowsers = AllBrowserHandles(_browserType);
                 _webDriver = ConstructWebDriver(_browserType);
                 _handle = FindNewBrowserHandle(existingBrowsers, _browserType);
+
+                ResizeToLeftHalf();
             }
+        }
+
+        private void ResizeToLeftHalf()
+        {
+            _webDriver.Manage().Window.Position = new Point(0, 0);
+            _webDriver.Manage().Window.Size =
+                new Size(UserInteropAdapter.PrimaryScreenWidth / 2, UserInteropAdapter.PrimaryScreenHeight);
         }
 
         private static IWebDriver ConstructWebDriver(SeleniumAdapterBrowserType browserType)
@@ -209,6 +218,12 @@ namespace Gears.Interpreter.Core.Adapters.UI
             p.Y += ContentOffsetY() - GetScrollOffsetOfDefault();
         }
 
+        public void ConvertFromPageToWindow(ref Rectangle p)
+        {
+            p.X += ContentOffsetX();
+            p.Y += ContentOffsetY() - GetScrollOffsetOfDefault();
+        }
+
         private int GetScrollOffsetOfDefault()
         {
             int scrollOffset;
@@ -233,9 +248,19 @@ namespace Gears.Interpreter.Core.Adapters.UI
             UserBindings.ClientToScreen(this.BrowserHandle, ref point);
         }
 
+        public void ConvertFromWindowToScreen(ref Rectangle rectangle)
+        {
+            UserBindings.ClientToScreen(this.BrowserHandle, ref rectangle);
+        }
+
         public void ConvertFromScreenToGraphics(ref Point point)
         {
             UserInteropAdapter.ScreenToGraphics(ref point);
+        }
+
+        public void ConvertFromScreenToGraphics(ref Rectangle rectangle)
+        {
+            UserInteropAdapter.ScreenToGraphics(ref rectangle);
         }
 
         public void ConvertFromGraphicsToScreen(ref Point point)

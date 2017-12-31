@@ -36,10 +36,19 @@ namespace Gears.Interpreter.App
         public List<IKeyword> ExecutionHistory { get; set; } = new List<IKeyword>();
 
         public bool IsRunningSuite => Plan.Any(x => x is RunScenario);
-        public bool IsDebugMode { get; set; }
-        public bool IsAnalysis { get; set; }
-        public bool IsAlive { get; set; } = true;
 
+        public bool IsDebugMode
+        {
+            get => Data.IsDebugMode;
+            set => Data.IsDebugMode = value;
+        }
+        public bool IsAnalysis
+        {
+            get => Data.IsAnalysis;
+            set => Data.IsAnalysis = value;
+        }
+
+        public bool IsAlive { get; set; } = true;
 
         public Interpreter(IDataContext data, ILanguage language)
         {
@@ -52,23 +61,23 @@ namespace Gears.Interpreter.App
 
         #region Events
 
-        public event EventHandler<ScenarioFinishedEventArgs> ScenarioFinished;
+            public event EventHandler<ScenarioEventArgs> ScenarioFinished;
 
-            public virtual void OnScenarioFinished(ScenarioFinishedEventArgs e)
+            public virtual void OnScenarioFinished(ScenarioEventArgs e)
             {
                 ScenarioFinished?.Invoke(this, e);
             }
 
-            public event EventHandler<ScenarioFinishedEventArgs> SuiteFinished;
+            public event EventHandler<StepEventArgs> StepStarted;
 
-            public virtual void OnSuiteFinished(ScenarioFinishedEventArgs e)
+            private void OnStepStarted(StepEventArgs e)
             {
-                SuiteFinished?.Invoke(this, e);
+                StepStarted?.Invoke(this, e);
             }
 
-            public event EventHandler<StepFinishedEventArgs> StepFinished;
+            public event EventHandler<StepEventArgs> StepFinished;
 
-            public virtual void OnStepFinished(StepFinishedEventArgs e)
+            private void OnStepFinished(StepEventArgs e)
             {
                 StepFinished?.Invoke(this, e);
             }
@@ -107,9 +116,11 @@ namespace Gears.Interpreter.App
 
                 ExecutionHistory.Add(keyword);
 
+                OnStepStarted(new StepEventArgs(keyword));
+
                 var result = keyword.Execute();
 
-                OnStepFinished(new StepFinishedEventArgs(keyword));
+                OnStepFinished(new StepEventArgs(keyword));
 
                 if (result != null && result.Equals(KeywordResultSpecialCases.Skipped))
                 {

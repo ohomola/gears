@@ -185,7 +185,7 @@ namespace Gears.Interpreter
 
             if (status.Data.Contains<IConfig>())
             {
-                foreach (var setting in status.Data.GetAll<IConfig>().Distinct())
+                foreach (var setting in status.Data.GetAll<IConfig>().Where(x=>!(x is IProtected)).Distinct())
                 {
                     Add(ConsoleColor.DarkMagenta, $"{setting}\n", returnValue);
                 }
